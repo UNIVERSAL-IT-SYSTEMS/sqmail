@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+# SQmaiL execution stub
+# $Source: /cvsroot/sqmail/sqmail/src/SQmaiL,v $
+# $State: Exp $
+
+import sqmail.gui.reader
+#import gc
+
+#gc.set_debug(gc.DEBUG_LEAK)
+sqmail.gui.reader.SQmaiLReader()
+
+# Revision History
+# $Log: SQmaiL,v $
+# Revision 1.1  2001/01/05 17:27:48  dtrg
+# Initial version.
+#
+
