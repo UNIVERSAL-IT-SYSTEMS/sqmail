@@ -22,7 +22,10 @@ def render_address(a):
 	if ((not a[0]) or (a[0] == a[1])):
 		s = s + a[1]
 	else:
-		s = s + a[0] + " <" + a[1] + ">"
+		if (a[1] != None):
+			s = s + a[0] + " <" + a[1] + ">"
+		else:
+			s = a[0]
 	return s
 
 def render_addrlist(l):
@@ -174,6 +177,10 @@ def set_xpm(w, xpm):
 			
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.10  2001/05/21 10:33:00  dtrg
+# Got a message (spam, of course) with a completely broken address that
+# caused render_address() to barf, so bullet-proofed it some more.
+#
 # Revision 1.9  2001/05/01 18:23:42  dtrg
 # Added the Debian package building stuff. Now much easier to install.
 # Some GUI tidying prior to the release.
