@@ -303,6 +303,7 @@ class Message:
 		return output
 			
 	def rfc822(self):
+		self.rewind()
 		return rfc822.Message(self, 0)
 
 	def readline(self):
@@ -333,6 +334,11 @@ class Message:
 
 # Revision History
 # $Log: message.py,v $
+# Revision 1.8  2001/04/25 12:51:46  dtrg
+# Fixed generation of the In-Reply-To headers (it was looking for the
+# Message-Id field of the original message in the wrong place and with the
+# wrong spelling).
+#
 # Revision 1.7  2001/04/19 18:22:36  dtrg
 # Added some bulletproofing against trying to render incorrect addresses.
 #
