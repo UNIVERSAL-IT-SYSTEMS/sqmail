@@ -84,6 +84,17 @@ def get_vfolderunreadfg():
 def get_vfolderunreadbg():
 	return sqmail.utils.getsetting("vfolderunreadbg", (65535, 65535, 65535, 65535))
 
+def get_vfolderpendingfont():
+	return sqmail.utils.getsetting("vfolderpendingfont", \
+		"-schumacher-clean-medium-o-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+
+def get_vfolderpendingfg():
+	return sqmail.utils.getsetting("vfolderpendingfg", (32767, 32767, 32767, 65535))
+
+def get_vfolderpendingbg():
+	return sqmail.utils.getsetting("vfolderpendingbg", (65535, 65535, 65535, 65535))
+
+
 def get_msglistfont():
 	return sqmail.utils.getsetting("msglistfont", \
 		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
@@ -102,9 +113,9 @@ def get_quoteprefix():
 	return sqmail.utils.getsetting("quoteprefix", \
 		"> ")
 
-def get_spamcommand():
-	return sqmail.utils.getsetting("spamcommand", \
-		"echo 'You have not configured the spam command yet.'")
+#def get_spamcommand():
+#	return sqmail.utils.getsetting("spamcommand", \
+#		"echo 'You have not configured the spam command yet.'")
 
 # Load & Save configuration
 
@@ -194,6 +205,10 @@ class SQmaiLPreferences:
 		apply(self.widget.vfolderunreadfg.set_i16, get_vfolderunreadfg())
 		apply(self.widget.vfolderunreadbg.set_i16, get_vfolderunreadbg())
 
+		self.widget.vfolderpendingfont.set_font_name(get_vfolderpendingfont())
+		apply(self.widget.vfolderpendingfg.set_i16, get_vfolderpendingfg())
+		apply(self.widget.vfolderpendingbg.set_i16, get_vfolderpendingbg())
+
 		self.widget.msglistfont.set_font_name(get_msglistfont())
 
 		self.widget.unreadmsglistfont.set_font_name(get_unreadmsglistfont())
@@ -204,7 +219,7 @@ class SQmaiLPreferences:
 
 		self.widget.quoteprefix.set_text(get_quoteprefix())
 	
-		self.widget.spamcommand.set_text(get_spamcommand())
+		#self.widget.spamcommand.set_text(get_spamcommand())
 
 	# Signal handlers.
 
@@ -279,6 +294,13 @@ class SQmaiLPreferences:
 		sqmail.utils.setsetting("vfolderunreadbg", \
 			self.widget.vfolderunreadbg.get_i16())
 
+		sqmail.utils.setsetting("vfolderpendingfont", \
+			self.widget.vfolderpendingfont.get_font_name())
+		sqmail.utils.setsetting("vfolderpendingfg", \
+			self.widget.vfolderpendingfg.get_i16())
+		sqmail.utils.setsetting("vfolderpendingbg", \
+			self.widget.vfolderpendingbg.get_i16())
+
 		sqmail.utils.setsetting("msglistfont", \
 			self.widget.msglistfont.get_font_name())
 
@@ -294,14 +316,19 @@ class SQmaiLPreferences:
 		sqmail.utils.setsetting("quoteprefix", \
 			self.widget.quoteprefix.get_text())
 
-		sqmail.utils.setsetting("spamcommand", \
-			self.widget.spamcommand.get_text())
+		#sqmail.utils.setsetting("spamcommand", \
+		#	self.widget.spamcommand.get_text())
 
 	def on_changed(self, *args):
 		self.widget.preferenceswin.set_modified(1)
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.4  2001/01/25 20:55:06  dtrg
+# Woohoo! Vfolder styling now works (mostly, except backgrounds). Also added
+# background vfolder counting to avoid that nasty delay on startup or
+# whenever you fetch new mail.
+#
 # Revision 1.3  2001/01/22 18:31:55  dtrg
 # Assorted changes, comprising:
 #

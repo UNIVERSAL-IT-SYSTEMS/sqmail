@@ -85,11 +85,13 @@ def vfolder_get(id):
 
 def vfolder_set(id, name, query, parent):
 	cursor = sqmail.db.cursor()
-	cursor.execute("UPDATE vfolders SET "\
-			" name = '"+sqmail.db.escape(name)+"', "\
-			" query = '"+sqmail.db.escape(query)+"', "\
-			" parent = "+str(parent)+" "\
-			"WHERE id = "+str(id))
+	q = "UPDATE vfolders SET "\
+	    " name = '"+sqmail.db.escape(name)+"', "\
+	    " query = '"+sqmail.db.escape(query)+"', "\
+	    " parent = "+str(parent)+" "\
+	    "WHERE id = "+str(id)
+	print q
+	cursor.execute(q)
 	
 def read_hierarchic_query(id, query):
 	if not id:
@@ -195,6 +197,9 @@ class VFolder:
 		self.unread = None
 		self.results = None
 
+	def getcounted(self):
+		return not not self.results
+
 	def save(self):
 		vfolder_set(self.id, self.name, self.query, self.parent)
 
@@ -223,6 +228,11 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.5  2001/01/25 20:55:06  dtrg
+# Woohoo! Vfolder styling now works (mostly, except backgrounds). Also added
+# background vfolder counting to avoid that nasty delay on startup or
+# whenever you fetch new mail.
+#
 # Revision 1.4  2001/01/22 11:47:44  dtrg
 # create-database turned out not to be working (a simple syntax bug plus I
 # forgot to emit a new-style vfolders setting). Fixed. Also added some
