@@ -14,7 +14,8 @@ import sqmail.gui.viewer
 import sqmail.preferences
 
 displayable = ("text/quoted-printable", "text/plain", "text/english", \
-	"text/x-vcard", "text")
+	"text/x-vcard", "text/python", "text/patch", "application/python", \
+	"application/patch", "text")
 
 class TextViewer (sqmail.gui.viewer.Viewer):
 	def __init__(self, reader, a):
@@ -43,6 +44,9 @@ class TextViewer (sqmail.gui.viewer.Viewer):
 
 # Revision History
 # $Log: textviewer.py,v $
+# Revision 1.3  2001/05/23 10:11:53  dtrg
+# Added a few more MIME types to be rendered as text.
+#
 # Revision 1.2  2001/02/20 17:22:36  dtrg
 # Moved the bulk of the preference system out of the gui directory, where it
 # doesn't belong. sqmail.gui.preferences still exists but it just contains
