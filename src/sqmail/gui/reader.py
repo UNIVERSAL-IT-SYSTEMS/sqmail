@@ -49,6 +49,15 @@ class SQmaiLReader:
 		self.messagepages = []
 		self.counting = None
 
+		# Load the pixmaps.
+
+		self.deleted_pixmap = gtk.GtkPixmap(self.widget.messagelist.get_window(), \
+			"images/deleted-message.xpm")
+		self.unread_pixmap = gtk.GtkPixmap(self.widget.messagelist.get_window(), \
+			"images/unread-message.xpm")
+		self.sent_pixmap = gtk.GtkPixmap(self.widget.messagelist.get_window(), \
+			"images/sent-message.xpm")
+
 		# Enable DND on the vfolder list.
 
 		self.widget.folderlist.set_reorderable(1)
@@ -136,8 +145,23 @@ class SQmaiLReader:
 		readstatus = msg.getreadstatus()
 		if (readstatus == "Read"):
 			readstatus = ""
-		return ("", readstatus, f, msg.getsubject(), d)
+		return (readstatus, f, msg.getsubject(), d)
 		
+	# Sets the icon for a message.
+
+	def icon_message(self, i, msg):
+		pixmap = None
+		readstatus = msg.getreadstatus()
+		if (readstatus == "Unread"):
+			pixmap = self.unread_pixmap
+		elif (readstatus == "Sent"):
+			pixmap = self.sent_pixmap
+		elif (readstatus == "Deleted"):
+			pixmap = self.deleted_pixmap
+
+		if pixmap:
+			self.widget.messagelist.set_pixmap(i, 0, pixmap)
+
 	# Return the current vfolder, or the vfolder corresponding to a
 	# particular node.
 
@@ -397,6 +421,7 @@ class SQmaiLReader:
 			msg.date = vf[i][5]
 			self.messagelist.append(msg)
 			self.widget.messagelist.append(self.describe_message(msg))
+			self.icon_message(i, msg)
 			self.widget.messagelist.set_row_data(i, msg)
 		self.widget.messagelist.unselect_all()
 		self.widget.messagelist.thaw()
@@ -479,6 +504,7 @@ class SQmaiLReader:
 		self.widget.messagelist.freeze()
 		sqmail.gui.utils.update_clist(self.widget.messagelist, \
 			mn, self.describe_message(msg))
+		self.icon_message(mn, msg)
 		self.widget.messagelist.thaw()
 
 
@@ -651,6 +677,10 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.11  2001/02/23 16:56:35  dtrg
+# Added real icons for the Unread/Deleted/Sent field on the message list.
+# Also removed the first field, which we never used.
+#
 # Revision 1.10  2001/02/20 17:22:36  dtrg
 # Moved the bulk of the preference system out of the gui directory, where it
 # doesn't belong. sqmail.gui.preferences still exists but it just contains
