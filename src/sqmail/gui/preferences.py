@@ -90,6 +90,8 @@ class SQmaiLPreferences:
 		
 		# Mail icons
 
+		self.widget.usexfaces.set_active(sqmail.preferences.get_usexfaces())
+
 		self.widget.xfacedecoder.set_text(sqmail.preferences.get_xfacedecoder())
 
 		self.widget.xfaceencoder.set_text(sqmail.preferences.get_xfaceencoder())
@@ -212,6 +214,9 @@ class SQmaiLPreferences:
 
 		# Mail icons
 
+		sqmail.utils.setsetting("usexfaces", \
+			self.widget.usexfaces.get_active())
+
 		sqmail.utils.setsetting("xfaceencoder", \
 			self.widget.xfaceencoder.get_text())
 
@@ -250,6 +255,9 @@ class SQmaiLPreferences:
 		sqmail.gui.utils.FileSelector("Select new X-Face", "", self.on_load_bitmap_done, obj)
 	
 	def on_load_bitmap_done(self, filename, obj):
+		if not sqmail.preferences.get_usexfaces():
+			sqmail.gui.utils.errorbox("You don't have X-Faces enabled, so I'm unable to load a new face.")
+			return
 		if ((len(filename) < 4) or (filename[-4:] != ".xbm")):
 			sqmail.gui.utils.errorbox("X-Faces must be 48x48 XBM files.")
 			return
@@ -277,6 +285,13 @@ class SQmaiLPreferences:
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.11  2001/03/12 14:28:38  dtrg
+# Added the ability to disable X-Faces completely, as they weren't working
+# for some people (even with the code to detect if the decoding was
+# failing). Still needs a bit of cosmetic work --- it would be nice to grey
+# out preferences GUI elements that aren't valid when they're disabled ---
+# but it works.
+#
 # Revision 1.10  2001/03/09 20:36:19  dtrg
 # First draft picons support.
 #

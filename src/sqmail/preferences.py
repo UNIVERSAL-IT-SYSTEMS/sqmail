@@ -123,6 +123,10 @@ def get_pendingmsglistfont():
 
 # Mail icons
 
+def get_usexfaces():
+	return sqmail.utils.getsetting("usexfaces", \
+		0)
+
 def get_xfaceencoder():
 	return sqmail.utils.getsetting("xfaceencoder", \
 		"compface %s")
@@ -194,6 +198,13 @@ def load_config(filename):
 	
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.4  2001/03/12 14:28:38  dtrg
+# Added the ability to disable X-Faces completely, as they weren't working
+# for some people (even with the code to detect if the decoding was
+# failing). Still needs a bit of cosmetic work --- it would be nice to grey
+# out preferences GUI elements that aren't valid when they're disabled ---
+# but it works.
+#
 # Revision 1.3  2001/03/09 20:36:19  dtrg
 # First draft picons support.
 #
