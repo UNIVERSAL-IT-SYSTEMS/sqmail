@@ -13,10 +13,7 @@ import os
 
 if os.environ.has_key("SQMAIL_LIBDIR"):
 	libdir = os.environ["SQMAIL_LIBDIR"]
-	print "Using libdir", libdir
 	sys.path[0] = libdir
-else:
-	print "No libdir --- using current directory"
 
 def usage():
 	print "Syntax: SQmaiL <command> [options]"
@@ -71,6 +68,9 @@ else:
 
 # Revision History
 # $Log: SQmaiL,v $
+# Revision 1.10  2001/05/23 10:21:31  dtrg
+# Removed some debug tracing.
+#
 # Revision 1.9  2001/05/01 18:23:42  dtrg
 # Added the Debian package building stuff. Now much easier to install.
 # Some GUI tidying prior to the release.
