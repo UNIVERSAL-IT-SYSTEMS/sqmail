@@ -12,7 +12,14 @@ import cPickle
 import cStringIO
 
 def get_folder_list():
-	return sqmail.utils.getsetting("vfolders")
+	l = sqmail.utils.getsetting("vfolders")
+	if ("" in l):
+		print "WARNING: one or more vfolders have empty names. Replacing with randomly-"
+		print "generated ones."
+	for i in xrange(len(l)):
+		if (l[i] == ""):
+			l[i] = "(blank name "+str(i)+")"
+	return l
 
 def write_to_cache(vf):
 	fp = open(os.path.expanduser("~/.sqmail.cache"), "w")
@@ -42,44 +49,87 @@ def read_id():
 		id = None
 	return id
 
-def read_hierarchic_query(name, query):
-	if not name:
+def vfolder_add(name, query, parent):
+	cursor = sqmail.db.cursor()
+	cursor.execute("INSERT INTO vfolders" \
+			" (name, query, parent) values " \
+			" ('"+sqmail.db.escape(name)+"', "\
+			" '"+sqmail.db.escape(query)+"', "\
+			" "+str(parent)+")")
+	cursor.execute("SELECT LAST_INSERT_ID()")
+	return int(cursor.fetchone()[0])
+	
+def vfolder_find(name):
+	cursor = sqmail.db.cursor()
+	cursor.execute("SELECT id FROM vfolders" \
+			" WHERE name = '"+sqmail.db.escape(name)+"'")
+	i = cursor.fetchone()
+	if i:
+		return int(i[0])
+	return None
+
+def vfolder_get(id):
+	# Check if it's a new-style vfolder.
+	cursor = sqmail.db.cursor()
+	cursor.execute("SELECT name, query, parent FROM vfolders"\
+		       " WHERE id = "+str(id))
+	i = cursor.fetchone()
+	if i:
+		return i
+	return None
+
+def vfolder_set(id, name, query, parent):
+	cursor = sqmail.db.cursor()
+	cursor.execute("UPDATE vfolders SET "\
+			" name = '"+sqmail.db.escape(name)+"', "\
+			" query = '"+sqmail.db.escape(query)+"', "\
+			" parent = "+str(parent)+" "\
+			"WHERE id = "+str(id))
+	
+def read_hierarchic_query(id, query):
+	if not id:
 		return query
-	p = sqmail.utils.getsetting("vfolder parent "+name)
-	if (p == name):
-		print "DANGER! Dastardly recursive loop found in vfolder", name+"."
+	p = vfolder_get(id)[2]
+	if (p == id):
+		print "DANGER! Dastardly recursive loop found in vfolder", id+"."
 		print "Terminating loop before your machine crashes."
 		return query
 	if not p:
 		return query
-	query = "((" + sqmail.utils.getsetting("vfolder query "+p, "1") + \
-		") and ("+query+"))"
+	query = "((" + vfolder_get(p)[1] + ") and ("+query+"))"
 	return read_hierarchic_query(p, query)
 	
-def read_allthatsleft_query(name):
-	parent = sqmail.utils.getsetting("vfolder parent "+name)
+def read_allthatsleft_query(id):
+	parent = vfolder_get(id)[2]
 	l = get_folder_list()
 	query = "1"
 	for i in l:
-		if (sqmail.utils.getsetting("vfolder parent "+i) == parent):
-			q = sqmail.utils.getsetting("vfolder query "+i)
+		j = vfolder_get(i)
+		if (j[2] == parent):
+			q = j[1]
 			if ((q != "") and (q != "1")):
 				query = query+" and (not ("+q+"))"
 	return query
 
 class VFolder:
-	def __init__(self, name=None, query=None, parent=None):
-		if (not name and not query):
-			raise RuntimeError("Can't create a VFolder instance without at least one of name and query")
-		if name and query:
+	def __init__(self, id=None, name=None, query=None, parent=None):
+		if (not id and not query and not name):
+			raise RuntimeError("Can't create a VFolder instance without at least one of id, name and query")
+		if name and not id:
+			id = vfolder_find(name)
+			if not id:
+				id = vfolder_add(name, query, parent)
+		if id and query:
+			self.id = id
 			self.name = name
 			self.query = query
 			self.parent = parent
-		elif name:
-			self.name = name
-			self.query = sqmail.utils.getsetting("vfolder query "+name)
-			self.parent = sqmail.utils.getsetting("vfolder parent "+name)
+		elif id:
+			self.id = id
+			(self.name, self.query, self.parent) = \
+				vfolder_get(id)
 		else:
+			self.id = None
 			self.name = None
 			self.query = query
 			self.parent = None
@@ -93,10 +143,10 @@ class VFolder:
 			# An empty query means `all messages that are left'. We
 			# need to find all the folders with the same parent as
 			# this one, OR the queries together, and NOT the result.
-			query = read_allthatsleft_query(self.name)
+			query = read_allthatsleft_query(self.id)
 		else:
 			query = self.query
-		query = read_hierarchic_query(self.name, query)
+		query = read_hierarchic_query(self.id, query)
 		try:
 			cursor.execute("SELECT COUNT(*) FROM headers WHERE "+query+" AND readstatus='Unread'")
 			self.unread = cursor.fetchone()[0]
@@ -132,14 +182,16 @@ class VFolder:
 		self.unread = None
 		self.results = None
 
+	def getparent(self):
+		return self.parent
+
 	def setparent(self, parent):
 		self.parent = parent
 		self.unread = None
 		self.results = None
 
 	def save(self):
-		sqmail.utils.setsetting("vfolder query "+self.name, self.query)
-		sqmail.utils.setsetting("vfolder parent "+self.name, self.parent)
+		vfolder_set(self.id, self.name, self.query, self.parent)
 
 	def getunread(self):
 		if not self.results:
@@ -166,6 +218,17 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.3  2001/01/19 20:37:23  dtrg
+# Changed the way vfolders are stored in the database.
+#
+# Now they're stored in a seperate table, vfolders, and referenced by id.
+# This means that finally you can have two vfolders with the same name (very
+# handy in a tree scenario). The system's also slightly less fragile.
+#
+# WARNING! The current code will not work with previous versions of the
+# database. You will need to do "SQmaiL upgrade" to automatically convert
+# your data.
+#
 # Revision 1.2  2001/01/16 20:13:12  dtrg
 # Fixed small bug that was preventing on-the-fly queries from the scan CLI
 # from working.
