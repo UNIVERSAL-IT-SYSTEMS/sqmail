@@ -69,20 +69,20 @@ def get_vfolderfont():
 		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
 
 def get_vfolderfg():
-	return sqmail.utils.getsetting("vfolderfg", (0, 0, 0, 1.0))
+	return sqmail.utils.getsetting("vfolderfg", (0, 0, 0, 65535))
 
 def get_vfolderbg():
-	return sqmail.utils.getsetting("vfolderbg", (1.0, 1.0, 1.0, 1.0))
+	return sqmail.utils.getsetting("vfolderbg", (65535, 65535, 65535, 65535))
 
 def get_vfolderunreadfont():
 	return sqmail.utils.getsetting("vfolderunreadfont", \
 		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
 
 def get_vfolderunreadfg():
-	return sqmail.utils.getsetting("vfolderunreadfg", (0, 0, 0, 1.0))
+	return sqmail.utils.getsetting("vfolderunreadfg", (0, 0, 0, 65535))
 
 def get_vfolderunreadbg():
-	return sqmail.utils.getsetting("vfolderunreadbg", (1.0, 1.0, 1.0, 1.0))
+	return sqmail.utils.getsetting("vfolderunreadbg", (65535, 65535, 65535, 65535))
 
 def get_msglistfont():
 	return sqmail.utils.getsetting("msglistfont", \
@@ -101,6 +101,10 @@ def get_pendingmsglistfont():
 def get_quoteprefix():
 	return sqmail.utils.getsetting("quoteprefix", \
 		"> ")
+
+def get_spamcommand():
+	return sqmail.utils.getsetting("spamcommand", \
+		"echo 'You have not configured the spam command yet.'")
 
 # Load & Save configuration
 
@@ -183,12 +187,12 @@ class SQmaiLPreferences:
 		self.widget.composefont.set_font_name(get_composefont())
 
 		self.widget.vfolderfont.set_font_name(get_vfolderfont())
-		apply(self.widget.vfolderfg.set_i8, get_vfolderfg())
-		apply(self.widget.vfolderbg.set_i8, get_vfolderbg())
+		apply(self.widget.vfolderfg.set_i16, get_vfolderfg())
+		apply(self.widget.vfolderbg.set_i16, get_vfolderbg())
 
 		self.widget.vfolderunreadfont.set_font_name(get_vfolderunreadfont())
-		apply(self.widget.vfolderunreadfg.set_i8, get_vfolderunreadfg())
-		apply(self.widget.vfolderunreadbg.set_i8, get_vfolderunreadbg())
+		apply(self.widget.vfolderunreadfg.set_i16, get_vfolderunreadfg())
+		apply(self.widget.vfolderunreadbg.set_i16, get_vfolderunreadbg())
 
 		self.widget.msglistfont.set_font_name(get_msglistfont())
 
@@ -200,6 +204,8 @@ class SQmaiLPreferences:
 
 		self.widget.quoteprefix.set_text(get_quoteprefix())
 	
+		self.widget.spamcommand.set_text(get_spamcommand())
+
 	# Signal handlers.
 
 	def on_deactivate(self, obj):
@@ -262,16 +268,16 @@ class SQmaiLPreferences:
 		sqmail.utils.setsetting("vfolderfont", \
 			self.widget.vfolderfont.get_font_name())
 		sqmail.utils.setsetting("vfolderfg", \
-			self.widget.vfolderfg.get_i8())
+			self.widget.vfolderfg.get_i16())
 		sqmail.utils.setsetting("vfolderbg", \
-			self.widget.vfolderbg.get_i8())
+			self.widget.vfolderbg.get_i16())
 
 		sqmail.utils.setsetting("vfolderunreadfont", \
 			self.widget.vfolderunreadfont.get_font_name())
 		sqmail.utils.setsetting("vfolderunreadfg", \
-			self.widget.vfolderunreadfg.get_i8())
+			self.widget.vfolderunreadfg.get_i16())
 		sqmail.utils.setsetting("vfolderunreadbg", \
-			self.widget.vfolderunreadbg.get_i8())
+			self.widget.vfolderunreadbg.get_i16())
 
 		sqmail.utils.setsetting("msglistfont", \
 			self.widget.msglistfont.get_font_name())
@@ -288,11 +294,27 @@ class SQmaiLPreferences:
 		sqmail.utils.setsetting("quoteprefix", \
 			self.widget.quoteprefix.get_text())
 
+		sqmail.utils.setsetting("spamcommand", \
+			self.widget.spamcommand.get_text())
+
 	def on_changed(self, *args):
 		self.widget.preferenceswin.set_modified(1)
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.3  2001/01/22 18:31:55  dtrg
+# Assorted changes, comprising:
+#
+# * Added a new pane to the notebook display containing the entire, un
+# MIMEified message. I was originally going to display just the headers and
+# then optionally the body when the user pressed a button, but it seems to
+# be decently fast without it.
+# * The first half of the Spamcop support. Now, pressing the Spam button
+# causes a compose window to appear all ready to send. The second half, that
+# will deal automatically with the automated replies from Spamcop, has yet
+# to be done.
+# * Yet another rehash of the vfolder colour code. Still doesn't work.
+#
 # Revision 1.2  2001/01/18 19:27:07  dtrg
 # Now saves the colours for read and unread vfolders.
 #

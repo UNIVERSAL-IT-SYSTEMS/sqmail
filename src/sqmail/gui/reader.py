@@ -2,21 +2,28 @@
 # $Source: /cvsroot/sqmail/sqmail/src/sqmail/gui/reader.py,v $
 # $State: Exp $
 
+import os
 import sys
 import time
 import gtk
 import gnome.ui
+import gnome.url
 import libglade
+import urllib
+import tempfile
+import string
 import sqmail.vfolder
 import sqmail.message
 import sqmail.gui.textviewer
 import sqmail.gui.binaryviewer
 import sqmail.gui.htmlviewer
+import sqmail.gui.headerspane
 import sqmail.gui.preferences
 import sqmail.gui.compose
 import sqmail.gui.utils
 import sqmail.gui.spoolfetcher
 import sqmail.gui.popfetcher
+import sqmail.gui.aliases
 
 # --- The mail reader itself --------------------------------------------------
 
@@ -335,11 +342,16 @@ class SQmaiLReader:
 	# Update the message window to reflect the currently selected message.
 
 	def update_messagewindow(self):
+		# Destroy all pages in the notebook.
+		
 		while len(self.messagepages):
 			self.messagepages[0].destroy()
 			self.widget.messagedisplay.remove_page(0)
 			del self.messagepages[0]
 
+		# Build the annotations drop-down list from the list of
+		# folders.
+		
 		self.widget.annotationfield.list.clear_items(0, -1)
 		for i in self.vfolderlist():
 			vf = sqmail.vfolder.VFolder(id=i)
@@ -347,6 +359,8 @@ class SQmaiLReader:
 			self.widget.annotationfield.list.add(item)
 			item.show()
 
+		# Is there a selected message?
+		
 		msg = self.message()
 		if not msg:
 			self.widget.fromfield.set_text("")
@@ -356,6 +370,8 @@ class SQmaiLReader:
 			self.widget.subjectfield.set_text("")
 			return
 
+		# Fill in the message information boxes.
+		
 		self.widget.fromfield.set_text(sqmail.gui.utils.render_address(\
 			(msg.getrealfrom(), msg.getfrom())))
 		self.widget.tofield.set_text(sqmail.gui.utils.render_addrlist(msg.getto()))
@@ -363,6 +379,14 @@ class SQmaiLReader:
 		self.widget.datefield.set_text(sqmail.gui.utils.render_time(msg.getdate()))
 		self.widget.subjectfield.set_text(msg.getsubject())
 		
+		# Add the first pane to the notebook (the raw message one).
+		
+		viewer = sqmail.gui.headerspane.HeadersViewer(self, msg)
+		self.widget.messagedisplay.append_page(viewer.getpage(), viewer.gettab())
+		self.messagepages.append(viewer)
+
+		# Now add the other panes for each attachment.
+
 		mime = msg.mimeflatten()
 		for i in range(len(mime)):
 			if (mime[i][1] in sqmail.gui.textviewer.displayable):
@@ -373,6 +397,11 @@ class SQmaiLReader:
 				viewer = sqmail.gui.binaryviewer.BinaryViewer(self, mime[i])
 			self.widget.messagedisplay.append_page(viewer.getpage(), viewer.gettab())
 			self.messagepages.append(viewer)
+
+		# Make sure that the second pane, which will be the body text,
+		# is visible.
+
+		self.widget.messagedisplay.set_page(1)
 
 	# Change the read-status of a message.
 
@@ -517,12 +546,36 @@ class SQmaiLReader:
 		msg = self.message()
 		if not msg:
 			return
-		print msg.getheaders()
-		print
-		print msg.getbody()
+		msgname = tempfile.mktemp()
+		msgfp = open(msgname, "w")
+		msgfp.write(msg.getheaders())
+		msgfp.write("\n\n")
+		msgfp.write(msg.getbody())
+		msgfp.write("\n")
+		msgfp.close()
+		c = sqmail.gui.compose.SQmaiLCompose(self, None, \
+			[["Spamcop", "spamcop@spamcop.net"]])
+		c.on_attach_file(msgname, type="message/rfc822")
+		os.unlink(msgname)
 
+	def on_aliases(self, obj):
+		sqmail.gui.aliases.SQmaiLAliases(self)
+	
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.5  2001/01/22 18:31:55  dtrg
+# Assorted changes, comprising:
+#
+# * Added a new pane to the notebook display containing the entire, un
+# MIMEified message. I was originally going to display just the headers and
+# then optionally the body when the user pressed a button, but it seems to
+# be decently fast without it.
+# * The first half of the Spamcop support. Now, pressing the Spam button
+# causes a compose window to appear all ready to send. The second half, that
+# will deal automatically with the automated replies from Spamcop, has yet
+# to be done.
+# * Yet another rehash of the vfolder colour code. Still doesn't work.
+#
 # Revision 1.4  2001/01/19 20:37:23  dtrg
 # Changed the way vfolders are stored in the database.
 #

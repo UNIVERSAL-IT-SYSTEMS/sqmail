@@ -32,6 +32,7 @@ class HTMLViewer (sqmail.gui.viewer.Viewer):
 			body = outfp.getvalue()
 		else:
 			body = self.attachment[2]
+		self.htmlwidget.set_allow_images(1)
 		self.htmlwidget.source(body)
 		self.htmlwidget.thaw()
 	
@@ -43,6 +44,19 @@ class HTMLViewer (sqmail.gui.viewer.Viewer):
 
 # Revision History
 # $Log: htmlviewer.py,v $
+# Revision 1.2  2001/01/22 18:31:55  dtrg
+# Assorted changes, comprising:
+#
+# * Added a new pane to the notebook display containing the entire, un
+# MIMEified message. I was originally going to display just the headers and
+# then optionally the body when the user pressed a button, but it seems to
+# be decently fast without it.
+# * The first half of the Spamcop support. Now, pressing the Spam button
+# causes a compose window to appear all ready to send. The second half, that
+# will deal automatically with the automated replies from Spamcop, has yet
+# to be done.
+# * Yet another rehash of the vfolder colour code. Still doesn't work.
+#
 # Revision 1.1  2001/01/11 20:07:23  dtrg
 # Added preliminary HTML rendering support (ten minutes work!).
 #
