@@ -2449,6 +2449,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GnomeColorPicker</class>
 	<name>msglistfg</name>
+	<sensitive>False</sensitive>
 	<can_focus>True</can_focus>
 	<dither>True</dither>
 	<use_alpha>False</use_alpha>
@@ -2472,6 +2473,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GnomeColorPicker</class>
 	<name>msglistbg</name>
+	<sensitive>False</sensitive>
 	<can_focus>True</can_focus>
 	<dither>True</dither>
 	<use_alpha>False</use_alpha>
@@ -2521,6 +2523,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GnomeColorPicker</class>
 	<name>unreadmsglistfg</name>
+	<sensitive>False</sensitive>
 	<can_focus>True</can_focus>
 	<dither>True</dither>
 	<use_alpha>False</use_alpha>
@@ -2544,6 +2547,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GnomeColorPicker</class>
 	<name>unreadmsglistbg</name>
+	<sensitive>False</sensitive>
 	<can_focus>True</can_focus>
 	<dither>True</dither>
 	<use_alpha>False</use_alpha>
@@ -2593,6 +2597,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GnomeColorPicker</class>
 	<name>pendingmsglistfg</name>
+	<sensitive>False</sensitive>
 	<can_focus>True</can_focus>
 	<dither>True</dither>
 	<use_alpha>False</use_alpha>
@@ -2616,6 +2621,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GnomeColorPicker</class>
 	<name>pendingmsglistbg</name>
+	<sensitive>False</sensitive>
 	<can_focus>True</can_focus>
 	<dither>True</dither>
 	<use_alpha>False</use_alpha>
@@ -2732,6 +2738,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GnomeFontPicker</class>
 	<name>msglistfont</name>
+	<sensitive>False</sensitive>
 	<can_focus>True</can_focus>
 	<signal>
 	  <name>font_set</name>
@@ -2763,6 +2770,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GnomeFontPicker</class>
 	<name>unreadmsglistfont</name>
+	<sensitive>False</sensitive>
 	<can_focus>True</can_focus>
 	<signal>
 	  <name>font_set</name>
@@ -2794,6 +2802,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GnomeFontPicker</class>
 	<name>pendingmsglistfont</name>
+	<sensitive>False</sensitive>
 	<can_focus>True</can_focus>
 	<signal>
 	  <name>font_set</name>
@@ -3045,6 +3054,7 @@ Try launching the MIME handler for it instead.</label>
     <widget>
       <class>GtkVBox</class>
       <name>vbox8</name>
+      <sensitive>False</sensitive>
       <homogeneous>False</homogeneous>
       <spacing>0</spacing>
 
@@ -3647,6 +3657,7 @@ Try launching the MIME handler for it instead.</label>
 	  <widget>
 	    <class>GtkCheckButton</class>
 	    <name>checkbutton1</name>
+	    <sensitive>False</sensitive>
 	    <can_focus>True</can_focus>
 	    <label>Ask when deleting vfolders</label>
 	    <active>False</active>
