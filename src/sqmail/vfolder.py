@@ -130,7 +130,7 @@ class VFQuery(Query):
 
 	self.qstring is the part of the query that goes after "WHERE ..."
 
-	self.seqdict is a dictionary of sequences.  If a sequence name is
+	self.seqdict is a dictionary of sequences.  If a sequence sid is
 	a key, then it needs to be quantified over.
 
 	"""
@@ -139,13 +139,6 @@ class VFQuery(Query):
 		self.qschema = None
 		Query.__init__(self, qstring)
 	
-	def quoteseqname(self, seqname):
-		"""Returns one word version of sequence name"""
-		seqname = string.replace(seqname, " ", "_")
-		seqname = string.replace(seqname, "-", "M")
-		seqname = string.replace(seqname, "+", "P")
-		return seqname
-
 	def setqschema(self):
 		"""Set the query schema strings and argument list
 
@@ -155,12 +148,11 @@ class VFQuery(Query):
 
 		"""
 		joinstringlist = []
-		for seqname in self.seqdict.keys():
-			joinstringlist.append("LEFT JOIN sequence_data AS sd%s ON"
-								  " headers.id = sd%s.id AND sd%s.sid ="
-								  "'%s'" %
-								  ((self.quoteseqname(seqname),)*3 +
-								   (seqname,)))
+		for seq in self.seqdict.values():
+			s = ("LEFT JOIN sequence_data AS %s ON headers.id = %s.id "
+				 "AND %s.sid = %d" % ((seq.getalias(),)*3 +
+									  (seq.getsid(),)))
+			joinstringlist.append(s)
 		self.qschema = string.join(["SELECT %s FROM headers"] +
 								   joinstringlist +
 								   ["WHERE",
@@ -187,10 +179,8 @@ class VFQuery(Query):
 		cursor.execute((self.qschema % columns) + " ORDER BY " + ordering)
 		return cursor.fetchall()
 
-	def binaryop(self, vfquerylist, opstring, default):
+	def binaryop(self, vfquerylist, opstring):
 		"""Used for defining And and Or"""
-		if not vfquerylist:
-			return VFQuery(default)
 		qstringlist, seqdict = [], {}
 		for arg in (self,) + vfquerylist:
 			qstringlist.append(arg.qstring)
@@ -201,11 +191,11 @@ class VFQuery(Query):
 
 	def And(*vfqueries):
 		"""Return vfquery conjunction of given vfqueries"""
-		return vfqueries[0].binaryop(vfqueries[1:], "AND", "1")
+		return vfqueries[0].binaryop(vfqueries[1:], "AND")
 
 	def Or(*vfqueries):
 		"""Return vfquery disjunction of given vfqueries"""
-		return vfqueries[0].binaryop(vfqueries[1:], "OR", "0")
+		return vfqueries[0].binaryop(vfqueries[1:], "OR")
 
 	def Not(self):
 		"""Return vfquery negation of self"""
@@ -213,7 +203,7 @@ class VFQuery(Query):
 		vfq.seqdict = self.seqdict.copy()
 		return vfq
 
-	def reckon_sequences(self, foldername):
+	def reckon_sequences(self, vf):
 		"""Changes self to exclude/include folder related sequences
 
 		Also sets self.qstringnoseq and self.seqdictnoseq as the
@@ -223,12 +213,12 @@ class VFQuery(Query):
 		"""
 		self.qstringnoseq = self.qstring
 		self.seqdictnoseq = self.seqdict.copy()
-		inseq, outseq = "+"+foldername, "-"+foldername
-		quoteinseq, quoteoutseq = map(self.quoteseqname, [inseq, outseq])
-		self.qstring = ("(sd%s.sid IS NOT NULL OR "
-						"(%s AND sd%s.sid IS NULL))" %
-						(quoteinseq, self.qstringnoseq, quoteoutseq))
-		self.seqdict[inseq] = self.seqdict[outseq] = 1
+		inseq, outseq = vf.getposseq(), vf.getnegseq()
+		self.qstring = ("(%s.sid IS NOT NULL OR (%s AND %s.sid IS NULL))" %
+						(inseq.getalias(), self.qstringnoseq,
+						 outseq.getalias()))
+		self.seqdict[inseq.sid] = inseq
+		self.seqdict[outseq.sid] = outseq
 
 	def no_sequences(self):
 		"""Return a VFQuery like self but ignore folder sequences"""
@@ -270,7 +260,7 @@ class UserQuery(Query):
 		self.vf = vf
 		if not string.strip(self.qstring): return VFQuery("0")
 		vfq = self.macroexpand(self.qstring)
-		vfq.reckon_sequences(vf.name)
+		vfq.reckon_sequences(vf)
 		return vfq
 
 	def macroexpand(self, s):
@@ -291,10 +281,10 @@ class UserQuery(Query):
 	def find_vfqrepl(self, foldername):
 		"""Returns vfquery that VFOLDER:foldername represents"""
 		lowercase = string.lower(foldername)
-		if lowercase == "notsiblings":  # Disjoin negations of child vfqs
+		if lowercase == "siblings":  # Disjoin child vfqs
 			siblings = map(lambda x: x.vfquery, self.vf.getsiblings())
-			if siblings: return apply(VFQuery.Or, siblings).Not()
-			else: return VFQuery("1")
+			if siblings: return apply(VFQuery.Or, siblings)
+			else: return VFQuery("0")
 		elif lowercase == "children":
 			children = map(lambda x: x.vfquery, self.vf.getchildren())
 			if children: return apply(VFQuery.Or, children)
@@ -427,6 +417,33 @@ class VFolder:
 	def getcounted(self):
 		return (self.total != None)
 
+	def getposseq(self):
+		"""Return the override sequence which forces messages in
+
+		The sequence name will be, e.g, "+43" if the folder's id is
+		43.  Similarly, the negative sequence will be "-43".  If the
+		sequence does not exist, this creates it.
+
+		"""
+		name = "+" + str(self.id)
+		seq = sequences.get_by_name(name)
+		if not seq: seq = sequences.create_sequence(name)
+		return seq
+
+	def getnegseq(self):
+		"""Return the override sequence which forces messages out"""
+		name = "-" + str(self.id)
+		seq = sequences.get_by_name(name)
+		if not seq: seq = sequences.create_sequence(name)
+		return seq
+
+	def getcacheseq(self):
+		"""Return the sequence used to cache query results"""
+		name = "_" + str(self.id)
+		seq = sequences.get_by_name(name)
+		if not seq: seq = sequences.create_sequence(name)
+		return seq
+
 	def save(self):
 		"""Saves the folder settings in database"""
 		cursor = db.cursor()
@@ -455,32 +472,35 @@ class VFolder:
 			self.scan()
 		return self.results[index]
 
-	def AddMsgID(self, id):
+	def addid(self, id):
 		"""Add an message by id to folder
 
 		First remove the message from the negative sequence.  Then, if
 		the message still doesn't show up in the query, add it to
 		the positive override sequence.
 		"""
-		sequences.Sequence("-" + self.name).DeleteID(id)
+		self.getnegseq().deleteid(id)
 		if not self.vfquery.count(" AND headers.id = %d" % id):
-			sequences.Sequence("+" + self.name).AddMessageID(id)
+			self.getposseq().addid(id)
 
-	def RemoveMsgID(self, id):
-		"""Remove a message by id from folder, see AddMsgID"""
-		sequences.Sequence("+" + self.name).DeleteID(id)
+	def deleteid(self, id):
+		"""Remove a message by id from folder, see self.addid"""
+		self.getposseq().deleteid(id)
 		if self.vfquery.count(" AND headers.id = %d" % id):
-			sequences.Sequence("-" + self.name).AddMessageID(id)
+			self.getnegseq().addid(id)
 			
-	def MoveMsgID(self, id, dest_vf):
+	def moveid(self, id, dest_vf):
 		"""Move a message from current vfolder to another"""
-		self.RemoveMsgID(id)
-		dest_vf.AddMsgID(id)
+		self.deleteid(id)
+		dest_vf.addid(id)
 
 
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.18  2001/06/01 19:26:39  bescoto
+# Modifications to be compatible with new sequences, couple of bug fixes
+#
 # Revision 1.17  2001/05/26 19:19:56  bescoto
 # *** empty log message ***
 #
