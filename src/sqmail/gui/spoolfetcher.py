@@ -16,7 +16,7 @@ class SpoolFetcher (sqmail.gui.fetcher.Fetcher):
 		filename = sqmail.preferences.get_incomingpath()
 		self.msg("Using spool file "+filename)
 		self.msg("Locking spool file")
-		rv = os.system("mail-lock --retry 1")
+		rv = os.system("lockfile-create --retry 1 "+filename)
 		if rv:
 			self.msg("Failed to lock spool file, aborting")
 			self.do_abort()
@@ -32,7 +32,7 @@ class SpoolFetcher (sqmail.gui.fetcher.Fetcher):
 		if (len == 0):
 			self.msg("Spool file empty. Aborting.")
 			fp.close()
-			os.system("mail-unlock")
+			os.system("lockfile-remove "+filename)
 			self.do_abort()
 			return
 
@@ -69,7 +69,7 @@ class SpoolFetcher (sqmail.gui.fetcher.Fetcher):
 
 		self.msg("Closing and unlocking spool file")
 		fp.close()
-		os.system("mail-unlock")
+		os.system("lockfile-remove "+filename)
 		if not self.abort:
 			self.do_abort()
 
@@ -78,6 +78,9 @@ class SpoolFetcher (sqmail.gui.fetcher.Fetcher):
 
 # Revision History
 # $Log: spoolfetcher.py,v $
+# Revision 1.3  2001/05/26 18:24:04  bescoto
+# Lock/unlock specified spool file instead of /var/spool/foo all the time.
+#
 # Revision 1.2  2001/02/20 17:22:36  dtrg
 # Moved the bulk of the preference system out of the gui directory, where it
 # doesn't belong. sqmail.gui.preferences still exists but it just contains
