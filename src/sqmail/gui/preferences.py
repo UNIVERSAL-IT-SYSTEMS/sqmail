@@ -88,6 +88,22 @@ class SQmaiLPreferences:
 
 		self.widget.pendingmsglistfont.set_font_name(sqmail.preferences.get_pendingmsglistfont())
 		
+		# Spamcop
+
+		self.widget.deletespam.set_active(sqmail.preferences.get_deletespam())
+
+		self.widget.deletespamreply.set_active(sqmail.preferences.get_deletespamreply())
+
+		self.widget.spamaddress.set_text(sqmail.preferences.get_spamaddress())
+
+		self.widget.spamreplyfrom.set_text(sqmail.preferences.get_spamreplyfrom())
+
+		p = sqmail.preferences.get_spamcopmember()
+		if p:
+			self.widget.spamcopmemberyes.set_active(1)
+		else:
+			self.widget.spamcopmemberno.set_active(1)
+		
 		# Mail icons
 
 		self.widget.usexfaces.set_active(sqmail.preferences.get_usexfaces())
@@ -99,6 +115,8 @@ class SQmaiLPreferences:
 		self.widget.usepicons.set_active(sqmail.preferences.get_usepicons())
 
 		self.widget.usepiconsproxy.set_active(sqmail.preferences.get_usepiconsproxy())
+
+		self.widget.omitpiconsuser.set_active(sqmail.preferences.get_omitpiconsuser())
 
 		self.widget.piconsserver.set_text(sqmail.preferences.get_piconsserver())
 
@@ -212,6 +230,23 @@ class SQmaiLPreferences:
 		sqmail.utils.setsetting("pendingmsglistfont", \
 			self.widget.pendingmsglistfont.get_font_name())
 
+		# Spamcop
+
+		sqmail.utils.setsetting("deletespam", \
+			self.widget.deletespam.get_active())
+
+		sqmail.utils.setsetting("deletespamreply", \
+			self.widget.deletespamreply.get_active())
+
+		sqmail.utils.setsetting("spamaddress", \
+			self.widget.spamaddress.get_text())
+
+		sqmail.utils.setsetting("spamreplyfrom", \
+			self.widget.spamreplyfrom.get_text())
+
+		sqmail.utils.setsetting("spamcopmember", \
+			self.widget.spamcopmemberyes.get_active())
+		
 		# Mail icons
 
 		sqmail.utils.setsetting("usexfaces", \
@@ -228,6 +263,9 @@ class SQmaiLPreferences:
 
 		sqmail.utils.setsetting("usepiconsproxy", \
 			self.widget.usepiconsproxy.get_active())
+
+		sqmail.utils.setsetting("omitpiconsuser", \
+			self.widget.omitpiconsuser.get_active())
 
 		sqmail.utils.setsetting("piconsserver", \
 			self.widget.piconsserver.get_text())
@@ -285,6 +323,11 @@ class SQmaiLPreferences:
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.12  2001/04/19 14:56:53  dtrg
+# Added support for using domain names only for picons. This means that all
+# hotmail users share the same picon, for example; this reduces the number
+# of lookups, but means you don't get personalised picons.
+#
 # Revision 1.11  2001/03/12 14:28:38  dtrg
 # Added the ability to disable X-Faces completely, as they weren't working
 # for some people (even with the code to detect if the decoding was

@@ -121,6 +121,28 @@ def get_pendingmsglistfont():
 	return sqmail.utils.getsetting("pendingmsglistfont", \
 		"fixed")
 
+# Spamcop
+
+def get_deletespam():
+	return sqmail.utils.getsetting("deletespam", \
+		1);
+
+def get_deletespamreply():
+	return sqmail.utils.getsetting("deletespamreply", \
+		1);
+
+def get_spamaddress():
+	return sqmail.utils.getsetting("spamaddress", \
+		"spamcop@spamcop.net");
+
+def get_spamreplyfrom():
+	return sqmail.utils.getsetting("spamreplyfrom", \
+		"nobody@spamcop.net");
+
+def get_spamcopmember():
+	return sqmail.utils.getsetting("spamcopmember", \
+		0);
+		
 # Mail icons
 
 def get_usexfaces():
@@ -141,6 +163,10 @@ def get_usepicons():
 
 def get_usepiconsproxy():
 	return sqmail.utils.getsetting("usepiconsproxy", \
+		0)
+
+def get_omitpiconsuser():
+	return sqmail.utils.getsetting("omitpiconsuser", \
 		0)
 
 def get_piconsserver():
@@ -198,6 +224,11 @@ def load_config(filename):
 	
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.5  2001/04/19 14:56:53  dtrg
+# Added support for using domain names only for picons. This means that all
+# hotmail users share the same picon, for example; this reduces the number
+# of lookups, but means you don't get personalised picons.
+#
 # Revision 1.4  2001/03/12 14:28:38  dtrg
 # Added the ability to disable X-Faces completely, as they weren't working
 # for some people (even with the code to detect if the decoding was
