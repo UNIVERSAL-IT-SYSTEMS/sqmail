@@ -138,6 +138,8 @@ def SQmaiLScan():
 			mboxfile.write(msg.getheaders())
 			mboxfile.write("X-SQmaiL-Annotation: ")
 			mboxfile.write(msg.getannotation())
+			mboxfile.write("\nX-SQmaiL-ReadStatus: ")
+			mboxfile.write(msg.getreadstatus())
 			mboxfile.write("\n\n")
 			mboxfile.write(msg.getbody())
 			mboxfile.write("\n\012\012")
@@ -146,6 +148,9 @@ def SQmaiLScan():
 
 # Revision History
 # $Log: scan.py,v $
+# Revision 1.3  2001/01/18 18:50:06  dtrg
+# Forgot to get it to emit the ReadStatus field.
+#
 # Revision 1.2  2001/01/16 20:13:48  dtrg
 # Added the ability to export all messages being listed to an mbox file.
 #
