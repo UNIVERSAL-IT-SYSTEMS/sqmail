@@ -99,10 +99,10 @@ class SQmaiLReader:
 			return (vf.name, "?", "?")
 		unread = vf.getunread()
 		if unread:
-			unread = str(unread)
+			unread = "%d" % unread
 		else:
 			unread = ""
-		return (vf.name, unread, str(vf.getlen()))
+		return (vf.name, unread, "%d" % vf.getlen())
 
 	# Modify the passed style to reflect the status of the current folder.
 
@@ -689,6 +689,9 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.14  2001/03/09 10:39:55  dtrg
+# Replaced some str() with % syntax.
+#
 # Revision 1.13  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).
