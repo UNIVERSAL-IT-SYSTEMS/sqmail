@@ -104,6 +104,10 @@ def SQmaiLScan():
 		currentmsg = 0
 		sqmail.vfolder.write_id(currentmsg)
 
+	if (len(vf) == 0):
+		print "The vfolder contains no messages."
+		sys.exit(0)
+
 	if (lastmsg != None):
 		tomsg = len(vf)-1
 		frommsg = tomsg-lastmsg
@@ -161,6 +165,9 @@ def SQmaiLScan():
 
 # Revision History
 # $Log: scan.py,v $
+# Revision 1.5  2001/03/07 12:23:17  dtrg
+# Checks for empty vfolders.
+#
 # Revision 1.4  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).
