@@ -62,15 +62,15 @@ def get_defaultdomain():
 
 def get_textmessagefont():
 	return sqmail.utils.getsetting("textmessagefont", \
-		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+		"fixed")
 
 def get_composefont():
 	return sqmail.utils.getsetting("composefont", \
-		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+		"fixed")
 
 def get_vfolderfont():
 	return sqmail.utils.getsetting("vfolderfont", \
-		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+		"fixed")
 
 def get_vfolderfg():
 	return sqmail.utils.getsetting("vfolderfg", (0, 0, 0, 65535))
@@ -80,7 +80,7 @@ def get_vfolderbg():
 
 def get_vfolderunreadfont():
 	return sqmail.utils.getsetting("vfolderunreadfont", \
-		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+		"fixed")
 
 def get_vfolderunreadfg():
 	return sqmail.utils.getsetting("vfolderunreadfg", (0, 0, 0, 65535))
@@ -90,7 +90,7 @@ def get_vfolderunreadbg():
 
 def get_vfolderpendingfont():
 	return sqmail.utils.getsetting("vfolderpendingfont", \
-		"-schumacher-clean-medium-o-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+		"fixed")
 
 def get_vfolderpendingfg():
 	return sqmail.utils.getsetting("vfolderpendingfg", (32767, 32767, 32767, 65535))
@@ -101,15 +101,15 @@ def get_vfolderpendingbg():
 
 def get_msglistfont():
 	return sqmail.utils.getsetting("msglistfont", \
-		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+		"fixed")
 
 def get_unreadmsglistfont():
 	return sqmail.utils.getsetting("unreadmsglistfont", \
-		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+		"fixed")
 
 def get_pendingmsglistfont():
 	return sqmail.utils.getsetting("pendingmsglistfont", \
-		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+		"fixed")
 
 # Miscellaneous
 
@@ -333,6 +333,11 @@ class SQmaiLPreferences:
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.6  2001/02/20 15:46:00  dtrg
+# Fixed a bug where the To: line on outgoing messages was, if mail aliases
+# were being used, set to the unexpanded value (which would cause replies to
+# the messages to be sent to bogus addresses).
+#
 # Revision 1.5  2001/02/02 20:03:01  dtrg
 # Added mail alias and default domain support.
 # Saves the size of the main window, but as yet doesn't set the size on
