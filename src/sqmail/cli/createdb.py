@@ -27,10 +27,10 @@ def addvfolder(cursor, name, query, parent):
 	cursor.execute( \
 		"insert into vfolders"\
 		"  (name, query, parent)"\
-		"  values ('"+name+"', '"+query+"', "+str(parent)+")");
+		"  values ('"+sqmail.db.escape(name)+"', '"+sqmail.db.escape(query)+"', "+str(parent)+")");
 	cursor.execute( \
 		"select last_insert_id()")
-	return cursor.fetchone()[0]
+	return int(cursor.fetchone()[0])
 
 def SQmaiLCreateDB():
 	dbname = "sqmail"
@@ -141,21 +141,23 @@ def SQmaiLCreateDB():
 		"  (name, value)"\
 		"  values ('idcounter', '1')");
 
-	r = addvfolder("Received Messages", \
+	v1 = addvfolder(cursor, "Received Messages", \
 		"(readstatus = 'Read') or (readstatus = 'Unread')", \
 		0)
 
-	addvfolder("Messages from root", \
+	v2 = addvfolder(cursor, "Messages from root", \
 		"fromfield like '%root%'", \
-		r)
+		v1)
 
-	addvfolder("Deleted Messages", \
+	v3 = addvfolder(cursor, "Deleted Messages", \
 		"(readstatus = 'Deleted')", \
 		0)
 
-	addvfolder("Sent Messages", \
+	v4 = addvfolder(cursor, "Sent Messages", \
 		"(readstatus = 'Sent')", \
 		0)
+
+	setsetting(cursor, "vfolders", [v1, v2, v3, v4])
 
 	print "Disconnecting..."
 
@@ -164,6 +166,11 @@ def SQmaiLCreateDB():
 
 # Revision History
 # $Log: createdb.py,v $
+# Revision 1.3  2001/01/22 11:47:45  dtrg
+# create-database turned out not to be working (a simple syntax bug plus I
+# forgot to emit a new-style vfolders setting). Fixed. Also added some
+# bulletproofing to protect against this sort of problem.
+#
 # Revision 1.2  2001/01/19 20:37:23  dtrg
 # Changed the way vfolders are stored in the database.
 #
