@@ -46,6 +46,7 @@ class SQmaiLReader:
 
 		self.messagelist = []
 		self.messagepages = []
+		self.counting = None
 
 		# Enable DND on the vfolder list.
 
@@ -72,8 +73,8 @@ class SQmaiLReader:
 	def setprogress(self, label, a, b):
 		self.widget.applicationbar.set_status(label)
 		self.widget.applicationbar.set_progress(float(a)/float(b))
-		while gtk.events_pending():
-			gtk.mainiteration(0)
+		#while gtk.events_pending():
+		#	gtk.mainiteration(0)
 
 	def popprogress(self):
 		self.widget.applicationbar.set_progress(0.0)
@@ -83,6 +84,8 @@ class SQmaiLReader:
 	# folder list.
 
 	def describe_vfolder(self, vf):
+		if not vf.getcounted():
+			return (vf.name, "?", "?")
 		unread = vf.getunread()
 		if unread:
 			unread = str(unread)
@@ -93,7 +96,11 @@ class SQmaiLReader:
 	# Modify the passed style to reflect the status of the current folder.
 
 	def style_vfolder(self, vf, style):
-		if vf.getunread():
+		if not vf.getcounted():
+			fg = sqmail.gui.preferences.get_vfolderpendingfg()
+			bg = sqmail.gui.preferences.get_vfolderpendingbg()
+			font = sqmail.gui.preferences.get_vfolderpendingfont()
+		elif vf.getunread():
 			fg = sqmail.gui.preferences.get_vfolderunreadfg()
 			bg = sqmail.gui.preferences.get_vfolderunreadbg()
 			font = sqmail.gui.preferences.get_vfolderunreadfont()
@@ -102,8 +109,9 @@ class SQmaiLReader:
 			bg = sqmail.gui.preferences.get_vfolderbg()
 			font = sqmail.gui.preferences.get_vfolderfont()
 		style.font = gtk.load_font(font)
-		fg = gtk.GdkColor(fg[0], fg[1], fg[2])
-		bg = gtk.GdkColor(bg[0], bg[1], bg[2])
+		colormap = self.widget.folderlist.get_colormap()
+		fg = colormap.alloc(fg[0], fg[1], fg[2])
+		bg = colormap.alloc(bg[0], bg[1], bg[2])
 		style.fg[gtk.STATE_NORMAL] = fg
 		style.bg[gtk.STATE_NORMAL] = bg
 		return (fg, bg)
@@ -157,7 +165,6 @@ class SQmaiLReader:
 		l = sqmail.vfolder.get_folder_list()
 		d = {}
 		for i in xrange(len(l)):
-			self.setprogress("Updating vfolders", i, len(l))
 			id = l[i]
 			vf = sqmail.vfolder.VFolder(id=id)
 			name = vf.getname()
@@ -172,21 +179,47 @@ class SQmaiLReader:
 				parent = None
 
 			node = self.widget.folderlist.insert_node(parent, None, \
-				self.describe_vfolder(vf), \
-				is_leaf=0, expanded=1)
-			style = self.widget.folderlist.get_style().copy()
-			cols = self.style_vfolder(vf, style)
-			self.widget.folderlist.node_set_row_style(node, style)
-			if cols:
-				self.widget.folderlist.node_set_foreground(node, cols[0])
-				self.widget.folderlist.node_set_background(node, cols[1])
+				["", "", ""], is_leaf=0, expanded=1)
 			self.widget.folderlist.node_set_row_data(node, vf)
+			self.update_vfolder(node)
 			d[id] = node
 			if (vf.name == sel):
 				self.widget.folderlist.select(node)
+
+		if not self.counting:
+			self.counting = gtk.idle_add_priority(200, \
+				sqmail.gui.utils._callback(self, self.count_vfolder))
 		self.widget.folderlist.thaw()
 		self.popprogress()
 		
+	# Callback on idle that looks for an uncounted vfolder and counts it.
+	# If there wasn't one, the callback gets removed.
+
+	def count_vfolder(self, n):
+		for i in xrange(self.widget.folderlist.rows):
+			node = self.widget.folderlist.node_nth(i)
+			vf = self.vfolder(node)
+			if not vf.getcounted():
+				vf.scan()
+				self.update_vfolder(node)
+				return 1
+		self.counting = None
+		return 0
+
+	# Update one individual vfolder.
+
+	def update_vfolder(self, node):
+		self.pushprogress()
+		self.widget.folderlist.freeze()
+		vf = self.vfolder(node)
+		sqmail.gui.utils.update_ctree(self.widget.folderlist, \
+			node, self.describe_vfolder(vf))
+		style = self.widget.folderlist.get_style().copy()
+		self.style_vfolder(vf, style)
+		self.widget.folderlist.node_set_row_style(node, style)
+		self.widget.folderlist.thaw()
+		self.popprogress()
+
 	# Return the folder list.
 
 	def vfolderlist(self):
@@ -205,9 +238,12 @@ class SQmaiLReader:
 	# User has selected a vfolder to peruse.
 
 	def select_vfolder(self):
-		vf = self.vfolder()
+		node = self.widget.folderlist.selection[0]
+		vf = self.vfolder(node)
 		if (vf == None):
 			return
+		vf.scan()
+		self.update_vfolder(node)
 		self.widget.foldername.set_text(vf.name)
 		self.widget.folderquery.freeze()
 		self.widget.folderquery.set_point(0)
@@ -217,6 +253,16 @@ class SQmaiLReader:
 		self.widget.folderquery.set_word_wrap(1)
 		self.widget.folderquery.thaw()
 		self.update_messagelist()
+
+	# ...or has deselected one. (Generated implicitly.)
+
+	def unselect_vfolder(self):
+		node = self.widget.folderlist.selection[0]
+		vf = self.vfolder(node)
+		if (vf == None):
+			return
+		vf.scan()
+		self.update_vfolder(node)
 
 	# Modify this vfolder.
 
@@ -285,7 +331,7 @@ class SQmaiLReader:
 			svf = pvf
 
 		self.write_vfolderlist()
-		nvf.setparent(pvf.name)
+		nvf.setparent(pvf.id)
 		nvf.save()
 
 		self.widget.folderlist.freeze()
@@ -563,6 +609,11 @@ class SQmaiLReader:
 	
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.6  2001/01/25 20:55:06  dtrg
+# Woohoo! Vfolder styling now works (mostly, except backgrounds). Also added
+# background vfolder counting to avoid that nasty delay on startup or
+# whenever you fetch new mail.
+#
 # Revision 1.5  2001/01/22 18:31:55  dtrg
 # Assorted changes, comprising:
 #
