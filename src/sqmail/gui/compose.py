@@ -9,6 +9,7 @@ import MimeWriter
 import base64
 import quopri
 import cStringIO
+import cPickle
 import gtk
 import smtplib
 import time
@@ -23,6 +24,9 @@ import sqmail.gui.textviewer
 
 # All hi-bit chars.
 iso_char = re.compile('[\177-\377]')
+
+# Lines without a @ in them.
+no_at = re.compile('^[^@]*$')
 
 class SQmaiLCompose:
 	def __init__(self, reader, message, addrlist):
@@ -159,14 +163,46 @@ class SQmaiLCompose:
 			fp.write(body)
 		return out.getvalue()
 
+	def expand_addrlist(self, inl):
+		# Given a list of address, some of them may be aliases, and some
+		# unqualified normal address.
+		cursor = sqmail.db.cursor()
+		outl = []
+		while inl:
+			i = [inl.pop()]
+			if no_at.search(i[0]):
+				# No @ sign. Check for aliases.
+				cursor.execute("SELECT addresslist FROM aliases" \
+				               " WHERE name = '"+sqmail.db.escape(i[0])+"'")
+				r = cursor.fetchone()
+				if r:
+					# Found.
+					fp = cStringIO.StringIO(r[0])
+					i = cPickle.load(fp)
+				else:
+					# No alias found. Do we want to warn the
+					# user?
+					domain = sqmail.gui.preferences.get_defaultdomain()
+					if not domain:
+						raise RuntimeError, "You did not specify a domain name for `"+i[0]+"'."
+					# Add default domain.
+					i = [i[0] + "@" + domain]
+			outl.extend(i)
+		return outl
+
 	def on_send(self, obj):
 		smtp = smtplib.SMTP(sqmail.gui.preferences.get_outgoingserver(), \
 			sqmail.gui.preferences.get_outgoingport())
 		smtp.set_debuglevel(sqmail.gui.preferences.get_smtpdebuglevel())
 		fromaddr = self.widget.fromfield.get_text()
+		# Construct the To: list. First, work out what the user asked
+		# for...
 		toaddr = []
 		for i in rfc822.AddressList(self.widget.tofield.get_text()).addresslist:
 			toaddr.append(i[1])
+		# ...and expand aliases and unqualified addresses.
+		toaddr = self.expand_addrlist(toaddr)
+		# Construct and send the message itself.
 		msgstring = self.makemessage()
 		smtp.sendmail(fromaddr, toaddr, msgstring)
 		smtp.quit()
@@ -246,6 +282,11 @@ class SQmaiLCompose:
 
 # Revision History
 # $Log: compose.py,v $
+# Revision 1.3  2001/02/02 20:03:01  dtrg
+# Added mail alias and default domain support.
+# Saves the size of the main window, but as yet doesn't set the size on
+# startup.
+#
 # Revision 1.2  2001/01/22 18:31:55  dtrg
 # Assorted changes, comprising:
 #

@@ -607,8 +607,17 @@ class SQmaiLReader:
 	def on_aliases(self, obj):
 		sqmail.gui.aliases.SQmaiLAliases(self)
 	
+	def on_mainwin_resize(self, obj):
+		win = self.widget.mainwin.get_window()
+		sqmail.utils.setsetting("mainwin size", (win.width, win.height))
+		
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.8  2001/02/02 20:03:01  dtrg
+# Added mail alias and default domain support.
+# Saves the size of the main window, but as yet doesn't set the size on
+# startup.
+#
 # Revision 1.7  2001/01/26 11:55:25  dtrg
 # Double woohoo! Vfolder styles now work. Thanks to all the people on the
 # PyGTK mailing list who put up with me on this. Also fixed the vfolder-copy
