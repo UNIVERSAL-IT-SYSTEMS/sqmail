@@ -21,6 +21,10 @@ def usage():
 	print "  enable <name>      Enables a purge"
 	print "  disable <name>     Disables a purge"
 	print "  test               Tests the purges and reports results"
+	print "  execute [<name>]   Executes one or all purges"
+	print "WARNING! Purged messages are gone, forever. If you make a mistake with"
+	print "an SQL query you may wipe your entire database. Only enable purges"
+	print "you know work! Test your purges before you enable them!"
 	
 # If you don't know what this does, you shouldn't be reading this
 
@@ -150,6 +154,38 @@ def test_purges():
 		else:
 			print ", but not enabled"
 
+# Execute one or all purges.
+
+def execute_purges():
+	if (len(sys.argv) == 3):
+		# Execute all purges.
+		for purge in sqmail.purges.enumerate():
+			purge_one(purge)
+	elif (len(sys.argv) == 4):
+		# Execute one purge.
+		purge = sys.argv[3]
+		try:
+			purge_one(purge)
+		except KeyError:
+			print "No purge of that name could be found."
+			sys.exit(1)
+
+	else:
+		usage()
+		sys.exit(2)
+
+def purge_one(purge):
+	p = sqmail.purges.Purge(purge)
+	sys.stdout.write(purge)
+	sys.stdout.write("... ")
+	sys.stdout.flush()
+	
+	p = p.purge_now()
+	if (p == None):
+		sys.stdout.write("disabled\n")
+	else:
+		sys.stdout.write("deleted %d messages out of %d\n" % p)
+
 def SQmaiLPurges():	
 	if (len(sys.argv) < 3):
 		usage()
@@ -170,6 +206,8 @@ def SQmaiLPurges():
 		enable_disable_purge(1)
 	elif (cmd == "disable"):
 		enable_disable_purge(0)
+	elif (cmd == "execute"):
+		execute_purges()
 	else:
 		usage()
 		sys.exit(2)
@@ -177,6 +215,10 @@ def SQmaiLPurges():
 
 # Revision History
 # $Log: purges.py,v $
+# Revision 1.2  2001/03/01 19:55:38  dtrg
+# Completed the command-line based purges system. Hesitantly applied it to
+# my own data. Nothing catastrophic has happened yet.
+#
 # Revision 1.1  2001/02/23 19:50:26  dtrg
 # Lots of changes: added the beginnings of the purges system, CLI utility
 # for same, GUI utility & UI for same, plus a CLI vfolder lister.
