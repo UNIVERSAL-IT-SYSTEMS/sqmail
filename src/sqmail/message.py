@@ -41,13 +41,31 @@ class Message:
 		self.cursor.execute("SELECT %s FROM headers WHERE id = %d" % (fieldname, self.id))
 		return self.cursor.fetchone()[0]
 		
-	def fetchbody(self, fieldname):
+	def fetchheaders(self):
 		if not self.id:
-			raise RuntimeError, "Trying to fetch field `"+fieldname+"' from non-database message"
-		if not self.cursor:
-			self.cursor = sqmail.db.cursor()
-		self.cursor.execute("SELECT %s FROM bodies WHERE id = %d" % (fieldname, self.id))
-		return self.cursor.fetchone()[0]
+			raise RuntimeError, ("Trying to fetch headers from "
+								 "non-database message")
+		return sqmail.db.fetchone("SELECT header from bodies WHERE id = %s",
+								  self.id)[0]
+
+	def fetchbody(self):
+		"""Return body from database as a string
+
+		Retrieve in blocks of 960KB to avoid exceeding maximum packet
+		size.
+		"""
+		blocksize, body, i = 983040, "", 1
+		if not self.id:
+			raise RuntimeError, ("Trying to fetch body from"
+								 "non-database message")
+		while 1:
+			s = sqmail.db.fetchone("SELECT SUBSTRING(body, %d, %d) "
+								   "from bodies WHERE id = %%s" %
+								   (i, blocksize), self.id)[0]
+			body = body + s
+			i = i + blocksize
+			if len(s) != blocksize: break
+		return body
 		
 	def getid(self):
 		if not self.id:
@@ -107,7 +125,7 @@ class Message:
 	
 	def getheaders(self):
 		if self.headers == None:
-			self.headers = self.fetchbody("header")
+			self.headers = self.fetchheaders()
 		if self.headers == None:
 			print "WARNING: msg id", self.id, "has no headers --- corrupt database?"
 			self.headers = ""
@@ -115,7 +133,7 @@ class Message:
 	
 	def getbody(self):
 		if self.body == None:
-			b = self.fetchbody("body")
+			b = self.fetchbody()
 			# Experimental optimisation: we may not actually need
 			# to cache the bodies (we don't look at them very
 			# often, and it may help the memory leak).
@@ -185,12 +203,7 @@ class Message:
 			self.date = r
 
 		self.headers = string.join(msg.headers, "")
-		self.body = ""
-		while 1:
-			i = msg.fp.readline()
-			if not i:
-				break
-			self.body = self.body + i
+		self.body = msg.fp.read()
 		
 	def loadfromstring(self, msgstring):
 		fp = cStringIO.StringIO(msgstring)
@@ -221,15 +234,23 @@ class Message:
 		self.cursor.execute(cmd)
 	
 	def _writebodiestodatabase(self):
-		cmd = ""
+		"""Write the message into the bodies table
+
+		Because mysql's maximum packet length defaults to 1MB, write
+		data in 960KB chunks if message is very long.
+
+		"""
+		blocksize = 983040
 		if (self.headers != None):
-			cmd = cmd + "header = '"+sqmail.db.escape(self.headers)+"',"
+			sqmail.db.execute("UPDATE bodies set header = %s WHERE id = %s",
+							  (self.headers, self.id))
 		if (self.body != None):
-			cmd = cmd + "body = '"+sqmail.db.escape(self.body)+"',"
-		if (cmd == ""):
-			return
-		cmd = "UPDATE bodies SET %s WHERE id = %d" % (cmd[0:-1], self.id)
-		self.cursor.execute(cmd)
+			sqmail.db.execute("UPDATE bodies set body = %s WHERE id = %s",
+							  (self.body[:blocksize], self.id))
+			for i in range(blocksize, len(self.body), blocksize):
+				sqmail.db.execute("UPDATE bodies set body = "
+								  "CONCAT(body, %s) WHERE id = %s",
+								  (self.body[i:i+blocksize], self.id))
 
 	def savealltodatabase(self):
 		if not self.cursor:
@@ -238,8 +259,10 @@ class Message:
 		if not self.id:
 			# Need to create a new entry.
 			self.id = sqmail.db.getnewid(self.cursor)
-			self.cursor.execute("INSERT INTO headers (id) VALUES (%d)" % self.id)
-			self.cursor.execute("INSERT INTO bodies (id) VALUES (%d)" % self.id)
+			self.cursor.execute("INSERT INTO headers (id) VALUES (%d)" %
+								self.id)
+			self.cursor.execute("INSERT INTO bodies (id) VALUES (%d)" %
+								self.id)
 		self._writeheaderstodatabase()
 		self._writebodiestodatabase()
 		sqmail.db.unlock(self.cursor)
@@ -334,6 +357,10 @@ class Message:
 
 # Revision History
 # $Log: message.py,v $
+# Revision 1.9  2001/06/15 02:23:10  bescoto
+# Read and write messages in 960K chunks to avoid exceeding maximum mysql
+# packet size.
+#
 # Revision 1.8  2001/04/25 12:51:46  dtrg
 # Fixed generation of the In-Reply-To headers (it was looking for the
 # Message-Id field of the original message in the wrong place and with the
