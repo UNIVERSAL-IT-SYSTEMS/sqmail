@@ -21,9 +21,9 @@ Syntax: %s client [-s] [-e expression]...[-e expression]
                   [filename]...[filename]
 
     -e expression     Cause SQmaiL to execute expression
-	filename          Read file filename and execute
-	-s                Read commands from stdin and execute
-	<no arguments>    Read commands from terminal like python interpreter
+    filename          Read file filename and execute
+    -s                Read commands from stdin and execute
+    <no arguments>    Read commands from terminal like python interpreter
 
 SQmaiL client is not meant as a substitute for the python interpreter
 or for running large files --- it is best used for sending small

@@ -90,12 +90,14 @@ def escape(str):
 
 def execute(command, argtuple = None):
 	"""Get a cursor and run command on it.  Returns of cursor.execute"""
+	print "Executing: ", command, argtuple
 	c = cursor()
 	if argtuple: return c.execute(command, argtuple)
 	else: return c.execute(command)
 
 def fetchall(query, argtuple = None):
 	"""Get a cursor, run query, and return results of cursor() fetchall."""
+	print "Fetchall: ", query, argtuple
 	c = cursor()
 	if argtuple: c.execute(query, argtuple)
 	else: c.execute(query)
@@ -103,6 +105,7 @@ def fetchall(query, argtuple = None):
 
 def fetchone(query, argtuple = None):
 	"""Same as fetchall but only return one row"""
+	print "Fetchone: ", query, argtuple
 	c = cursor()
 	if argtuple: c.execute(query, argtuple)
 	else: c.execute(query)
@@ -110,6 +113,13 @@ def fetchone(query, argtuple = None):
 
 # Revision History
 # $Log: db.py,v $
+# Revision 1.4  2001/06/08 04:38:16  bescoto
+# Multifile diff: added a few convenience functions to db.py and sequences.py.
+# vfolder.py and queries.py are largely new, they are part of a system that
+# caches folder listings so the folder does not have to be continually reread.
+# createdb.py and upgrade.py were changed to deal with the new folder formats.
+# reader.py was changed a bit to make it compatible with these changes.
+#
 # Revision 1.3  2001/06/01 19:26:59  bescoto
 # Defined a few convenience functions
 #

@@ -38,6 +38,7 @@ def fetch_file():
 	sqmsg = sqmail.message.Message()
 	sqmsg.loadfrommessage(msg)
 	sqmsg.savealltodatabase()
+	sqmail.vfolder.filter_incoming(sqmsg)
   
 def SQmaiLFetch():	
 	if (len(sys.argv) < 3):
@@ -53,6 +54,13 @@ def SQmaiLFetch():
 
 # Revision History
 # $Log: fetch.py,v $
+# Revision 1.2  2001/06/08 04:38:16  bescoto
+# Multifile diff: added a few convenience functions to db.py and sequences.py.
+# vfolder.py and queries.py are largely new, they are part of a system that
+# caches folder listings so the folder does not have to be continually reread.
+# createdb.py and upgrade.py were changed to deal with the new folder formats.
+# reader.py was changed a bit to make it compatible with these changes.
+#
 # Revision 1.1  2001/05/23 10:49:37  dtrg
 # Added the ability to incorporate messages into the database without the
 # GUI. (Currently just for single messages.)

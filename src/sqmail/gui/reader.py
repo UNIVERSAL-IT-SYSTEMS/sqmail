@@ -12,12 +12,15 @@ import gnome.url
 import libglade
 import urllib
 import tempfile
+import thread
+import time
 import string
 import sqmail.vfolder
 import sqmail.message
 import sqmail.preferences
 import sqmail.picons
 import sqmail.server
+import sqmail.utils
 import sqmail.gui.textviewer
 import sqmail.gui.binaryviewer
 import sqmail.gui.htmlviewer
@@ -64,14 +67,14 @@ class SQmaiLReader:
 		self.messagepages = []
 		self.counting = None
 
-		# Load the pixmaps.
+		# Initialize messagelist instance
 
-		self.deleted_pixmap = gtk.GtkPixmap(self.widget.messagelist.get_window(), \
-			sys.path[0] + "/images/deleted-message.xpm")
-		self.unread_pixmap = gtk.GtkPixmap(self.widget.messagelist.get_window(), \
-			sys.path[0] + "/images/unread-message.xpm")
-		self.sent_pixmap = gtk.GtkPixmap(self.widget.messagelist.get_window(), \
-			sys.path[0] + "/images/sent-message.xpm")
+		self.messagelist = MessageList(self)
+
+		# Start polling as determined by the settings
+
+		interval = 1000*int(sqmail.utils.getsetting("Polling interval", "10"))
+		gtk.timeout_add(interval, self.poll)
 
 		# Enable DND on the vfolder list.
 
@@ -113,23 +116,12 @@ class SQmaiLReader:
 	# folder list.
 
 	def describe_vfolder(self, vf):
-		if not vf.getcounted():
-			return (vf.name, "?", "?")
-		unread = vf.getunread()
-		if unread:
-			unread = "%d" % unread
-		else:
-			unread = ""
-		return (vf.name, unread, "%d" % vf.getlen())
+		return (vf.getname(), "%d" % vf.getunread(), "%d" % vf.getsize())
 
 	# Modify the passed style to reflect the status of the current folder.
 
 	def style_vfolder(self, vf, style):
-		if not vf.getcounted():
-			fg = sqmail.preferences.get_vfolderpendingfg()
-			bg = sqmail.preferences.get_vfolderpendingbg()
-			font = sqmail.preferences.get_vfolderpendingfont()
-		elif vf.getunread():
+		if vf.getunread():
 			fg = sqmail.preferences.get_vfolderunreadfg()
 			bg = sqmail.preferences.get_vfolderunreadbg()
 			font = sqmail.preferences.get_vfolderunreadfont()
@@ -166,21 +158,6 @@ class SQmaiLReader:
 			readstatus = ""
 		return (readstatus, f, msg.getsubject(), d)
 		
-	# Sets the icon for a message.
-
-	def icon_message(self, i, msg):
-		pixmap = None
-		readstatus = msg.getreadstatus()
-		if (readstatus == "Unread"):
-			pixmap = self.unread_pixmap
-		elif (readstatus == "Sent"):
-			pixmap = self.sent_pixmap
-		elif (readstatus == "Deleted"):
-			pixmap = self.deleted_pixmap
-
-		if pixmap:
-			self.widget.messagelist.set_pixmap(i, 0, pixmap)
-
 	# Return the current vfolder, or the vfolder corresponding to a
 	# particular node.
 
@@ -207,45 +184,33 @@ class SQmaiLReader:
 		self.widget.folderlist.freeze()
 		sel = self.widget.folderlist.selection
 		if (len(sel) == 1):
-			sel = self.widget.folderlist.node_get_row_data(sel[0]).name
+			sel = self.widget.folderlist.node_get_row_data(sel[0]).id
 		else:
 			sel = None
 		print "Clearing list"
 		self.widget.folderlist.clear()
 		print "Done"
-		l = sqmail.vfolder.get_folder_list()
-		print "Got folder list"
-		d = {}
-		for i in xrange(len(l)):
-			id = l[i]
-			try:
-				vf = sqmail.vfolder.VFolder(id=id)
-			except KeyError:
-				print "WARNING! VFolder id",id,"is in the folderlist but does not seem to exist."
-				continue
 
-			name = vf.getname()
-			parent = vf.getparent()
-			if parent:
-				try:
-					parent = d[parent]
-				except KeyError:
-					print "DANGER! Configuration inconsistency in vfolder", name+"."
-					parent = None
-			else:
-				parent = None
-
-			node = self.widget.folderlist.insert_node(parent, None, \
-				["", "", ""], is_leaf=0, expanded=1)
-			self.widget.folderlist.node_set_row_data(node, vf)
-			self.update_vfolder(node)
-			d[id] = node
-			if (vf.name == sel):
-				self.widget.folderlist.select(node)
-		self.startcounting()
+		# Create tree starting with root folder and recurse depth
+		# first adding nodes in order specified by the vfolder's
+		# getchildren function.
+		self._addnode_recursive(sqmail.vfolder.get_by_id(1), None, sel)
+		
+		#self.startcounting()
 		self.widget.folderlist.thaw()
 		self.popprogress()
 		
+	def _addnode_recursive(self, vfolder, parentnode, sel):
+		"""Helper function for update_vfolder"""
+		node = self.widget.folderlist.insert_node(parentnode, None,
+					["", "", ""], is_leaf=0, expanded=1)
+		self.widget.folderlist.node_set_row_data(node, vfolder)
+		self.update_vfolder(node)
+		if vfolder.id == sel:
+			self.widget.folderlist.select(node)
+		for child in vfolder.getchildren():
+			self._addnode_recursive(child, node, sel)
+
 	# Start background counting the vfolders.
 
 	def startcounting(self):
@@ -310,17 +275,16 @@ class SQmaiLReader:
 		vf = self.vfolder(node)
 		if (vf == None):
 			return
-		vf.scan()
 		self.update_vfolder(node)
 		self.widget.foldername.set_text(vf.name)
 		self.widget.folderquery.freeze()
 		self.widget.folderquery.set_point(0)
 		self.widget.folderquery.delete_text(0, -1)
-		self.widget.folderquery.insert(None, None, None, \
+		self.widget.folderquery.insert(None, None, None,
 			vf.getuquerystr())
 		self.widget.folderquery.set_word_wrap(1)
 		self.widget.folderquery.thaw()
-		self.update_messagelist()
+		self.messagelist.update_messagelist(vf)
 
 	# ...or has deselected one. (Generated implicitly.)
 
@@ -328,8 +292,9 @@ class SQmaiLReader:
 		vf = self.vfolder(node)
 		if (vf == None):
 			return
-		vf.clearcache()
-		self.startcounting()
+		self.messagelist.save_curmsg(vf)
+		#vf.clearcache()
+		#self.startcounting()
 		#vf.scan()
 		self.update_vfolder(node)
 
@@ -341,8 +306,7 @@ class SQmaiLReader:
 		node = self.widget.folderlist.selection[0]
 		vf.setname(self.widget.foldername.get_text())
 		vf.setuquery(query)
-		vf.save()
-		self.write_vfolderlist()
+		#self.write_vfolderlist()
 
 		#sqmail.gui.utils.update_ctree(self.widget.folderlist, \
 		#	node, self.describe_vfolder(vf))
@@ -353,11 +317,8 @@ class SQmaiLReader:
 	def copy_vfolder(self):
 		node = self.widget.folderlist.selection[0]
 		vf = self.vfolder()
-		newvf = sqmail.vfolder.VFolder(name="***new***", uquery=vf.uquery,
-			parent=vf.parent)
-		newvf.setname("Copy of "+vf.getname())
-		newvf.save()
-
+		newvf = sqmail.vfolder.create_vfolder("Copy of " + vf.getname(),
+											  vf.id, str(vf.uquery))
 		l = self.vfolderlist()
 		i = l.index(vf.id)
 		l.insert(i+1, newvf.id)
@@ -373,11 +334,9 @@ class SQmaiLReader:
 	def delete_vfolder(self):
 		vf = self.vfolder()
 
-		for i in xrange(self.widget.folderlist.rows):
-			node = self.widget.folderlist.node_nth(i)
-			nvf = self.vfolder(node)
-			if (nvf.parent == vf.name):
-				nvf.setparent(vf.parent)
+		mainparent = vf.getparents()[0]
+		for child in vf.getchildren():
+			mainparent.addchildid(child.id)
 
 		l = self.vfolderlist()
 		i = l.index(vf.id)
@@ -427,33 +386,6 @@ class SQmaiLReader:
 		self.widget.folderlist.thaw()
 
 		self.write_vfolderlist()
-
-	# Update the message list to reflect the currently selected vfolder.
-
-	def update_messagelist(self):
-		vf = self.vfolder()
-		self.pushprogress()
-		self.widget.messagelist.freeze()
-		self.widget.messagelist.clear()
-		self.messagelist = []
-		for i in xrange(len(vf)):
-			if not (i & 255):
-				self.setprogress("Updating message list", i, len(vf))
-			msg = sqmail.message.Message(vf[i][0])
-			msg.readstatus = vf[i][1]
-			msg.fromfield = vf[i][2]
-			msg.realfromfield = vf[i][3]
-			msg.subjectfield = vf[i][4]
-			msg.date = vf[i][5]
-			self.messagelist.append(msg)
-			self.widget.messagelist.append(self.describe_message(msg))
-			self.icon_message(i, msg)
-			self.widget.messagelist.set_row_data(i, msg)
-		self.widget.messagelist.unselect_all()
-		self.widget.messagelist.thaw()
-		self.setprogress("Analyzing message", 1, 1)
-		self.popprogress()
-		self.update_messagewindow()
 
 	# Update the message window to reflect the currently selected message.
 
@@ -540,13 +472,7 @@ class SQmaiLReader:
 		vf = self.vfolder()
 		msg.readstatus = status
 		msg.savealltodatabase()
-
-		self.widget.messagelist.freeze()
-		sqmail.gui.utils.update_clist(self.widget.messagelist, \
-			mn, self.describe_message(msg))
-		self.icon_message(mn, msg)
-		self.widget.messagelist.thaw()
-
+		self.messagelist.update_readstatus(mn, msg)
 
 	# User has selected a message. Change to it and update.
 
@@ -556,6 +482,37 @@ class SQmaiLReader:
 		if (msg and (msg.getreadstatus() == "Unread")):
 			self.changeread_message(i, msg, "Read")
 		self.update_messagewindow()
+
+	def poll(self):
+		"""Poll in the background
+
+		Every so often, as determind by preferences, check to see if
+		the sequence "UpdatedVFolders" has any members.  If it does,
+		it clears the sequence, reloads the folder list, and also
+		reloads the message list, if the current folder was one
+		affected.
+
+		"""
+		try: self.polling_sequence
+		except AttributeError:
+			self.polling_sequence = \
+				   (sqmail.sequences.get_by_name("UpdatedVFolders") or
+				    sqmail.sequences.create_sequence("UpdatedVFolders"))
+
+		print "beginning poll"
+		changed_folderids = self.polling_sequence.list()
+		if changed_folderids:
+			print "found new messages"
+			self.polling_sequence.deleteids(changed_folderids)
+			for folderid in changed_folderids:
+				vf = sqmail.vfolder.get_by_id(folderid)
+				vf.getunread("table")
+				vf.getsize("table")
+				if vf is self.messagelist.vfolder:
+					self.messagelist.save_curmsg(vf)
+					self.messagelist.update_messagelist(vf)
+			self.update_vfolderlist()
+		return 1
 
 	# --- Signal handlers -------------------------------------------------
 
@@ -650,6 +607,7 @@ class SQmaiLReader:
 		
 	def on_quit(self, obj):
 		self.server.stop()   # Stop server, remove socket
+		self.messagelist.save_curmsg(self.vfolder())
 		sys.exit(0)
 
 	def on_preferences(self, obj):
@@ -744,8 +702,139 @@ class SQmaiLReader:
 	on_addresses = on_unimplemented
 	on_forward = on_unimplemented
 
+
+
+class MessageList:
+	"""Wrapper around widget for displaying message lists
+
+	self.widget is the main widget, a CList.  This class was added
+	because of the complications in only getting information about
+	some of the messages in a folder.  at_top and at_bottom should be
+	true respectively if there are no more messages to get before or
+	after those currently displayed.
+
+	"""
+	def __init__(self, reader):
+		self.reader = reader
+		self.widget = reader.widget.messagelist
+		
+		self.blocksize = sqmail.utils.getsetting("Header blocksize", 100)
+		self.curmsg = None
+		self.curmsgpos = None
+		self.at_top = None
+		self.at_bottom = None
+		self.messagelist = None
+		self.vfolder = None
+
+		# Load pixmaps
+		self.deleted_pixmap = gtk.GtkPixmap(self.widget.get_window(),
+			sys.path[0] + "/images/deleted-message.xpm")
+		self.unread_pixmap = gtk.GtkPixmap(self.widget.get_window(),
+			sys.path[0] + "/images/unread-message.xpm")
+		self.sent_pixmap = gtk.GtkPixmap(self.widget.get_window(),
+			sys.path[0] + "/images/sent-message.xpm")
+
+
+	def update_messagelist(self, vfolder):
+		"""Update message list to reflect currently selected vfolder
+
+		First insert some messages aftet and including the current
+		message, and mark the first one inserted as the current.  Then
+		insert the previous ones at the beginning.
+
+		"""
+		self.vfolder = vfolder
+		self.reader.pushprogress()
+		self.widget.freeze()
+		self.widget.clear()
+		
+		self.messagelist = []
+		self.insert_messagelist(vfolder.scan(vfolder.curmsg, self.blocksize))
+		self.curmsgpos = 0
+		self.insert_messagelist(vfolder.scan(vfolder.curmsg,
+											 -self.blocksize), 0)
+		# This moveto doesn't work, don't know why not
+		self.widget.moveto(self.curmsgpos)
+		self.widget.select_row(self.curmsgpos, 0)
+		self.widget.thaw()
+		self.reader.setprogress("Analyzing message", 1, 1)
+		self.reader.update_messagewindow()
+
+	def insert_messagelist(self, newlist, position = -1):
+		"""Insert sequence of message headers at specified position
+
+		If position == -1, append.  This also updates self.messagelist
+		"""
+		if position == -1: position = len(self.messagelist)
+
+		ml_length = len(newlist)
+		i = 0
+		for columns in newlist:
+			msg = sqmail.message.Message(columns[0])
+			msg.readstatus = columns[1]
+			msg.fromfield = columns[2]
+			msg.realfromfield = columns[3]
+			msg.subjectfield = columns[4]
+			msg.date = columns[5]
+			self.messagelist.insert(position + i, msg)
+			self.widget.insert(position + i, self.describe_message(msg))
+			self.icon_message(position + i, msg)
+			self.widget.set_row_data(position + i, msg)
+			i = i + 1
+		if self.curmsgpos is not None and self.curmsgpos <= position:
+			self.curmsgpos = self.curmsgpos + i
+
+	def icon_message(self, i, msg):
+		"""Set the icon for a message"""
+		pixmap = None
+		readstatus = msg.getreadstatus()
+		if (readstatus == "Unread"):
+			pixmap = self.unread_pixmap
+		elif (readstatus == "Sent"):
+			pixmap = self.sent_pixmap
+		elif (readstatus == "Deleted"):
+			pixmap = self.deleted_pixmap
+		if pixmap:
+			self.widget.set_pixmap(i, 0, pixmap)
+
+	def describe_message(self, msg):
+		"""Return message information to be listed in messagelist widget"""
+		f = sqmail.gui.utils.render_address((msg.getrealfrom(),
+											 msg.getfrom()))
+		dayago = time.time() - 24.0*60.0*60.0
+		d = msg.getdate()
+		if (d < dayago):
+			d = time.strftime("%Y/%m/%d", time.localtime(d))
+		else:
+			d = time.strftime("%H:%M", time.localtime(d))
+		readstatus = msg.getreadstatus()
+		if (readstatus == "Read"):
+			readstatus = ""
+		return (readstatus, f, msg.getsubject(), d)
+
+	def update_readstatus(self, msgpos, msg):
+		"""Add/remove the little picture of the envelope on the left"""
+		self.widget.freeze()
+		self.icon_message(msgpos, msg)
+		sqmail.gui.utils.update_clist(self.widget, msgpos,
+									  self.describe_message(msg))
+		self.widget.thaw()
+
+	def save_curmsg(self, vf):
+		"""Writes current message to database for current folder"""
+		current_message = self.reader.message()
+		if current_message:
+			vf.setcurmsg(current_message.id)
+
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.24  2001/06/08 04:38:16  bescoto
+# Multifile diff: added a few convenience functions to db.py and sequences.py.
+# vfolder.py and queries.py are largely new, they are part of a system that
+# caches folder listings so the folder does not have to be continually reread.
+# createdb.py and upgrade.py were changed to deal with the new folder formats.
+# reader.py was changed a bit to make it compatible with these changes.
+#
 # Revision 1.23  2001/05/31 20:28:01  bescoto
 # Added a few lines so reader starts server, polls periodically, and then
 # stops on_quit.

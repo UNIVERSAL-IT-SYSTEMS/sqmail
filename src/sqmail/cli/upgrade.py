@@ -9,7 +9,6 @@ import getpass
 import mailbox
 import sqmail.db
 import sqmail.message
-import sqmail.vfolder
 import getopt
 import os.path
 import cPickle
@@ -23,9 +22,11 @@ def usage():
 	print "BACK EVERYTHING UP BEFORE USING!"
 
 def upgrade_vfolders():
+	global sqmail
 	cursor = sqmail.db.cursor()
 	version = sqmail.utils.getsetting("vfolder data version", "0.1")
 	if (version == "0.1"):
+		import sqmail.vfolder
 		print "Upgrading vfolder data from 0.1 to 0.2."
 		try:
 			cursor.execute("drop table vfolders")
@@ -55,6 +56,51 @@ def upgrade_vfolders():
 
 		sqmail.utils.setsetting("vfolders", l)
 		sqmail.utils.setsetting("vfolder data version", "0.2")
+
+	if (version == "0.2"):
+		print "Upgrading vfolder data from 0.2 to 0.3"
+		try: cursor.execute("DROP TABLE vfolders_temp")
+		except sqmail.db.db().OperationalError: pass
+		cursor.execute("RENAME TABLE vfolders TO vfolders_temp")
+		cursor.execute("""
+            CREATE TABLE vfolders
+                (id INTEGER UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                 name TEXT,
+                 size INTEGER UNSIGNED,
+                 unread INTEGER UNSIGNED,
+                 curmsg INTEGER UNSIGNED,
+                 curmsgpos INTEGER UNSIGNED,
+                 query TEXT,
+                 children TEXT)""")
+		cursor.execute("INSERT INTO vfolders (name, query, children) "
+					   "VALUES ('/', '1', '')")
+
+		oldfolderids, oldfolderparents = {}, {}
+		for row in sqmail.db.fetchall("SELECT id,name,query,parent "
+									  "FROM vfolders_temp"):
+			oldfolderids[row[0]] = [row[1], row[2], row[3]]
+			if not oldfolderparents.has_key(row[3]):
+				oldfolderparents[row[3]] = []
+			if not oldfolderparents.has_key(row[0]):
+				oldfolderparents[row[0]] = []
+			oldfolderparents[row[3]].append(row[0])
+
+		import sqmail.vfolder
+		oldtonew = {0:1}
+		newparents = [0]
+		while newparents:
+			newparentcopy = newparents
+			newparents = []
+			for parent in newparentcopy:
+				for child in oldfolderparents[parent]:
+					childrow = oldfolderids[child]
+					vf = sqmail.vfolder.create_vfolder(childrow[0],
+													   oldtonew[parent],
+													   childrow[1])
+					oldtonew[child] = vf.id
+					newparents.append(child)
+		sqmail.utils.setsetting("vfolder data version", "0.3")
+		
 
 def upgrade_purges():
 	cursor = sqmail.db.cursor()
@@ -86,8 +132,27 @@ def upgrade_picons():
 			"CREATE TABLE picons"\
 			"  (email VARCHAR(128) PRIMARY KEY NOT NULL,"\
 			"  image TEXT)");
-
 		sqmail.utils.setsetting("picons data version", "0.2")
+
+def upgrade_sequences():
+	cursor = sqmail.db.cursor()
+	version = sqmail.utils.getsetting("sequences data version")
+	if version == None:
+		print "Creating sequence tables"
+		cursor.execute("""CREATE TABLE sequence_data
+                          (sid INTEGER UNSIGNED NOT NULL,
+                           id INTEGER UNSIGNED NOT NULL,
+                           UNIQUE INDEX sidid (sid, id))""")
+		cursor.execute("""CREATE TABLE sequence_temp
+                          (sid INTEGER UNSIGNED NOT NULL,
+                           id INTEGER UNSIGNED NOT NULL,
+                           UNIQUE INDEX sidid (sid, id))""")
+		cursor.execute("""CREATE TABLE sequence_descriptions
+                          (sid INTEGER UNSIGNED NOT NULL
+                               AUTO_INCREMENT PRIMARY KEY,
+                           name TEXT NOT NULL,
+                           misc LONGBLOB)""")
+		setsetting(cursor, "sequences data version", "0.0")
 
 def SQmaiLUpgrade():	
 	if (len(sys.argv) != 2):
@@ -99,10 +164,18 @@ def SQmaiLUpgrade():
 	upgrade_purges()
 	upgrade_data()
 	upgrade_picons()
+	upgrade_sequences()
 	print "Finished upgrade"
 
 # Revision History
 # $Log: upgrade.py,v $
+# Revision 1.5  2001/06/08 04:38:16  bescoto
+# Multifile diff: added a few convenience functions to db.py and sequences.py.
+# vfolder.py and queries.py are largely new, they are part of a system that
+# caches folder listings so the folder does not have to be continually reread.
+# createdb.py and upgrade.py were changed to deal with the new folder formats.
+# reader.py was changed a bit to make it compatible with these changes.
+#
 # Revision 1.4  2001/03/09 20:36:19  dtrg
 # First draft picons support.
 #
