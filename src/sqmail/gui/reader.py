@@ -11,6 +11,7 @@ import sqmail.vfolder
 import sqmail.message
 import sqmail.gui.textviewer
 import sqmail.gui.binaryviewer
+import sqmail.gui.htmlviewer
 import sqmail.gui.preferences
 import sqmail.gui.compose
 import sqmail.gui.utils
@@ -335,6 +336,8 @@ class SQmaiLReader:
 		for i in range(len(mime)):
 			if (mime[i][1] in sqmail.gui.textviewer.displayable):
 				viewer = sqmail.gui.textviewer.TextViewer(self, mime[i])
+			elif (mime[i][1] in sqmail.gui.htmlviewer.displayable):
+				viewer = sqmail.gui.htmlviewer.HTMLViewer(self, mime[i])
 			else:
 				viewer = sqmail.gui.binaryviewer.BinaryViewer(self, mime[i])
 			self.widget.messagedisplay.append_page(viewer.getpage(), viewer.gettab())
@@ -489,6 +492,9 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.2  2001/01/11 20:07:23  dtrg
+# Added preliminary HTML rendering support (ten minutes work!).
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
