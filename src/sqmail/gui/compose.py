@@ -140,11 +140,17 @@ class SQmaiLCompose:
 				type = self.widget.attachmentlist.get_text(i, 0)
 				name = self.widget.attachmentlist.get_text(i, 2)
 				submw = mw.nextpart()
-				submw.addheader("Content-Transfer-Encoding", "base64")
 				submw.addheader("Content-Disposition", "attachment; filename=\""+name+"\"")
-				fp = submw.startbody(type)
-				atfp = cStringIO.StringIO(self.widget.attachmentlist.get_row_data(i))
-				base64.encode(atfp, fp)
+				# Hack to get around a bug in SpamCop.
+				if (type == "message/rfc822"):
+					submw.addheader("Content-Transfer-Encoding", "8bit")
+					fp = submw.startbody(type)
+					fp.write(self.widget.attachmentlist.get_row_data(i))
+				else:
+					submw.addheader("Content-Transfer-Encoding", "base64")
+					fp = submw.startbody(type)
+					atfp = cStringIO.StringIO(self.widget.attachmentlist.get_row_data(i))
+					base64.encode(atfp, fp)
 			mw.lastpart()
 		else:
 			# No; a single part message will do.
@@ -178,7 +184,7 @@ class SQmaiLCompose:
 		sqmail.gui.utils.FileSelector("Attach File...", "", \
 			SQmaiLCompose.on_attach_file, self)
 
-	def on_attach_file(self, name):
+	def on_attach_file(self, name, type=None):
 		file = open(name)
 		# Determine the length of the file.
 		file.seek(0, 2)
@@ -187,7 +193,8 @@ class SQmaiLCompose:
 		# Read the entire file into memory.
 		file = file.read(l)
 		# Now add it to the icon list.
-		type = gnome.mime.type_of_file(name)
+		if not type:
+			type = gnome.mime.type_of_file(name)
 		name = os.path.basename(name)
 		pos = self.widget.attachmentlist.append([type, str(len(file)), name])
 		self.widget.attachmentlist.set_row_data(pos, file)
@@ -239,6 +246,19 @@ class SQmaiLCompose:
 
 # Revision History
 # $Log: compose.py,v $
+# Revision 1.2  2001/01/22 18:31:55  dtrg
+# Assorted changes, comprising:
+#
+# * Added a new pane to the notebook display containing the entire, un
+# MIMEified message. I was originally going to display just the headers and
+# then optionally the body when the user pressed a button, but it seems to
+# be decently fast without it.
+# * The first half of the Spamcop support. Now, pressing the Spam button
+# causes a compose window to appear all ready to send. The second half, that
+# will deal automatically with the automated replies from Spamcop, has yet
+# to be done.
+# * Yet another rehash of the vfolder colour code. Still doesn't work.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
