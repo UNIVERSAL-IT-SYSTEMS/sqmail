@@ -144,6 +144,20 @@ class VFolder:
 
 		self.unread = None
 		self.results = None
+		self.total = None
+
+	def count(self):
+		cursor = sqmail.db.cursor()
+		query = self.gethierarchicquery()
+		print "Counting", self.name
+		try:
+			cursor.execute("SELECT COUNT(*) FROM headers WHERE "+query+" AND readstatus='Unread'")
+			self.unread = cursor.fetchone()[0]
+			cursor.execute("SELECT COUNT(*) FROM headers WHERE "+query)
+			self.total = cursor.fetchone()[0]
+		except sqmail.db.db().OperationalError:
+			print "SQL syntax error in folder", self.name
+		print self.unread,"/", self.total
 
 	def scan(self):
 		cursor = sqmail.db.cursor()
@@ -163,9 +177,11 @@ class VFolder:
 					break
 
 				self.results.append(list(d))
+		self.total = len(self.results)
 
 	def clearcache(self):
 		self.results = []
+		self.total = None
 		
 	def getquery(self):
 		return self.query
@@ -203,17 +219,14 @@ class VFolder:
 		self.results = None
 
 	def getcounted(self):
-		return (self.results != None)
-
-	def purge(self):
-		self.results = None
+		return (self.total != None)
 
 	def save(self):
 		vfolder_set(self.id, self.name, self.query, self.parent)
 
 	def getunread(self):
-		if (self.results == None):
-			self.scan()
+		if (self.total == None):
+			self.count()
 		return self.unread
 	
 	def getresults(self):
@@ -221,13 +234,11 @@ class VFolder:
 			self.scan()
 		return self.results
 
-	def getlen(self):
-		return len(self)
-
 	def __len__(self):
-		if (self.results == None):
-			self.scan()
-		return len(self.results)
+		if (self.total == None):
+			self.count()
+		return self.total
+	getlen = __len__
 
 	def __getitem__(self, index):
 		if (self.results == None):
@@ -236,6 +247,11 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.13  2001/03/13 19:28:23  dtrg
+# Doesn't load message headers until you select the folder; this improves
+# speed and memory consumption considerably (because it's not keeping huge
+# numbers of message headers around).
+#
 # Revision 1.12  2001/03/12 10:34:26  dtrg
 # Forgot to escape some constant strings being passed to the SQL server.
 #
