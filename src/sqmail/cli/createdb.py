@@ -150,17 +150,19 @@ def SQmaiLCreateDB():
 	setsetting(cursor, "purges data version", "0.2")
 
 	# Add sequence tables
-	cursor.execute(
-		"""CREATE TABLE sequence_data
-        (sid VARCHAR(40) NOT NULL,
-		id INTEGER NOT NULL,
-		INDEX sidid (sid,id))
-		""")
-	cursor.execute(
-		"""CREATE TABLE sequence_descriptions
-        (sid VARCHAR(40) NOT NULL PRIMARY KEY,
-		description text)
-		""")
+	cursor.execute("""CREATE TABLE sequence_data
+                      (sid INTEGER UNSIGNED NOT NULL,
+                       id INTEGER UNSIGNED NOT NULL,
+                       UNIQUE INDEX sidid (sid, id))""")
+	cursor.execute("""CREATE TABLE sequence_temp
+                      (sid INTEGER UNSIGNED NOT NULL,
+                       id INTEGER UNSIGNED NOT NULL,
+                       UNIQUE INDEX sidid (sid, id))""")
+	cursor.execute("""CREATE TABLE sequence_descriptions
+                      (sid INTEGER UNSIGNED NOT NULL
+                           AUTO_INCREMENT PRIMARY KEY,
+                       name TEXT NOT NULL,
+                       misc LONGBLOB)""")
 	setsetting(cursor, "sequences data version", "0.0")
 
 	cursor.execute( \
@@ -190,6 +192,13 @@ def SQmaiLCreateDB():
 
 # Revision History
 # $Log: createdb.py,v $
+# Revision 1.6  2001/06/08 04:38:16  bescoto
+# Multifile diff: added a few convenience functions to db.py and sequences.py.
+# vfolder.py and queries.py are largely new, they are part of a system that
+# caches folder listings so the folder does not have to be continually reread.
+# createdb.py and upgrade.py were changed to deal with the new folder formats.
+# reader.py was changed a bit to make it compatible with these changes.
+#
 # Revision 1.5  2001/05/26 18:22:29  bescoto
 # Now adds sequence_data and sequence_descriptions tables
 #

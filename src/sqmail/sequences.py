@@ -10,8 +10,7 @@ CREATE TABLE sequence_data
 CREATE TABLE sequence_temp
    (sid INTEGER UNSIGNED NOT NULL,
     id INTEGER UNSIGNED NOT NULL,
-    UNIQUE INDEX sidid (sid, id),
-	date DATETIME);
+    UNIQUE INDEX sidid (sid, id));
 
 CREATE TABLE sequence_descriptions
    (sid INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -21,6 +20,7 @@ CREATE TABLE sequence_descriptions
 """
 
 import sqmail.db
+import string
 
 
 class SequenceException(Exception):
@@ -58,8 +58,8 @@ class Sequence:
 
 	def addid(self, id):
 		"""Given a message id, add it to the sequence"""
-		sqmail.db.execute("INSERT INTO sequence_data VALUES (%s, %s)",
-						  (self.sid, id))
+		sqmail.db.execute("INSERT INTO sequence_data (sid, id) VALUES "
+						  "(%s, %s)", (self.sid, id))
 
 	def checkid(self, id):
 		"""Returns true if message id is in sequence"""
@@ -74,6 +74,12 @@ class Sequence:
 		"""Removes the message id from the sequence"""
 		sqmail.db.execute("DELETE FROM sequence_data WHERE "
 						  "(sid = %s AND id = %s)", (self.sid, id))
+
+	def deleteids(self, idlist):
+		"""Remove a list of message ids from the sequence"""
+		slist = ["0"] + map(lambda id: "id = %d" % id, idlist)
+		sqmail.db.execute("DELETE FROM sequence_data WHERE sid = %d AND "
+						  "(%s)" % (self.sid, string.join(slist, " OR ")))
 
 	def list(self):
 		"""Return list of message ids in sequence.  May be long."""
@@ -116,7 +122,7 @@ class SequenceManagerClass:
 		"""Read all info from sequence_descriptions table"""
 		self.sequences_by_name = {}
 		self.sequences_by_sid = {}
-		for row in sqmail.db.fetchall("SELECT sid, name from "
+		for row in sqmail.db.fetchall("SELECT sid, name FROM "
 									  "sequence_descriptions"):
 			sid, name = row[0], row[1]
 			seq = Sequence(sid, name)
@@ -172,8 +178,8 @@ class SequenceManagerClass:
 
 	def create_sequence(self, name):
 		"""Returns a new sequence with specified name"""
-		sqmail.db.execute("INSERT into sequence_descriptions VALUES "
-						  "(NULL, %s, NULL)", name)
+		sqmail.db.execute("INSERT into sequence_descriptions (name) "
+						  "VALUES (%s)", name)
 		sid = sqmail.db.fetchone("SELECT LAST_INSERT_ID()")[0]
 		seq = Sequence(sid, name)
 		self.sequences_by_sid[sid] = seq
