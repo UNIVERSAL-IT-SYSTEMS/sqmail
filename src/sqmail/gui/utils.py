@@ -133,6 +133,9 @@ def okcancelbox(msg):
 
 def set_face(w, f):
 	w.set_data("face", f)
+	if not sqmail.preferences.get_usexfaces():
+		return
+
 	decoder = sqmail.preferences.get_xfacedecoder()
 	pipefp = popen2.popen2(decoder)
 	pipefp[1].write(f)
@@ -160,6 +163,13 @@ def set_xpm(w, xpm):
 			
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.7  2001/03/12 14:28:38  dtrg
+# Added the ability to disable X-Faces completely, as they weren't working
+# for some people (even with the code to detect if the decoding was
+# failing). Still needs a bit of cosmetic work --- it would be nice to grey
+# out preferences GUI elements that aren't valid when they're disabled ---
+# but it works.
+#
 # Revision 1.6  2001/03/09 20:36:19  dtrg
 # First draft picons support.
 #

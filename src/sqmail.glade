@@ -2122,36 +2122,6 @@ Try launching the MIME handler for it instead.</label>
 	  </widget>
 
 	  <widget>
-	    <class>GtkButton</class>
-	    <name>outgoingxfaceicon</name>
-	    <width>48</width>
-	    <height>48</height>
-	    <tooltip>This is the X-Face image you have opted to send. Click to change.</tooltip>
-	    <can_focus>True</can_focus>
-	    <signal>
-	      <name>clicked</name>
-	      <handler>on_load_bitmap</handler>
-	      <last_modification_time>Tue, 20 Feb 2001 18:50:52 GMT</last_modification_time>
-	    </signal>
-	    <label></label>
-	    <relief>GTK_RELIEF_NORMAL</relief>
-	    <child>
-	      <left_attach>1</left_attach>
-	      <right_attach>2</right_attach>
-	      <top_attach>5</top_attach>
-	      <bottom_attach>6</bottom_attach>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <xexpand>False</xexpand>
-	      <yexpand>False</yexpand>
-	      <xshrink>False</xshrink>
-	      <yshrink>False</yshrink>
-	      <xfill>False</xfill>
-	      <yfill>False</yfill>
-	    </child>
-	  </widget>
-
-	  <widget>
 	    <class>GtkCheckButton</class>
 	    <name>sendxface</name>
 	    <tooltip>If you like, I can send a specially encoded image with every email you send, for example a company logo or your face. Some mailers (including SQmaiL) will display this image with your messages. The image must be 48x48 and monochrome. It will increase the size of your messages by about 200 bytes.</tooltip>
@@ -2178,6 +2148,45 @@ Try launching the MIME handler for it instead.</label>
 	      <xfill>True</xfill>
 	      <yfill>False</yfill>
 	    </child>
+	  </widget>
+
+	  <widget>
+	    <class>GtkFrame</class>
+	    <name>frame11</name>
+	    <width>52</width>
+	    <height>52</height>
+	    <label_xalign>0</label_xalign>
+	    <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
+	    <child>
+	      <left_attach>1</left_attach>
+	      <right_attach>2</right_attach>
+	      <top_attach>5</top_attach>
+	      <bottom_attach>6</bottom_attach>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <xexpand>False</xexpand>
+	      <yexpand>False</yexpand>
+	      <xshrink>False</xshrink>
+	      <yshrink>False</yshrink>
+	      <xfill>False</xfill>
+	      <yfill>False</yfill>
+	    </child>
+
+	    <widget>
+	      <class>GtkButton</class>
+	      <name>outgoingxfaceicon</name>
+	      <width>48</width>
+	      <height>48</height>
+	      <tooltip>This is the X-Face image you have opted to send. Click to change.</tooltip>
+	      <can_focus>True</can_focus>
+	      <signal>
+		<name>clicked</name>
+		<handler>on_load_bitmap</handler>
+		<last_modification_time>Tue, 20 Feb 2001 18:50:52 GMT</last_modification_time>
+	      </signal>
+	      <label></label>
+	      <relief>GTK_RELIEF_NONE</relief>
+	    </widget>
 	  </widget>
 	</widget>
       </widget>
@@ -3656,6 +3665,7 @@ Try launching the MIME handler for it instead.</label>
 	  <class>GtkFrame</class>
 	  <name>frame10</name>
 	  <border_width>2</border_width>
+	  <sensitive>False</sensitive>
 	  <label>Default</label>
 	  <label_xalign>0</label_xalign>
 	  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -3717,7 +3727,7 @@ Try launching the MIME handler for it instead.</label>
 	  <widget>
 	    <class>GtkTable</class>
 	    <name>table13</name>
-	    <rows>2</rows>
+	    <rows>3</rows>
 	    <columns>2</columns>
 	    <homogeneous>False</homogeneous>
 	    <row_spacing>0</row_spacing>
@@ -3736,8 +3746,8 @@ Try launching the MIME handler for it instead.</label>
 	      <child>
 		<left_attach>0</left_attach>
 		<right_attach>1</right_attach>
-		<top_attach>0</top_attach>
-		<bottom_attach>1</bottom_attach>
+		<top_attach>1</top_attach>
+		<bottom_attach>2</bottom_attach>
 		<xpad>0</xpad>
 		<ypad>0</ypad>
 		<xexpand>False</xexpand>
@@ -3762,8 +3772,8 @@ Try launching the MIME handler for it instead.</label>
 	      <child>
 		<left_attach>0</left_attach>
 		<right_attach>1</right_attach>
-		<top_attach>1</top_attach>
-		<bottom_attach>2</bottom_attach>
+		<top_attach>2</top_attach>
+		<bottom_attach>3</bottom_attach>
 		<xpad>0</xpad>
 		<ypad>0</ypad>
 		<xexpand>False</xexpand>
@@ -3792,8 +3802,8 @@ Try launching the MIME handler for it instead.</label>
 	      <child>
 		<left_attach>1</left_attach>
 		<right_attach>2</right_attach>
-		<top_attach>0</top_attach>
-		<bottom_attach>1</bottom_attach>
+		<top_attach>1</top_attach>
+		<bottom_attach>2</bottom_attach>
 		<xpad>0</xpad>
 		<ypad>0</ypad>
 		<xexpand>True</xexpand>
@@ -3822,11 +3832,34 @@ Try launching the MIME handler for it instead.</label>
 	      <child>
 		<left_attach>1</left_attach>
 		<right_attach>2</right_attach>
-		<top_attach>1</top_attach>
-		<bottom_attach>2</bottom_attach>
+		<top_attach>2</top_attach>
+		<bottom_attach>3</bottom_attach>
 		<xpad>0</xpad>
 		<ypad>0</ypad>
 		<xexpand>True</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
+	      </child>
+	    </widget>
+
+	    <widget>
+	      <class>GtkCheckButton</class>
+	      <name>usexfaces</name>
+	      <can_focus>True</can_focus>
+	      <label>Use X-Faces</label>
+	      <active>False</active>
+	      <draw_indicator>True</draw_indicator>
+	      <child>
+		<left_attach>0</left_attach>
+		<right_attach>2</right_attach>
+		<top_attach>0</top_attach>
+		<bottom_attach>1</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
 		<yexpand>False</yexpand>
 		<xshrink>False</xshrink>
 		<yshrink>False</yshrink>
@@ -4292,6 +4325,7 @@ Try launching the MIME handler for it instead.</label>
 	  <widget>
 	    <class>GtkEntry</class>
 	    <name>externaleditor</name>
+	    <sensitive>False</sensitive>
 	    <tooltip>You can tell the Compose window to edit the message in an external editor. To set which editor you want to use, place the command line here. %s is expanded to the name of a temporary file that the message will be written to. Once finished, the editor should save the text back to the file and exit.</tooltip>
 	    <can_focus>True</can_focus>
 	    <editable>True</editable>
