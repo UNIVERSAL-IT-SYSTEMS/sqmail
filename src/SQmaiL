@@ -11,6 +11,8 @@ def usage():
 	print "Syntax: SQmaiL <command> [options]"
 	print "Available commands:"
 	print "  create-database    Create a new SQmaiL database"
+	print "  upgrade            Upgrade data from an old SQmaiL version"
+	print "  recover            Attempt to recover broken data"
 	print "  gui                Start up the Gnome MUA"
 	print "  scan               List the contents of a vfolder"
 	print "  show               Show an individual message"
@@ -34,12 +36,23 @@ elif (cmd == "show"):
 elif (cmd == "create-database"):
 	import sqmail.cli.createdb
 	sqmail.cli.createdb.SQmaiLCreateDB()
+elif (cmd == "recover"):
+	import sqmail.cli.recover
+	sqmail.cli.recover.SQmaiLRecover()
+elif (cmd == "upgrade"):
+	import sqmail.cli.upgrade
+	sqmail.cli.upgrade.SQmaiLUpgrade()
 else:
 	usage()
 	sys.exit(2)
 
 # Revision History
 # $Log: SQmaiL,v $
+# Revision 1.6  2001/01/19 20:34:55  dtrg
+# Added the recover and upgrade commands, plus the back-end code. recover
+# will let you rebuild various bits of the database (currently just the
+# vfolderlist). upgrade upgrades one version of the database to another.
+#
 # Revision 1.5  2001/01/10 12:17:16  dtrg
 # Fixed an OB1 error when testing for a command; now, doing SQmaiL by itself
 # no longer causes an ugly traceback.
