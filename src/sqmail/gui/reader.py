@@ -313,7 +313,7 @@ class SQmaiLReader:
 		vf = self.vfolder(node)
 		if (vf == None):
 			return
-		vf.purge()
+		vf.clearcache()
 		self.startcounting()
 		#vf.scan()
 		self.update_vfolder(node)
@@ -703,6 +703,11 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.18  2001/03/13 19:28:22  dtrg
+# Doesn't load message headers until you select the folder; this improves
+# speed and memory consumption considerably (because it's not keeping huge
+# numbers of message headers around).
+#
 # Revision 1.17  2001/03/12 19:30:11  dtrg
 # Now automatically queues up new messages for picon fetching in the
 # background (using a real thread, too).
