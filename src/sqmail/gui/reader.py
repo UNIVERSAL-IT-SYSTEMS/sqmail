@@ -470,8 +470,12 @@ class SQmaiLReader:
 
 		# Update the icon.
 
-		sqmail.gui.utils.set_xpm(self.widget.messageicon, \
-			sqmail.picons.get_picon_xpm(msg.getfrom()))
+		if sqmail.preferences.get_usepicons():
+			sqmail.gui.utils.set_xpm(self.widget.messageicon, \
+				sqmail.picons.get_picon_xpm(msg.getfrom()))
+		else:
+			sqmail.gui.utils.set_xpm(self.widget.messageicon, \
+				None)
 
 		# Fill in the message information boxes.
 		
@@ -695,6 +699,9 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.16  2001/03/12 10:35:06  dtrg
+# Now lets you turn off picons.
+#
 # Revision 1.15  2001/03/09 20:36:19  dtrg
 # First draft picons support.
 #
