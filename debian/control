@@ -3,11 +3,11 @@ Section: mail
 Priority: optional
 Maintainer: David Given <dg@cowlark.com>
 Standards-Version: 3.0.1
-Build-Depends: python-gnome, python-mysqldb
+Build-Depends: python-gnome, python-mysqldb, python-glade
 
 Package: sqmail
 Architecture: all
-Depends: python-gnome, python-mysqldb
+Depends: python-gnome, python-mysqldb, python-glade, lockfile-progs
 Suggests: compface
 Description:  SQmaiL is a mail reader for GNOME that stores all its mail in a
  MySQL database. This makes it blazingly fast for very large (10000 message)
