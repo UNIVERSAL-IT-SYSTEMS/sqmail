@@ -8,6 +8,7 @@ import gtk
 import gnome.ui
 import libglade
 import types
+import sqmail.gui.reader
 
 def render_time(t):
 	return time.asctime(time.gmtime(t))
@@ -108,8 +109,31 @@ class Callback:
 	def __getitem__(self, name):
 		return _callback(self.dest, self.dict[name])
 
+def errorbox(msg):
+	i = gnome.ui.GnomeErrorDialog(msg, sqmail.gui.reader.instance.widget.mainwin)
+	i.run_and_close()
+	i.destroy()
+
+def okbox(msg):
+	i = gnome.ui.GnomeOkDialog(msg, sqmail.gui.reader.instance.widget.mainwin)
+	i.run_and_close()
+	i.destroy()
+
+def okcancelbox(msg):
+	i = gnome.ui.GnomeOkCancelDialog(msg, sqmail.gui.reader.instance.widget.mainwin)
+	j = i.run_and_close()
+	i.destroy()
+	return j
+	
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.2  2001/02/15 19:34:16  dtrg
+# Many changes. Bulletproofed the send box, so it should now give you
+# (reasonably) user-friendly messages when something goes wrong; rescan a
+# vfolder when you leave it, so the vfolder list is kept up-to-date (and in
+# the background, too); added `unimplemented' messages to a lot of
+# unimplemented buttons; some general tidying.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #

@@ -200,6 +200,9 @@ class VFolder:
 	def getcounted(self):
 		return not not self.results
 
+	def purge(self):
+		self.results = None
+
 	def save(self):
 		vfolder_set(self.id, self.name, self.query, self.parent)
 
@@ -228,6 +231,13 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.6  2001/02/15 19:34:16  dtrg
+# Many changes. Bulletproofed the send box, so it should now give you
+# (reasonably) user-friendly messages when something goes wrong; rescan a
+# vfolder when you leave it, so the vfolder list is kept up-to-date (and in
+# the background, too); added `unimplemented' messages to a lot of
+# unimplemented buttons; some general tidying.
+#
 # Revision 1.5  2001/01/25 20:55:06  dtrg
 # Woohoo! Vfolder styling now works (mostly, except backgrounds). Also added
 # background vfolder counting to avoid that nasty delay on startup or
