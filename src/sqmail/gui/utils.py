@@ -142,6 +142,9 @@ def set_face(w, f):
 		i = string.split(i, '"')
 		if (len(i) == 3):
 			pixdata.append(i[1])
+	if (pixdata == []):
+		sqmail.gui.utils.errorbox("I was unable to decode an X-Face string. See the error message on the console.")
+		return
 
 	pixmap, mask = gtk.create_pixmap_from_xpm_d(w, None, pixdata)
 	c = w.children()
@@ -154,6 +157,10 @@ def set_face(w, f):
 			
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.5  2001/03/07 12:21:21  dtrg
+# Now tests for the X-Face encoder and decoder commands failing, and no
+# longer seg faults.
+#
 # Revision 1.4  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).
