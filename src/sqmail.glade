@@ -440,6 +440,11 @@
 	      <after>True</after>
 	      <last_modification_time>Fri, 08 Dec 2000 19:49:12 GMT</last_modification_time>
 	    </signal>
+	    <signal>
+	      <name>tree_unselect_row</name>
+	      <handler>on_vfolder_unselect</handler>
+	      <last_modification_time>Thu, 25 Jan 2001 20:33:58 GMT</last_modification_time>
+	    </signal>
 	    <columns>3</columns>
 	    <column_widths>110,33,27</column_widths>
 	    <selection_mode>GTK_SELECTION_BROWSE</selection_mode>
@@ -1412,6 +1417,7 @@ Try launching the MIME handler for it instead.</label>
 	    <widget>
 	      <class>GtkRadioButton</class>
 	      <name>imapbutton</name>
+	      <tooltip>Use IMAP to read messages from a remote server.</tooltip>
 	      <can_focus>True</can_focus>
 	      <signal>
 		<name>toggled</name>
@@ -1432,6 +1438,7 @@ Try launching the MIME handler for it instead.</label>
 	    <widget>
 	      <class>GtkRadioButton</class>
 	      <name>popbutton</name>
+	      <tooltip>Use POP to read messages from a remote server.</tooltip>
 	      <can_focus>True</can_focus>
 	      <signal>
 		<name>toggled</name>
@@ -1452,6 +1459,7 @@ Try launching the MIME handler for it instead.</label>
 	    <widget>
 	      <class>GtkRadioButton</class>
 	      <name>spoolbutton</name>
+	      <tooltip>Read messages from a local spool file.</tooltip>
 	      <can_focus>True</can_focus>
 	      <signal>
 		<name>toggled</name>
@@ -2016,7 +2024,7 @@ Try launching the MIME handler for it instead.</label>
     <widget>
       <class>GtkTable</class>
       <name>table2</name>
-      <rows>8</rows>
+      <rows>9</rows>
       <columns>4</columns>
       <homogeneous>False</homogeneous>
       <row_spacing>0</row_spacing>
@@ -2355,8 +2363,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>0</left_attach>
 	  <right_attach>1</right_attach>
-	  <top_attach>5</top_attach>
-	  <bottom_attach>6</bottom_attach>
+	  <top_attach>6</top_attach>
+	  <bottom_attach>7</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
@@ -2378,8 +2386,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>2</left_attach>
 	  <right_attach>3</right_attach>
-	  <top_attach>5</top_attach>
-	  <bottom_attach>6</bottom_attach>
+	  <top_attach>6</top_attach>
+	  <bottom_attach>7</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
@@ -2401,8 +2409,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>3</left_attach>
 	  <right_attach>4</right_attach>
-	  <top_attach>5</top_attach>
-	  <bottom_attach>6</bottom_attach>
+	  <top_attach>6</top_attach>
+	  <bottom_attach>7</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
@@ -2427,8 +2435,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>0</left_attach>
 	  <right_attach>1</right_attach>
-	  <top_attach>6</top_attach>
-	  <bottom_attach>7</bottom_attach>
+	  <top_attach>7</top_attach>
+	  <bottom_attach>8</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
@@ -2450,8 +2458,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>2</left_attach>
 	  <right_attach>3</right_attach>
-	  <top_attach>6</top_attach>
-	  <bottom_attach>7</bottom_attach>
+	  <top_attach>7</top_attach>
+	  <bottom_attach>8</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
@@ -2473,8 +2481,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>3</left_attach>
 	  <right_attach>4</right_attach>
-	  <top_attach>6</top_attach>
-	  <bottom_attach>7</bottom_attach>
+	  <top_attach>7</top_attach>
+	  <bottom_attach>8</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
@@ -2499,8 +2507,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>0</left_attach>
 	  <right_attach>1</right_attach>
-	  <top_attach>7</top_attach>
-	  <bottom_attach>8</bottom_attach>
+	  <top_attach>8</top_attach>
+	  <bottom_attach>9</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
@@ -2522,8 +2530,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>2</left_attach>
 	  <right_attach>3</right_attach>
-	  <top_attach>7</top_attach>
-	  <bottom_attach>8</bottom_attach>
+	  <top_attach>8</top_attach>
+	  <bottom_attach>9</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
@@ -2545,8 +2553,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>3</left_attach>
 	  <right_attach>4</right_attach>
-	  <top_attach>7</top_attach>
-	  <bottom_attach>8</bottom_attach>
+	  <top_attach>8</top_attach>
+	  <bottom_attach>9</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
@@ -2669,8 +2677,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>1</left_attach>
 	  <right_attach>2</right_attach>
-	  <top_attach>5</top_attach>
-	  <bottom_attach>6</bottom_attach>
+	  <top_attach>6</top_attach>
+	  <bottom_attach>7</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>True</xexpand>
@@ -2700,8 +2708,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>1</left_attach>
 	  <right_attach>2</right_attach>
-	  <top_attach>6</top_attach>
-	  <bottom_attach>7</bottom_attach>
+	  <top_attach>7</top_attach>
+	  <bottom_attach>8</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>True</xexpand>
@@ -2731,8 +2739,8 @@ Try launching the MIME handler for it instead.</label>
 	<child>
 	  <left_attach>1</left_attach>
 	  <right_attach>2</right_attach>
-	  <top_attach>7</top_attach>
-	  <bottom_attach>8</bottom_attach>
+	  <top_attach>8</top_attach>
+	  <bottom_attach>9</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>True</xexpand>
@@ -2836,6 +2844,109 @@ Try launching the MIME handler for it instead.</label>
 	  <right_attach>2</right_attach>
 	  <top_attach>2</top_attach>
 	  <bottom_attach>3</bottom_attach>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	  <xexpand>False</xexpand>
+	  <yexpand>False</yexpand>
+	  <xshrink>False</xshrink>
+	  <yshrink>False</yshrink>
+	  <xfill>True</xfill>
+	  <yfill>False</yfill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GtkLabel</class>
+	<name>label157</name>
+	<label>. . . yet to be processed</label>
+	<justify>GTK_JUSTIFY_CENTER</justify>
+	<wrap>False</wrap>
+	<xalign>0</xalign>
+	<yalign>0.5</yalign>
+	<xpad>0</xpad>
+	<ypad>0</ypad>
+	<child>
+	  <left_attach>0</left_attach>
+	  <right_attach>1</right_attach>
+	  <top_attach>5</top_attach>
+	  <bottom_attach>6</bottom_attach>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	  <xexpand>False</xexpand>
+	  <yexpand>False</yexpand>
+	  <xshrink>False</xshrink>
+	  <yshrink>False</yshrink>
+	  <xfill>False</xfill>
+	  <yfill>False</yfill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GnomeFontPicker</class>
+	<name>vfolderpendingfont</name>
+	<can_focus>True</can_focus>
+	<signal>
+	  <name>font_set</name>
+	  <handler>on_changed</handler>
+	  <last_modification_time>Wed, 06 Dec 2000 16:41:14 GMT</last_modification_time>
+	</signal>
+	<title>Pick a Font</title>
+	<preview_text>AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz</preview_text>
+	<mode>GNOME_FONT_PICKER_MODE_FONT_INFO</mode>
+	<show_size>True</show_size>
+	<use_font>True</use_font>
+	<use_font_size>14</use_font_size>
+	<child>
+	  <left_attach>1</left_attach>
+	  <right_attach>2</right_attach>
+	  <top_attach>5</top_attach>
+	  <bottom_attach>6</bottom_attach>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	  <xexpand>False</xexpand>
+	  <yexpand>False</yexpand>
+	  <xshrink>False</xshrink>
+	  <yshrink>False</yshrink>
+	  <xfill>True</xfill>
+	  <yfill>False</yfill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GnomeColorPicker</class>
+	<name>vfolderpendingfg</name>
+	<can_focus>True</can_focus>
+	<dither>True</dither>
+	<use_alpha>False</use_alpha>
+	<title>Pick a color</title>
+	<child>
+	  <left_attach>2</left_attach>
+	  <right_attach>3</right_attach>
+	  <top_attach>5</top_attach>
+	  <bottom_attach>6</bottom_attach>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	  <xexpand>False</xexpand>
+	  <yexpand>False</yexpand>
+	  <xshrink>False</xshrink>
+	  <yshrink>False</yshrink>
+	  <xfill>True</xfill>
+	  <yfill>False</yfill>
+	</child>
+      </widget>
+
+      <widget>
+	<class>GnomeColorPicker</class>
+	<name>vfolderpendingbg</name>
+	<can_focus>True</can_focus>
+	<dither>True</dither>
+	<use_alpha>False</use_alpha>
+	<title>Pick a color</title>
+	<child>
+	  <left_attach>3</left_attach>
+	  <right_attach>4</right_attach>
+	  <top_attach>5</top_attach>
+	  <bottom_attach>6</bottom_attach>
 	  <xpad>0</xpad>
 	  <ypad>0</ypad>
 	  <xexpand>False</xexpand>
