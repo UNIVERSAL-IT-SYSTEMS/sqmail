@@ -68,9 +68,21 @@ def get_vfolderfont():
 	return sqmail.utils.getsetting("vfolderfont", \
 		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
 
+def get_vfolderfg():
+	return sqmail.utils.getsetting("vfolderfg", (0, 0, 0, 1.0))
+
+def get_vfolderbg():
+	return sqmail.utils.getsetting("vfolderbg", (1.0, 1.0, 1.0, 1.0))
+
 def get_vfolderunreadfont():
 	return sqmail.utils.getsetting("vfolderunreadfont", \
 		"-schumacher-clean-medium-r-normal-*-14-*-*-*-c-*-iso646.1991-irv")
+
+def get_vfolderunreadfg():
+	return sqmail.utils.getsetting("vfolderunreadfg", (0, 0, 0, 1.0))
+
+def get_vfolderunreadbg():
+	return sqmail.utils.getsetting("vfolderunreadbg", (1.0, 1.0, 1.0, 1.0))
 
 def get_msglistfont():
 	return sqmail.utils.getsetting("msglistfont", \
@@ -171,8 +183,12 @@ class SQmaiLPreferences:
 		self.widget.composefont.set_font_name(get_composefont())
 
 		self.widget.vfolderfont.set_font_name(get_vfolderfont())
+		apply(self.widget.vfolderfg.set_i8, get_vfolderfg())
+		apply(self.widget.vfolderbg.set_i8, get_vfolderbg())
 
 		self.widget.vfolderunreadfont.set_font_name(get_vfolderunreadfont())
+		apply(self.widget.vfolderunreadfg.set_i8, get_vfolderunreadfg())
+		apply(self.widget.vfolderunreadbg.set_i8, get_vfolderunreadbg())
 
 		self.widget.msglistfont.set_font_name(get_msglistfont())
 
@@ -245,9 +261,17 @@ class SQmaiLPreferences:
 
 		sqmail.utils.setsetting("vfolderfont", \
 			self.widget.vfolderfont.get_font_name())
+		sqmail.utils.setsetting("vfolderfg", \
+			self.widget.vfolderfg.get_i8())
+		sqmail.utils.setsetting("vfolderbg", \
+			self.widget.vfolderbg.get_i8())
 
 		sqmail.utils.setsetting("vfolderunreadfont", \
 			self.widget.vfolderunreadfont.get_font_name())
+		sqmail.utils.setsetting("vfolderunreadfg", \
+			self.widget.vfolderunreadfg.get_i8())
+		sqmail.utils.setsetting("vfolderunreadbg", \
+			self.widget.vfolderunreadbg.get_i8())
 
 		sqmail.utils.setsetting("msglistfont", \
 			self.widget.msglistfont.get_font_name())
@@ -269,6 +293,9 @@ class SQmaiLPreferences:
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.2  2001/01/18 19:27:07  dtrg
+# Now saves the colours for read and unread vfolders.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
