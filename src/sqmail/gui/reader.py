@@ -113,7 +113,7 @@ class SQmaiLReader:
 		fg = colormap.alloc(fg[0], fg[1], fg[2])
 		bg = colormap.alloc(bg[0], bg[1], bg[2])
 		style.fg[gtk.STATE_NORMAL] = fg
-		style.bg[gtk.STATE_NORMAL] = bg
+		style.base[gtk.STATE_NORMAL] = bg
 		return (fg, bg)
 
 	# Ditto, for a message.
@@ -284,9 +284,9 @@ class SQmaiLReader:
 	def copy_vfolder(self):
 		node = self.widget.folderlist.selection[0]
 		vf = self.vfolder()
-		newvf = sqmail.vfolder.VFolder(name=vf.name, query=vf.query, \
+		newvf = sqmail.vfolder.VFolder(name="***new***", query=vf.query, \
 			parent=vf.parent)
-		newvf.setname("Copy of "+newvf.getname())
+		newvf.setname("Copy of "+vf.getname())
 		newvf.save()
 
 		l = self.vfolderlist()
@@ -609,6 +609,12 @@ class SQmaiLReader:
 	
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.7  2001/01/26 11:55:25  dtrg
+# Double woohoo! Vfolder styles now work. Thanks to all the people on the
+# PyGTK mailing list who put up with me on this. Also fixed the vfolder-copy
+# feature, which was resulting in duplicate vfolder entries (SQmaiL recover
+# vfolders is a godsend --- that's why I wrote it).
+#
 # Revision 1.6  2001/01/25 20:55:06  dtrg
 # Woohoo! Vfolder styling now works (mostly, except backgrounds). Also added
 # background vfolder counting to avoid that nasty delay on startup or
