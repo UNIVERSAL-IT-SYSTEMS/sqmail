@@ -236,6 +236,12 @@ class Message:
 			self.rewind()
 			msg = mimetools.Message(self, 0)
 		type = msg.gettype()
+		if (len(id) > 5):
+			# Emergency abort!
+			return [["(diagnostic)", "text/plain", \
+				"Attachments too deeply nested --- aborting (probably hit the Multifile bug)", \
+				id+"A"]]
+
 		disposition = msg.getheader("Content-Disposition")
 		disposition = sqmail.utils.parse_mimeheader(disposition)
 		name = msg.getparam("name")
@@ -251,6 +257,12 @@ class Message:
 			while multi.next():
 				l.append(self.mimedecode(mimetools.Message(multi, 0), id+chr(index))[0])
 				index = index + 1
+				if (index > 32):
+					# Emergency abort!
+					l.append(["(diagnostic)", "text/plain", \
+						"Too many attachments --- aborting (probably hit the Multifile bug)", \
+						id+chr(index)])
+					break
 			multi.pop()
 			return [[name, type, l, ""]]
 		else:
@@ -304,6 +316,10 @@ class Message:
 
 # Revision History
 # $Log: message.py,v $
+# Revision 1.2  2001/01/09 14:31:23  dtrg
+# Added workaround for a Multifile bug that was causing lock-ups on bogus
+# messages. Still doesn't work, but at least it doesn't work cleanly.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
