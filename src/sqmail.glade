@@ -5618,7 +5618,7 @@ Try launching the MIME handler for it instead.</label>
 
 <widget>
   <class>GnomeDialog</class>
-  <name>purgeswin-old</name>
+  <name>purgeswin</name>
   <signal>
     <name>close</name>
     <handler>on_deactivate</handler>
@@ -5665,10 +5665,28 @@ Try launching the MIME handler for it instead.</label>
 
       <widget>
 	<class>GtkButton</class>
-	<name>newbutton</name>
+	<name>addbutton</name>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
-	<label>New</label>
+	<signal>
+	  <name>clicked</name>
+	  <handler>on_add</handler>
+	  <last_modification_time>Thu, 19 Apr 2001 16:45:32 GMT</last_modification_time>
+	</signal>
+	<label>Add</label>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>updatebutton</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<signal>
+	  <name>clicked</name>
+	  <handler>on_update</handler>
+	  <last_modification_time>Thu, 19 Apr 2001 16:35:09 GMT</last_modification_time>
+	</signal>
+	<label>Change</label>
       </widget>
 
       <widget>
@@ -5676,18 +5694,23 @@ Try launching the MIME handler for it instead.</label>
 	<name>deletebutton</name>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
-	<label>Delete</label>
+	<signal>
+	  <name>clicked</name>
+	  <handler>on_remove</handler>
+	  <last_modification_time>Thu, 19 Apr 2001 16:45:42 GMT</last_modification_time>
+	</signal>
+	<label>Remove</label>
       </widget>
 
       <widget>
 	<class>GtkButton</class>
-	<name>button1815</name>
+	<name>button1821</name>
 	<can_default>True</can_default>
 	<can_focus>True</can_focus>
 	<signal>
 	  <name>clicked</name>
 	  <handler>on_deactivate</handler>
-	  <last_modification_time>Fri, 23 Feb 2001 17:33:38 GMT</last_modification_time>
+	  <last_modification_time>Thu, 19 Apr 2001 16:31:09 GMT</last_modification_time>
 	</signal>
 	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
       </widget>
@@ -5725,6 +5748,11 @@ Try launching the MIME handler for it instead.</label>
 	    <name>select_row</name>
 	    <handler>on_selection</handler>
 	    <last_modification_time>Wed, 14 Mar 2001 19:36:49 GMT</last_modification_time>
+	  </signal>
+	  <signal>
+	    <name>unselect_row</name>
+	    <handler>on_deselection</handler>
+	    <last_modification_time>Thu, 19 Apr 2001 16:39:43 GMT</last_modification_time>
 	  </signal>
 	  <columns>4</columns>
 	  <column_widths>25,80,80,80</column_widths>
@@ -5881,11 +5909,6 @@ Try launching the MIME handler for it instead.</label>
 	  <class>GtkCheckButton</class>
 	  <name>active</name>
 	  <can_focus>True</can_focus>
-	  <signal>
-	    <name>toggled</name>
-	    <handler>on_changed</handler>
-	    <last_modification_time>Wed, 14 Mar 2001 19:48:41 GMT</last_modification_time>
-	  </signal>
 	  <label>Enabled</label>
 	  <active>False</active>
 	  <draw_indicator>True</draw_indicator>
@@ -5909,11 +5932,6 @@ Try launching the MIME handler for it instead.</label>
 	  <class>GtkEntry</class>
 	  <name>name</name>
 	  <can_focus>True</can_focus>
-	  <signal>
-	    <name>activate</name>
-	    <handler>on_changed</handler>
-	    <last_modification_time>Wed, 14 Mar 2001 19:49:05 GMT</last_modification_time>
-	  </signal>
 	  <editable>True</editable>
 	  <text_visible>True</text_visible>
 	  <text_max_length>0</text_max_length>
@@ -5960,25 +5978,19 @@ Try launching the MIME handler for it instead.</label>
 	    <class>GtkText</class>
 	    <name>condition</name>
 	    <can_focus>True</can_focus>
-	    <signal>
-	      <name>changed</name>
-	      <handler>on_changed</handler>
-	      <last_modification_time>Wed, 14 Mar 2001 19:49:30 GMT</last_modification_time>
-	    </signal>
 	    <editable>True</editable>
 	    <text></text>
 	  </widget>
 	</widget>
 
 	<widget>
-	  <class>GtkCombo</class>
-	  <name>vfolder_combo</name>
-	  <value_in_list>False</value_in_list>
-	  <ok_if_empty>True</ok_if_empty>
-	  <case_sensitive>False</case_sensitive>
-	  <use_arrows>True</use_arrows>
-	  <use_arrows_always>False</use_arrows_always>
-	  <items></items>
+	  <class>GtkEntry</class>
+	  <name>vfolder</name>
+	  <can_focus>True</can_focus>
+	  <editable>True</editable>
+	  <text_visible>True</text_visible>
+	  <text_max_length>0</text_max_length>
+	  <text></text>
 	  <child>
 	    <left_attach>0</left_attach>
 	    <right_attach>1</right_attach>
@@ -5993,167 +6005,6 @@ Try launching the MIME handler for it instead.</label>
 	    <xfill>True</xfill>
 	    <yfill>False</yfill>
 	  </child>
-
-	  <widget>
-	    <class>GtkEntry</class>
-	    <child_name>GtkCombo:entry</child_name>
-	    <name>vfolder_text</name>
-	    <can_focus>True</can_focus>
-	    <signal>
-	      <name>activate</name>
-	      <handler>on_changed</handler>
-	      <last_modification_time>Wed, 14 Mar 2001 19:48:57 GMT</last_modification_time>
-	    </signal>
-	    <editable>True</editable>
-	    <text_visible>True</text_visible>
-	    <text_max_length>0</text_max_length>
-	    <text></text>
-	  </widget>
-	</widget>
-      </widget>
-    </widget>
-  </widget>
-</widget>
-
-<widget>
-  <class>GnomeDialog</class>
-  <name>purgeswin</name>
-  <type>GTK_WINDOW_TOPLEVEL</type>
-  <position>GTK_WIN_POS_NONE</position>
-  <modal>False</modal>
-  <allow_shrink>True</allow_shrink>
-  <allow_grow>True</allow_grow>
-  <auto_shrink>False</auto_shrink>
-  <auto_close>False</auto_close>
-  <hide_on_close>False</hide_on_close>
-
-  <widget>
-    <class>GtkVBox</class>
-    <child_name>GnomeDialog:vbox</child_name>
-    <name>dialog-vbox4</name>
-    <homogeneous>False</homogeneous>
-    <spacing>8</spacing>
-    <child>
-      <padding>4</padding>
-      <expand>True</expand>
-      <fill>True</fill>
-    </child>
-
-    <widget>
-      <class>GtkHButtonBox</class>
-      <child_name>GnomeDialog:action_area</child_name>
-      <name>dialog-action_area4</name>
-      <layout_style>GTK_BUTTONBOX_END</layout_style>
-      <spacing>8</spacing>
-      <child_min_width>85</child_min_width>
-      <child_min_height>27</child_min_height>
-      <child_ipad_x>7</child_ipad_x>
-      <child_ipad_y>0</child_ipad_y>
-      <child>
-	<padding>0</padding>
-	<expand>False</expand>
-	<fill>True</fill>
-	<pack>GTK_PACK_END</pack>
-      </child>
-
-      <widget>
-	<class>GtkButton</class>
-	<name>button1819</name>
-	<can_default>True</can_default>
-	<can_focus>True</can_focus>
-	<label>New</label>
-      </widget>
-
-      <widget>
-	<class>GtkButton</class>
-	<name>button1820</name>
-	<can_default>True</can_default>
-	<can_focus>True</can_focus>
-	<label>Delete</label>
-      </widget>
-
-      <widget>
-	<class>GtkButton</class>
-	<name>button1821</name>
-	<can_default>True</can_default>
-	<can_focus>True</can_focus>
-	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
-      </widget>
-    </widget>
-
-    <widget>
-      <class>GtkScrolledWindow</class>
-      <name>scrolledwindow16</name>
-      <hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
-      <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
-      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
-      <child>
-	<padding>0</padding>
-	<expand>True</expand>
-	<fill>True</fill>
-      </child>
-
-      <widget>
-	<class>GtkCList</class>
-	<name>list</name>
-	<can_focus>True</can_focus>
-	<columns>4</columns>
-	<column_widths>27,80,80,80</column_widths>
-	<selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	<show_titles>True</show_titles>
-	<shadow_type>GTK_SHADOW_IN</shadow_type>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <child_name>CList:title</child_name>
-	  <name>label177</name>
-	  <label></label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	</widget>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <child_name>CList:title</child_name>
-	  <name>label178</name>
-	  <label>Name</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	</widget>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <child_name>CList:title</child_name>
-	  <name>label179</name>
-	  <label>VFolder</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	</widget>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <child_name>CList:title</child_name>
-	  <name>label180</name>
-	  <label>Condition</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
 	</widget>
       </widget>
     </widget>
