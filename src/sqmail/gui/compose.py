@@ -191,30 +191,45 @@ class SQmaiLCompose:
 		return outl
 
 	def on_send(self, obj):
-		smtp = smtplib.SMTP(sqmail.gui.preferences.get_outgoingserver(), \
-			sqmail.gui.preferences.get_outgoingport())
-		smtp.set_debuglevel(sqmail.gui.preferences.get_smtpdebuglevel())
-		fromaddr = self.widget.fromfield.get_text()
-		# Construct the To: list. First, work out what the user asked
-		# for...
-		toaddr = []
-		for i in rfc822.AddressList(self.widget.tofield.get_text()).addresslist:
-			toaddr.append(i[1])
-		# ...and expand aliases and unqualified addresses.
-		toaddr = self.expand_addrlist(toaddr)
-		# Construct and send the message itself.
-		msgstring = self.makemessage()
-		smtp.sendmail(fromaddr, toaddr, msgstring)
-		smtp.quit()
-		# If we got this far, the message went out successfully.
-		# Incorporate the message into the database (for the outbox).
-		msg = sqmail.message.Message()
-		msg.loadfromstring(msgstring)
-		msg.date = time.time()
-		msg.readstatus = "Sent"
-		msg.savealltodatabase()
-		# We can destroy the send window.
-		self.widget.composewin.destroy()
+		try:
+			smtp = smtplib.SMTP(sqmail.gui.preferences.get_outgoingserver(), \
+				sqmail.gui.preferences.get_outgoingport())
+			smtp.set_debuglevel(sqmail.gui.preferences.get_smtpdebuglevel())
+			fromaddr = self.widget.fromfield.get_text()
+			# Construct the To: list. First, work out what the user asked
+			# for...
+			toaddr = []
+			for i in rfc822.AddressList(self.widget.tofield.get_text()).addresslist:
+				toaddr.append(i[1])
+			# ...and expand aliases and unqualified addresses.
+			toaddr = self.expand_addrlist(toaddr)
+			# Construct and send the message itself.
+			msgstring = self.makemessage()
+			smtp.sendmail(fromaddr, toaddr, msgstring)
+			smtp.quit()
+			# If we got this far, the message went out successfully.
+			# Incorporate the message into the database (for the outbox).
+			msg = sqmail.message.Message()
+			msg.loadfromstring(msgstring)
+			msg.date = time.time()
+			msg.readstatus = "Sent"
+			msg.savealltodatabase()
+			# We can destroy the send window.
+			self.widget.composewin.destroy()
+		except RuntimeError, e:
+			sqmail.gui.utils.errorbox(str(e))
+		except smtplib.SMTPServerDisconnected:
+			sqmail.gui.utils.errorbox("The SMTP server disconnected unexpectedly.")
+		except smtplib.SMTPRecipientsRefused, e:
+			e = e.recipients
+			s = "The server refused one or more of the recipients:\n"
+			for i in e.keys():
+				s = s + e[i][1] + "\n"
+			sqmail.gui.utils.errorbox(s)
+		except smtplib.SMTPResponseException, e:
+			sqmail.gui.utils.errorbox(e.smtp_error)
+		except smtplib.SMTPException:
+			sqmail.gui.utils.errorbox("Something went wrong sending the message to the SMTP server, but I can't tell what.")
 	
 	def on_attach(self, obj):
 		sqmail.gui.utils.FileSelector("Attach File...", "", \
@@ -282,6 +297,13 @@ class SQmaiLCompose:
 
 # Revision History
 # $Log: compose.py,v $
+# Revision 1.4  2001/02/15 19:34:16  dtrg
+# Many changes. Bulletproofed the send box, so it should now give you
+# (reasonably) user-friendly messages when something goes wrong; rescan a
+# vfolder when you leave it, so the vfolder list is kept up-to-date (and in
+# the background, too); added `unimplemented' messages to a lot of
+# unimplemented buttons; some general tidying.
+#
 # Revision 1.3  2001/02/02 20:03:01  dtrg
 # Added mail alias and default domain support.
 # Saves the size of the main window, but as yet doesn't set the size on

@@ -186,12 +186,24 @@ class SQmaiLReader:
 			if (vf.name == sel):
 				self.widget.folderlist.select(node)
 
-		if not self.counting:
-			self.counting = gtk.idle_add_priority(200, \
-				sqmail.gui.utils._callback(self, self.count_vfolder))
+			self.startcounting()
 		self.widget.folderlist.thaw()
 		self.popprogress()
 		
+	# Start background counting the vfolders.
+
+	def startcounting(self):
+		if not self.counting:
+			self.counting = gtk.idle_add_priority(200, \
+				sqmail.gui.utils._callback(self, self.count_vfolder))
+
+	# ...and stop it.
+
+	def stopcounting(self):
+		if self.counting:
+			gtk.idle_remove(self.counting)
+			self.counting = None
+
 	# Callback on idle that looks for an uncounted vfolder and counts it.
 	# If there wasn't one, the callback gets removed.
 
@@ -256,12 +268,13 @@ class SQmaiLReader:
 
 	# ...or has deselected one. (Generated implicitly.)
 
-	def unselect_vfolder(self):
-		node = self.widget.folderlist.selection[0]
+	def unselect_vfolder(self, node):
 		vf = self.vfolder(node)
 		if (vf == None):
 			return
-		vf.scan()
+		vf.purge()
+		self.startcounting()
+		#vf.scan()
 		self.update_vfolder(node)
 
 	# Modify this vfolder.
@@ -476,6 +489,9 @@ class SQmaiLReader:
 	def on_vfolder_select(self, obj, node, b):
 		self.select_vfolder()
 
+	def on_vfolder_unselect(self, obj, node, b):
+		self.unselect_vfolder(node)
+
 	def on_message_select(self, obj, row, b, event):
 		self.select_message(row)
 
@@ -582,11 +598,14 @@ class SQmaiLReader:
 		sqmail.gui.utils.FileSelector("Load Configuration...", "", sqmail.gui.preferences.load_config, None)
 
 	def on_check_mail(self, obj):
+		self.stopcounting()
 		p = sqmail.gui.preferences.get_incomingprotocol()
 		if (p == "Spool"):
 			sqmail.gui.spoolfetcher.SpoolFetcher(self)
 		elif (p == "POP"):
 			sqmail.gui.popfetcher.POPFetcher(self)
+		elif (p == "IMAP"):
+			sqmail.gui.utils.errorbox("Sorry --- IMAP fetching is not implemented yet.")
 
 	def on_spam(self, obj):
 		msg = self.message()
@@ -611,8 +630,21 @@ class SQmaiLReader:
 		win = self.widget.mainwin.get_window()
 		sqmail.utils.setsetting("mainwin size", (win.width, win.height))
 		
+	def on_unimplemented(self, obj):
+		sqmail.gui.utils.errorbox("Sorry --- this feature is not implemented yet.")
+
+	on_addresses = on_unimplemented
+	on_forward = on_unimplemented
+
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.9  2001/02/15 19:34:16  dtrg
+# Many changes. Bulletproofed the send box, so it should now give you
+# (reasonably) user-friendly messages when something goes wrong; rescan a
+# vfolder when you leave it, so the vfolder list is kept up-to-date (and in
+# the background, too); added `unimplemented' messages to a lot of
+# unimplemented buttons; some general tidying.
+#
 # Revision 1.8  2001/02/02 20:03:01  dtrg
 # Added mail alias and default domain support.
 # Saves the size of the main window, but as yet doesn't set the size on
