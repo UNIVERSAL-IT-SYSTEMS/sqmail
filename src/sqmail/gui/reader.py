@@ -197,8 +197,11 @@ class SQmaiLReader:
 			sel = self.widget.folderlist.node_get_row_data(sel[0]).name
 		else:
 			sel = None
+		print "Clearing list"
 		self.widget.folderlist.clear()
+		print "Done"
 		l = sqmail.vfolder.get_folder_list()
+		print "Got folder list"
 		d = {}
 		for i in xrange(len(l)):
 			id = l[i]
@@ -226,8 +229,7 @@ class SQmaiLReader:
 			d[id] = node
 			if (vf.name == sel):
 				self.widget.folderlist.select(node)
-
-			self.startcounting()
+		self.startcounting()
 		self.widget.folderlist.thaw()
 		self.popprogress()
 		
@@ -235,6 +237,7 @@ class SQmaiLReader:
 
 	def startcounting(self):
 		if not self.counting:
+			print "Starting counting"
 			self.counting = gtk.idle_add_priority(200, \
 				sqmail.gui.utils._callback(self, self.count_vfolder))
 
@@ -603,21 +606,32 @@ class SQmaiLReader:
 		self.widget.messagelist.select_row(mn, 0)
 		self.widget.messagelist.moveto(mn, 0, 0.5, 0)
 
-	def on_mark_read(self, obj):
+	# Change the readstatus of an individual message.
+
+	def change_readstatus(self, readstatus):
 		self.widget.folderlist.freeze()
 		for i in self.widget.messagelist.selection:
 			msg = self.message(i)
-			if (msg.readstatus == "Unread"):
-				self.changeread_message(i, msg, "Read")
+			self.changeread_message(i, msg, readstatus)
 		self.widget.folderlist.thaw()
-		self.on_next_message(None)
 		
+	def on_mark_message_read(self, obj):
+		self.change_readstatus("Read")
+
+	def on_mark_message_unread(self, obj):
+		self.change_readstatus("Unread")
+
+	def on_mark_message_deleted(self, obj):
+		self.change_readstatus("Deleted")
+
+	def on_mark_message_sent(self, obj):
+		self.change_readstatus("Sent")
+
+	# The same as on_mark_message_deleted, but advances to the next
+	# message.
+
 	def on_delete(self, obj):
-		self.widget.folderlist.freeze()
-		for i in self.widget.messagelist.selection:
-			msg = self.message(i)
-			self.changeread_message(i, msg, "Deleted")
-		self.widget.folderlist.thaw()
+		self.change_readstatus("Deleted")
 		self.on_next_message(None)
 		
 	def on_quit(self, obj):
@@ -681,7 +695,15 @@ class SQmaiLReader:
 			[["Spamcop", "spamcop@spamcop.net"]])
 		c.on_attach_file(msgname, type="message/rfc822")
 		os.unlink(msgname)
+		if sqmail.preferences.get_deletespam():
+			self.on_delete(obj)
 
+	def on_add_to_picons_queue(self, obj):
+		vf = self.vfolder()
+		for i in xrange(len(vf)):
+			print "Queuing", vf[i][2]
+			sqmail.picons.queue_address(vf[i][2])
+		
 	def on_aliases(self, obj):
 		sqmail.gui.aliases.SQmaiLAliases(self)
 	
@@ -703,6 +725,10 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.19  2001/04/19 18:24:16  dtrg
+# Added the ability to change the readstatus of a message. Also did some
+# minor tweaking to various areas.
+#
 # Revision 1.18  2001/03/13 19:28:22  dtrg
 # Doesn't load message headers until you select the folder; this improves
 # speed and memory consumption considerably (because it's not keeping huge
