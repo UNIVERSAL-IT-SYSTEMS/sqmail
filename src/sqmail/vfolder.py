@@ -204,7 +204,7 @@ class VFolder:
 		self.results = None
 
 	def getcounted(self):
-		return not not self.results
+		return (self.results != None)
 
 	def purge(self):
 		self.results = None
@@ -213,12 +213,12 @@ class VFolder:
 		vfolder_set(self.id, self.name, self.query, self.parent)
 
 	def getunread(self):
-		if not self.results:
+		if (self.results == None):
 			self.scan()
 		return self.unread
 	
 	def getresults(self):
-		if not self.results:
+		if (self.results == None):
 			self.scan()
 		return self.results
 
@@ -226,17 +226,22 @@ class VFolder:
 		return len(self)
 
 	def __len__(self):
-		if not self.results:
+		if (self.results == None):
 			self.scan()
 		return len(self.results)
 
 	def __getitem__(self, index):
-		if not self.results:
+		if (self.results == None):
 			self.scan()
 		return self.results[index]
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.8  2001/02/27 16:35:31  dtrg
+# Fixed a nasty little bug that caused it to think that empty vfolders were
+# never counted, causing the background counting routine to keep trying
+# indefinitely.
+#
 # Revision 1.7  2001/02/23 19:50:26  dtrg
 # Lots of changes: added the beginnings of the purges system, CLI utility
 # for same, GUI utility & UI for same, plus a CLI vfolder lister.
