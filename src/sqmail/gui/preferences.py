@@ -229,11 +229,19 @@ class SQmaiLPreferences:
 		encoder = sqmail.preferences.get_xfaceencoder()
 		pipefp = os.popen(encoder % filename)
 		f = string.join(pipefp.readlines(), "")
+		if (f == ""):
+			sqmail.gui.utils.errorbox("I was enable to encode the X-Face. See the error message on the console.")
+			return
+
 		sqmail.gui.utils.set_face(self.widget.outgoingxfaceicon, f)
 		self.widget.preferenceswin.set_modified(1)
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.9  2001/03/07 12:21:21  dtrg
+# Now tests for the X-Face encoder and decoder commands failing, and no
+# longer seg faults.
+#
 # Revision 1.8  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).
