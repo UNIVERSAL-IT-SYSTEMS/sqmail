@@ -124,7 +124,17 @@ def okbox(msg):
 	i.destroy()
 
 def okcancelbox(msg):
-	i = gnome.ui.GnomeOkCancelDialog(msg, sqmail.gui.reader.instance.widget.mainwin)
+	def noop():
+		pass
+	i = gnome.ui.GnomeOkCancelDialog(msg, noop, sqmail.gui.reader.instance.widget.mainwin)
+	j = i.run_and_close()
+	i.destroy()
+	return j
+	
+def yesnobox(msg):
+	def noop():
+		pass
+	i = gnome.ui.GnomeQuestionDialog(msg, noop, sqmail.gui.reader.instance.widget.mainwin)
 	j = i.run_and_close()
 	i.destroy()
 	return j
@@ -163,6 +173,9 @@ def set_xpm(w, xpm):
 			
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.8  2001/04/19 18:17:47  dtrg
+# Added a GUI purges editor that appears to work.
+#
 # Revision 1.7  2001/03/12 14:28:38  dtrg
 # Added the ability to disable X-Faces completely, as they weren't working
 # for some people (even with the code to detect if the decoding was
