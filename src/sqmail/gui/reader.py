@@ -95,8 +95,11 @@ class SQmaiLReader:
 			bg = sqmail.gui.preferences.get_vfolderbg()
 			font = sqmail.gui.preferences.get_vfolderfont()
 		style.font = gtk.load_font(font)
-		style.fg[gtk.STATE_NORMAL] = gtk.GdkColor(fg[0], fg[1], fg[2])
-		style.bg[gtk.STATE_NORMAL] = gtk.GdkColor(bg[0], bg[1], bg[2])
+		fg = gtk.GdkColor(fg[0], fg[1], fg[2])
+		bg = gtk.GdkColor(bg[0], bg[1], bg[2])
+		style.fg[gtk.STATE_NORMAL] = fg
+		style.bg[gtk.STATE_NORMAL] = bg
+		return (fg, bg)
 
 	# Ditto, for a message.
 
@@ -148,26 +151,30 @@ class SQmaiLReader:
 		d = {}
 		for i in xrange(len(l)):
 			self.setprogress("Updating vfolders", i, len(l))
-			name = l[i]
-			vf = sqmail.vfolder.VFolder(name=name)
-			parent = sqmail.utils.getsetting("vfolder parent "+name)
+			id = l[i]
+			vf = sqmail.vfolder.VFolder(id=id)
+			name = vf.getname()
+			parent = vf.getparent()
 			if parent:
 				try:
 					parent = d[parent]
 				except KeyError:
 					print "DANGER! Configuration inconsistency in vfolder", name+"."
 					parent = None
+			else:
+				parent = None
 
 			node = self.widget.folderlist.insert_node(parent, None, \
 				self.describe_vfolder(vf), \
 				is_leaf=0, expanded=1)
 			style = self.widget.folderlist.get_style().copy()
-			self.style_vfolder(vf, style)
+			cols = self.style_vfolder(vf, style)
 			self.widget.folderlist.node_set_row_style(node, style)
+			if cols:
+				self.widget.folderlist.node_set_foreground(node, cols[0])
+				self.widget.folderlist.node_set_background(node, cols[1])
 			self.widget.folderlist.node_set_row_data(node, vf)
-			#self.widget.folderlist.node_set_foreground(node, fg)
-			#self.widget.folderlist.node_set_background(node, bg)
-			d[name] = node
+			d[id] = node
 			if (vf.name == sel):
 				self.widget.folderlist.select(node)
 		self.widget.folderlist.thaw()
@@ -180,7 +187,7 @@ class SQmaiLReader:
 		for i in xrange(self.widget.folderlist.rows):
 			node = self.widget.folderlist.node_nth(i)
 			vf = self.vfolder(node)
-			l.append(vf.name)
+			l.append(vf.id)
 		return l
 
 	# Write the folder list back to the database.
@@ -226,12 +233,12 @@ class SQmaiLReader:
 		vf = self.vfolder()
 		newvf = sqmail.vfolder.VFolder(name=vf.name, query=vf.query, \
 			parent=vf.parent)
-		newvf.name = "Copy of "+newvf.name
+		newvf.setname("Copy of "+newvf.getname())
 		newvf.save()
 
 		l = self.vfolderlist()
-		i = l.index(vf.name)
-		l.insert(i+1, newvf.name)
+		i = l.index(vf.id)
+		l.insert(i+1, newvf.id)
 		sqmail.utils.setsetting("vfolders", l)
 		
 		self.widget.folderlist.freeze()
@@ -251,8 +258,8 @@ class SQmaiLReader:
 				nvf.setparent(vf.parent)
 
 		l = self.vfolderlist()
-		i = l.index(vf.name)
-		l.remove(vf.name)
+		i = l.index(vf.id)
+		l.remove(vf.id)
 		sqmail.utils.setsetting("vfolders", l)
 		
 		self.widget.folderlist.freeze()
@@ -335,7 +342,8 @@ class SQmaiLReader:
 
 		self.widget.annotationfield.list.clear_items(0, -1)
 		for i in self.vfolderlist():
-			item = gtk.GtkListItem(i)
+			vf = sqmail.vfolder.VFolder(id=i)
+			item = gtk.GtkListItem(vf.name)
 			self.widget.annotationfield.list.add(item)
 			item.show()
 
@@ -515,6 +523,17 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.4  2001/01/19 20:37:23  dtrg
+# Changed the way vfolders are stored in the database.
+#
+# Now they're stored in a seperate table, vfolders, and referenced by id.
+# This means that finally you can have two vfolders with the same name (very
+# handy in a tree scenario). The system's also slightly less fragile.
+#
+# WARNING! The current code will not work with previous versions of the
+# database. You will need to do "SQmaiL upgrade" to automatically convert
+# your data.
+#
 # Revision 1.3  2001/01/18 19:27:54  dtrg
 # First attempt at vfolder list styles (font works, colours don't).
 #

@@ -23,6 +23,15 @@ def setsetting(cursor, name, value):
 		"  values ('"+name+"', '"+\
 			sqmail.db.escape(fp.getvalue())+"')");
 
+def addvfolder(cursor, name, query, parent):
+	cursor.execute( \
+		"insert into vfolders"\
+		"  (name, query, parent)"\
+		"  values ('"+name+"', '"+query+"', "+str(parent)+")");
+	cursor.execute( \
+		"select last_insert_id()")
+	return cursor.fetchone()[0]
+
 def SQmaiLCreateDB():
 	dbname = "sqmail"
 	username = getpass.getuser()
@@ -108,6 +117,13 @@ def SQmaiLCreateDB():
 		"  header longtext,"\
 		"  body longtext)");
 
+	cursor.execute ( \
+		"create table vfolders"\
+		"  (id integer not null primary key auto_increment,"\
+		"  name text,"\
+		"  query text,"\
+		"  parent integer)");
+		
 	cursor.execute( \
 		"create table addressbook"\
 		"  (email text,"\
@@ -125,21 +141,21 @@ def SQmaiLCreateDB():
 		"  (name, value)"\
 		"  values ('idcounter', '1')");
 
-	setsetting(cursor, "vfolders", ["Received Messages", \
-		"Deleted Messages", "Sent Messages", "root"])
+	r = addvfolder("Received Messages", \
+		"(readstatus = 'Read') or (readstatus = 'Unread')", \
+		0)
 
-	setsetting(cursor, "vfolder query Received Messages", \
-		"(readstatus = 'Read') or (readstatus = 'Unread')")
+	addvfolder("Messages from root", \
+		"fromfield like '%root%'", \
+		r)
 
-	setsetting(cursor, "vfolder query Deleted Messages", \
-		"(readstatus = 'Deleted')")
+	addvfolder("Deleted Messages", \
+		"(readstatus = 'Deleted')", \
+		0)
 
-	setsetting(cursor, "vfolder query Sent Messages", \
-		"(readstatus = 'Sent')")
-
-	setsetting(cursor, "vfolder query root", \
-		"(fromfield like '%root%')")
-	setsetting(cursor, "vfolder parent root", "Received Messages")
+	addvfolder("Sent Messages", \
+		"(readstatus = 'Sent')", \
+		0)
 
 	print "Disconnecting..."
 
@@ -148,6 +164,17 @@ def SQmaiLCreateDB():
 
 # Revision History
 # $Log: createdb.py,v $
+# Revision 1.2  2001/01/19 20:37:23  dtrg
+# Changed the way vfolders are stored in the database.
+#
+# Now they're stored in a seperate table, vfolders, and referenced by id.
+# This means that finally you can have two vfolders with the same name (very
+# handy in a tree scenario). The system's also slightly less fragile.
+#
+# WARNING! The current code will not work with previous versions of the
+# database. You will need to do "SQmaiL upgrade" to automatically convert
+# your data.
+#
 # Revision 1.1  2001/01/09 11:41:24  dtrg
 # Added the create-database CLI command.
 #
