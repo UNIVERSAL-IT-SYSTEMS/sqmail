@@ -75,7 +75,7 @@ def getnewid(cursor):
 	cursor.execute("SELECT value FROM settings WHERE name = 'idcounter'")
 	id = cursor.fetchone()[0]
 	cursor.execute("UPDATE settings SET value = value + 1 WHERE name = 'idcounter'")
-	return id
+	return int(id)
 
 def escape(str):
 	if not str:
@@ -90,6 +90,9 @@ def escape(str):
 
 # Revision History
 # $Log: db.py,v $
+# Revision 1.2  2001/03/09 10:58:42  dtrg
+# getnewid() was returning the new id as a string. Eeek.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
