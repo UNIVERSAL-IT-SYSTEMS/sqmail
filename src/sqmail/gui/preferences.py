@@ -7,6 +7,7 @@ import sqmail.preferences
 import sqmail.gui.reader
 import sqmail.utils
 import sqmail.db
+import sqmail.picons
 import cPickle
 import getpass
 import tempfile
@@ -93,6 +94,18 @@ class SQmaiLPreferences:
 
 		self.widget.xfaceencoder.set_text(sqmail.preferences.get_xfaceencoder())
 
+		self.widget.usepicons.set_active(sqmail.preferences.get_usepicons())
+
+		self.widget.usepiconsproxy.set_active(sqmail.preferences.get_usepiconsproxy())
+
+		self.widget.piconsserver.set_text(sqmail.preferences.get_piconsserver())
+
+		self.widget.piconsproxyserver.set_text(sqmail.preferences.get_piconsproxyserver())
+
+		self.widget.piconsproxyport.set_text("%d" % sqmail.preferences.get_piconsproxyport())
+
+		self.on_update_piconsstatus(None)
+		
 		# Miscellaneous
 
 		self.widget.quoteprefix.set_text(sqmail.preferences.get_quoteprefix())
@@ -205,6 +218,21 @@ class SQmaiLPreferences:
 		sqmail.utils.setsetting("xfacedecoder", \
 			self.widget.xfacedecoder.get_text())
 	
+		sqmail.utils.setsetting("usepicons", \
+			self.widget.usepicons.get_active())
+
+		sqmail.utils.setsetting("usepiconsproxy", \
+			self.widget.usepiconsproxy.get_active())
+
+		sqmail.utils.setsetting("piconsserver", \
+			self.widget.piconsserver.get_text())
+
+		sqmail.utils.setsetting("piconsproxyserver", \
+			self.widget.piconsproxyserver.get_text())
+
+		sqmail.utils.setsetting("piconsproxyport", \
+			int(self.widget.piconsproxyport.get_text()))
+
 		# Miscellaneous
 
 		sqmail.utils.setsetting("quoteprefix", \
@@ -236,8 +264,22 @@ class SQmaiLPreferences:
 		sqmail.gui.utils.set_face(self.widget.outgoingxfaceicon, f)
 		self.widget.preferenceswin.set_modified(1)
 
+	# Flush the picons cache.
+
+	def on_flushpicons(self, obj):
+		sqmail.picons.flush()
+		self.on_update_piconsstatus(None)
+
+	# Update the picons status widget.
+
+	def on_update_piconsstatus(self, obj):
+		self.widget.piconsstatus.set_text("%d picons in cache" % sqmail.picons.get_picon_stats())
+
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.10  2001/03/09 20:36:19  dtrg
+# First draft picons support.
+#
 # Revision 1.9  2001/03/07 12:21:21  dtrg
 # Now tests for the X-Face encoder and decoder commands failing, and no
 # longer seg faults.

@@ -77,6 +77,18 @@ def upgrade_data():
 		print "Converting message data."
 		sqmail.utils.setsetting("message data version", "0.3")
 
+def upgrade_picons():
+	cursor = sqmail.db.cursor()
+	version = sqmail.utils.getsetting("picons data version")
+	if (version == None):
+		print "Adding new picons data."
+		cursor.execute( \
+			"CREATE TABLE picons"\
+			"  (email VARCHAR(128) PRIMARY KEY NOT NULL,"\
+			"  image TEXT)");
+
+		sqmail.utils.setsetting("picons data version", "0.2")
+
 def SQmaiLUpgrade():	
 	if (len(sys.argv) != 2):
 		usage()
@@ -86,10 +98,14 @@ def SQmaiLUpgrade():
 	upgrade_vfolders()
 	upgrade_purges()
 	upgrade_data()
+	upgrade_picons()
 	print "Finished upgrade"
 
 # Revision History
 # $Log: upgrade.py,v $
+# Revision 1.4  2001/03/09 20:36:19  dtrg
+# First draft picons support.
+#
 # Revision 1.3  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).

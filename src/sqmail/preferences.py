@@ -131,6 +131,26 @@ def get_xfacedecoder():
 	return sqmail.utils.getsetting("xfacedecoder", \
 		"uncompface -X | xbmtopbm | ppmtoxpm")
 
+def get_usepicons():
+	return sqmail.utils.getsetting("usepicons", \
+		0)
+
+def get_usepiconsproxy():
+	return sqmail.utils.getsetting("usepiconsproxy", \
+		0)
+
+def get_piconsserver():
+	return sqmail.utils.getsetting("piconsserver", \
+		"http://www.cs.indiana.edu:800/piconsearch")
+
+def get_piconsproxyserver():
+	return sqmail.utils.getsetting("piconsproxyserver", \
+		"")
+
+def get_piconsproxyport():
+	return sqmail.utils.getsetting("piconsproxyport", \
+		0)
+
 # Miscellaneous
 
 def get_quoteprefix():
@@ -174,6 +194,9 @@ def load_config(filename):
 	
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.3  2001/03/09 20:36:19  dtrg
+# First draft picons support.
+#
 # Revision 1.2  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).

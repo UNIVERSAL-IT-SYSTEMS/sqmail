@@ -15,6 +15,7 @@ import string
 import sqmail.vfolder
 import sqmail.message
 import sqmail.preferences
+import sqmail.picons
 import sqmail.gui.textviewer
 import sqmail.gui.binaryviewer
 import sqmail.gui.htmlviewer
@@ -467,6 +468,11 @@ class SQmaiLReader:
 			self.widget.subjectfield.set_text("")
 			return
 
+		# Update the icon.
+
+		sqmail.gui.utils.set_xpm(self.widget.messageicon, \
+			sqmail.picons.get_picon_xpm(msg.getfrom()))
+
 		# Fill in the message information boxes.
 		
 		self.widget.fromfield.set_text(sqmail.gui.utils.render_address(\
@@ -689,6 +695,9 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.15  2001/03/09 20:36:19  dtrg
+# First draft picons support.
+#
 # Revision 1.14  2001/03/09 10:39:55  dtrg
 # Replaced some str() with % syntax.
 #
