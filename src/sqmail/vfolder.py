@@ -2,17 +2,31 @@
 # $Source: /cvsroot/sqmail/sqmail/src/sqmail/vfolder.py,v $
 # $State: Exp $
 
+"""Classes and Functions related to VFolders
+
+Includes the objects Query, QueryException, VFQuery, UserQuery, and
+VFolder.
+
+"""
+
 import os
 import rfc822
-import string
-import sqmail.db
-import sqmail.message
-import sqmail.utils
+import string, re
+from sqmail import db, message, utils, sequences
 import cPickle
 import cStringIO
 
+
+def vfolder_find(name):
+	cursor = db.cursor()
+	cursor.execute("SELECT id FROM vfolders WHERE name = %s", name)
+	i = cursor.fetchone()
+	if i:
+		return int(i[0])
+	return None
+
 def get_folder_list():
-	l = sqmail.utils.getsetting("vfolders")
+	l = utils.getsetting("vfolders")
 	if (l == None):
 		print "WARNING: your database seems not to have been initialised correctly."
 		print "(I can't seem to find the vfolder list.) I'm trying to work round this"
@@ -55,17 +69,16 @@ def read_id():
 	return id
 
 def vfolder_add(name, query, parent):
-	cursor = sqmail.db.cursor()
-	cursor.execute("INSERT INTO vfolders (name, query, parent) values " \
-			" ('%s', '%s', %d)" \
-			% (sqmail.db.escape(name), sqmail.db.escape(query), parent))
+	cursor = db.cursor()
+	cursor.execute("INSERT INTO vfolders (name, query, parent) values "
+				   " (%s, %s, %s)", [name, query, parent])
 	cursor.execute("SELECT LAST_INSERT_ID()")
 	return int(cursor.fetchone()[0])
-	
+
 def vfolder_find(name):
-	cursor = sqmail.db.cursor()
+	cursor = db.cursor()
 	cursor.execute("SELECT id FROM vfolders WHERE name = '%s'" \
-			% sqmail.db.escape(name))
+			% db.escape(name))
 	i = cursor.fetchone()
 	if i:
 		return int(i[0])
@@ -73,7 +86,7 @@ def vfolder_find(name):
 
 def vfolder_get(id):
 	# Check if it's a new-style vfolder.
-	cursor = sqmail.db.cursor()
+	cursor = db.cursor()
 	cursor.execute("SELECT name, query, parent FROM vfolders"\
 		       " WHERE id = %d" % id)
 	i = cursor.fetchone()
@@ -81,120 +94,297 @@ def vfolder_get(id):
 		return i
 	return None
 
-def vfolder_set(id, name, query, parent):
-	cursor = sqmail.db.cursor()
-	q = "UPDATE vfolders SET name='%s', query='%s', parent=%d WHERE id=%d"\
-	    % (sqmail.db.escape(name), sqmail.db.escape(query), parent, id)
-	cursor.execute(q)
+
+
+class QueryException(Exception):
+	pass
+
+class Query:
+	"""Simple class representing VFolder Query
+
+	Wrapper around self.qstring.  This just helps avoid a lot of
+	query+" AND "+query type stuff below.
+
+	"""
+	max_query_length = 10000
+
+	def __init__(self, qstring):
+		"""qstring is the actual SQL query string"""
+		if len(qstring) > self.max_query_length:
+			error_string = ("Query length over %d.  Cycle created?" %
+							self.max_query_length)
+			raise QueryException(error_string)
+		self.qstring = qstring
+
+	def __str__(self): return self.qstring
+	def __add__(self, x): return self.qstring + x
+	def __radd__(self, x): return x + self.qstring
+	def __len__(self): return len(self.qstring)
+
+
+class VFQuery(Query):
+	"""Use for the actual SQL queries
+
+	These queries are on the headers,sequence_data.  Use
+	UserQuery.ExpandToVFQuery to get a VFQuery.
+
+	self.qstring is the part of the query that goes after "WHERE ..."
+
+	self.seqdict is a dictionary of sequences.  If a sequence name is
+	a key, then it needs to be quantified over.
+
+	"""
+	def __init__(self, qstring):
+		self.seqdict = {}
+		self.qschema = None
+		Query.__init__(self, qstring)
 	
-def read_hierarchic_query(id, query):
-	if not id:
-		return query
-	p = vfolder_get(id)[2]
-	if (p == id):
-		print "DANGER! Dastardly recursive loop found in vfolder", id, "---"
-		print "Terminating loop before your machine crashes."
-		return query
-	if not p:
-		return query
-	query = "((" + vfolder_get(p)[1] + ") and ("+query+"))"
-	return read_hierarchic_query(p, query)
-	
-def read_allthatsleft_query(id):
-	parent = vfolder_get(id)[2]
-	l = get_folder_list()
-	query = "1"
-	for i in l:
-		j = vfolder_get(i)
-		if (j[2] == parent):
-			q = j[1]
-			if ((q != "") and (q != "1")):
-				query = query+" and (not ("+q+"))"
-	return query
+	def quoteseqname(self, seqname):
+		"""Returns one word version of sequence name"""
+		seqname = string.replace(seqname, " ", "_")
+		seqname = string.replace(seqname, "-", "M")
+		seqname = string.replace(seqname, "+", "P")
+		return seqname
+
+	def setqschema(self):
+		"""Set the query schema strings and argument list
+
+		It is meant to be used like: cursor.execute(qschema % foo),
+		where foo is a column name, so any % in the qstring should be
+		quoted.
+
+		"""
+		joinstringlist = []
+		for seqname in self.seqdict.keys():
+			joinstringlist.append("LEFT JOIN sequence_data AS sd%s ON"
+								  " headers.id = sd%s.id AND sd%s.sid ="
+								  "'%s'" %
+								  ((self.quoteseqname(seqname),)*3 +
+								   (seqname,)))
+		self.qschema = string.join(["SELECT %s FROM headers"] +
+								   joinstringlist +
+								   ["WHERE",
+									string.replace(self.qstring, "%", "%%")])
+
+	def count(self, addendum = ""):
+		"""Returns the number of messages matching the query
+
+		addendum will be added to the qschema at the end"""
+		cursor = db.cursor()
+		if not self.qschema: self.setqschema()
+		cursor.execute((self.qschema % "COUNT(*)") + " " + addendum)
+		return cursor.fetchone()[0]
+
+	def countunread(self):
+		"""Returns number of unread messages"""
+		return self.count("AND readstatus = 'Unread'")
+		
+	def selectcolumns(self, columns, ordering):
+		"""Returns the specified columns with fetchall() on query"""
+		cursor = db.cursor()
+		if not self.qschema: self.setqschema()
+		print "executing: ",(self.qschema % columns)+" ORDER BY "+ordering
+		cursor.execute((self.qschema % columns) + " ORDER BY " + ordering)
+		return cursor.fetchall()
+
+	def binaryop(self, vfquerylist, opstring, default):
+		"""Used for defining And and Or"""
+		if not vfquerylist:
+			return VFQuery(default)
+		qstringlist, seqdict = [], {}
+		for arg in (self,) + vfquerylist:
+			qstringlist.append(arg.qstring)
+			seqdict.update(arg.seqdict)
+		vfq = VFQuery("(" + string.join(qstringlist, " "+opstring+" ") + ")")
+		vfq.seqdict = seqdict
+		return vfq
+
+	def And(*vfqueries):
+		"""Return vfquery conjunction of given vfqueries"""
+		return vfqueries[0].binaryop(vfqueries[1:], "AND", "1")
+
+	def Or(*vfqueries):
+		"""Return vfquery disjunction of given vfqueries"""
+		return vfqueries[0].binaryop(vfqueries[1:], "OR", "0")
+
+	def Not(self):
+		"""Return vfquery negation of self"""
+		vfq = VFQuery("(NOT " + self.qstring + ")")
+		vfq.seqdict = self.seqdict.copy()
+		return vfq
+
+	def reckon_sequences(self, foldername):
+		"""Changes self to exclude/include folder related sequences
+
+		Also sets self.qstringnoseq and self.seqdictnoseq as the
+		previous versions of self.qstring and self.seqdict in case we
+		want to know what would happen without the overrides.
+
+		"""
+		self.qstringnoseq = self.qstring
+		self.seqdictnoseq = self.seqdict.copy()
+		inseq, outseq = "+"+foldername, "-"+foldername
+		quoteinseq, quoteoutseq = map(self.quoteseqname, [inseq, outseq])
+		self.qstring = ("(sd%s.sid IS NOT NULL OR "
+						"(%s AND sd%s.sid IS NULL))" %
+						(quoteinseq, self.qstringnoseq, quoteoutseq))
+		self.seqdict[inseq] = self.seqdict[outseq] = 1
+
+	def no_sequences(self):
+		"""Return a VFQuery like self but ignore folder sequences"""
+		vfq = VFQuery(self.qstringnoseq)
+		vfq.seqdict = self.seqdictnoseq.copy()
+		return vfq
+
+
+class UserQuery(Query):
+	"""Query that the user types into the query box
+
+	These are not SQL at all, but look similar to queries on the
+	headers table.  It is possible to ask about sequence_data
+	types also.
+
+	"""
+	def ExpandToVFQuery(self, vf):
+		"""Expand self into full VFQuery, relative to vfolder vf
+
+		Follows three rules:
+
+		0.  If the string is empty, return the always false query.
+		
+		1.  Replace forms like VFOLDER:foobar or VFOLDER:"foobar" (use
+		the latter if folder name contains spaces) for their
+		correspending VFQuery strings.  As special cases,
+		VFOLDER:children is replaced by the disjunction of all the
+		children's queries, and VFOLDER:notsiblings is replaced by the
+		disjunction of the negations of all the folders which share a
+		parent with the original folder, except of course for the
+		original folder.
+
+		2. Add a bit of SQL so that messages in the sequence named
+		+foobar will always be in folder foobar and messages in the
+		-foobar sequence will never be.  (One message shouldn't be
+		in both the +foobar and -foobar sequences.)
+
+		"""
+		self.vf = vf
+		if not string.strip(self.qstring): return VFQuery("0")
+		vfq = self.macroexpand(self.qstring)
+		vfq.reckon_sequences(vf.name)
+		return vfq
+
+	def macroexpand(self, s):
+		"""Replace instances like VFOLDER:foobar"""
+		vf_regexp = re.compile('VFOLDER:(\\w+)|VFOLDER:"(.+?)"',
+							   re.I | re.M | re.S)
+		seqdict = {}
+		while 1:
+			match = vf_regexp.search(s)
+			if not match: break
+			vfq = self.find_vfqrepl(match.group(1) or match.group(2))
+			seqdict.update(vfq.seqdict)
+			s = s[:match.start(0)] + vfq.qstring + s[match.end(0):]
+		finalvfq = VFQuery(s)
+		finalvfq.seqdict = seqdict
+		return finalvfq
+
+	def find_vfqrepl(self, foldername):
+		"""Returns vfquery that VFOLDER:foldername represents"""
+		lowercase = string.lower(foldername)
+		if lowercase == "notsiblings":  # Disjoin negations of child vfqs
+			notsibs = map(lambda x: x.vfquery.Not(), self.vf.getsiblings())
+			if notsibs: return apply(VFQuery.Or, notsibs)
+			else: return VFQuery("1")
+		elif lowercase == "children":
+			children = map(lambda x: x.vfquery, self.vf.getchildren())
+			if children: return apply(VFQuery.Or, children)
+			else: return VFQuery("0")
+		else:
+			vf = vfolder_find(foldername)
+			if not vf: raise QueryException("Can't find folder "+foldername+
+											" in query from "+self.vf.name)
+			else: return VFolder(vf).vfquery
+
+
 
 class VFolder:
-	def __init__(self, id=None, name=None, query=None, parent=None):
-		if (not id and not query and not name):
-			raise RuntimeError("Can't create a VFolder instance without at least one of id, name and query")
+	"""Virtual Folders are what the user manipulates as folders
+
+	There are two kinds of queries that a VFolder works with.  The
+	first is pure SQL and is what is actually used to pick the messages
+	out of the database.  The second is called a "user query", and is what
+	the user specifies as the criteria for picking out messages in a
+	vfolder.  User queries may contain certain key words like
+	"INFOLDER:Drafts" which are expanded to the query used to determine
+	which messages are in the Drafts folder.
+
+	"""
+	def __init__(self, id=None, name=None, uquery=None, parent=None):
+		if (not id and not uquery and not name):
+			raise RuntimeError("Can't create a VFolder instance without" +
+							   " at least one of id, name and query string")
 		if name and not id:
 			id = vfolder_find(name)
 			if not id:
-				if query:
-					id = vfolder_add(name, query, parent)
+				if uquery:
+					id = vfolder_add(name, uquery, parent)
 				else:
 					raise KeyError
-		if id and query:
+		if id and uquery:
 			self.id = id
 			self.name = name
-			self.query = query
+			self.uquery = UserQuery(uquery)
 			self.parent = parent
 		elif id:
 			self.id = id
 			i = vfolder_get(id)
 			if not i:
 				raise KeyError
-			(self.name, self.query, self.parent) = i
+			self.name, self.parent = i[0], i[2]
+			self.uquery = UserQuery(i[1])
+			self.vfquery = self.uquery.ExpandToVFQuery(self)
 		else:
 			self.id = None
 			self.name = None
-			self.query = query
+			self.uquery = UserQuery(uquery)
 			self.parent = None
 
 		self.unread = None
 		self.results = None
 		self.total = None
+		self.whole_query = None
 
 	def count(self):
-		cursor = sqmail.db.cursor()
-		query = self.gethierarchicquery()
+		"""Set self.unread and self.total"""
 		try:
-			cursor.execute("SELECT COUNT(*) FROM headers WHERE "+query+" AND readstatus='Unread'")
-			self.unread = cursor.fetchone()[0]
-			cursor.execute("SELECT COUNT(*) FROM headers WHERE "+query)
-			self.total = cursor.fetchone()[0]
-		except sqmail.db.db().OperationalError:
-			print "SQL syntax error in folder", self.name
+			self.total = self.vfquery.count()
+			self.unread = self.vfquery.countunread()
+		except (db.db().OperationalError, QueryException), exception:
+			print "SQL syntax error counting folder", self.name
+			print exception
 
 	def scan(self):
-		cursor = sqmail.db.cursor()
-		query = self.gethierarchicquery()
+		"""Set self.results and self.total"""
+		columns = ("headers.id,readstatus,fromfield,"
+				   "realfromfield,subjectfield,unix_timestamp(date)")
 		try:
-			cursor.execute("SELECT COUNT(*) FROM headers WHERE "+query+" AND readstatus='Unread'")
-			self.unread = cursor.fetchone()[0]
-			cursor.execute("SELECT id,readstatus,fromfield,realfromfield,subjectfield,unix_timestamp(date) FROM headers WHERE "+query+" ORDER BY date")
-		except sqmail.db.db().OperationalError:
-			print "SQL syntax error in folder", self.name
+			self.unread = self.vfquery.countunread()
+			self.results = self.vfquery.selectcolumns(columns, "date")
+		except (db.db().OperationalError, QueryException), exception:
+			print "SQL syntax error scanning folder", self.name
+			print exception
 			self.results = []
-		else:
-			self.results = []
-			while 1:
-				d = cursor.fetchone()
-				if not d:
-					break
-
-				self.results.append(list(d))
 		self.total = len(self.results)
 
 	def clearcache(self):
 		self.results = []
 		self.total = None
 		
-	def getquery(self):
-		return self.query
+	def getuquerystr(self):
+		return str(self.uquery)
 	
-	def gethierarchicquery(self):
-		if not self.query:
-			# An empty query means `all messages that are left'. We
-			# need to find all the folders with the same parent as
-			# this one, OR the queries together, and NOT the result.
-			query = read_allthatsleft_query(self.id)
-		else:
-			query = self.query
-		query = read_hierarchic_query(self.id, query)
-		return query
-
-	def setquery(self, query):
-		self.query = query
+	def setuquery(self, querystring):
+		self.uquery = UserQuery(querystring)
 		self.unread = None
 		self.results = None
 	
@@ -206,9 +396,29 @@ class VFolder:
 		self.unread = None
 		self.results = None
 
+	def getchildren(self):
+		"""Returns list of VFolder children"""
+		cursor = db.cursor()
+		cursor.execute("SELECT id FROM vfolders WHERE parent=%s", self.id)
+		return map(VFolder,
+				   reduce(lambda x,y: x+[y[0]], cursor.fetchall(), []))
+
 	def getparent(self):
 		return self.parent
 
+	def getparents(self):
+		"""In case a folder can later have multiple parents"""
+		return [VFolder(self.parent)]
+
+	def getsiblings(self):
+		"""Get sibling VFolders, including any half brothers and sisters."""
+		cursor = db.cursor()
+		cursor.execute("SELECT vf1.id FROM vfolders AS vf0, vfolders AS vf1 "
+					   "WHERE vf0.id=%s AND vf0.parent=vf1.parent AND "
+					   "NOT (vf1.id=%s)", (self.id, self.id))
+		return map(VFolder,
+				   reduce(lambda x,y: x+[y[0]], cursor.fetchall(), []))
+		
 	def setparent(self, parent):
 		self.parent = parent
 		self.unread = None
@@ -218,7 +428,11 @@ class VFolder:
 		return (self.total != None)
 
 	def save(self):
-		vfolder_set(self.id, self.name, self.query, self.parent)
+		"""Saves the folder settings in database"""
+		cursor = db.cursor()
+		cursor.execute("UPDATE vfolders SET name=%s, query=%s, parent=%s "
+					   "WHERE id=%s", (self.name, self.uquery,
+									   self.parent, self.id))
 
 	def getunread(self):
 		if (self.total == None):
@@ -241,10 +455,36 @@ class VFolder:
 			self.scan()
 		return self.results[index]
 
+	def AddMsgID(self, id):
+		"""Add an message by id to folder
+
+		First remove the message from the negative sequence.  Then, if
+		the message still doesn't show up in the query, add it to
+		the positive override sequence.
+		"""
+		sequences.Sequence("-" + self.name).DeleteID(id)
+		if not self.vfquery.count(" AND headers.id = %d" % id):
+			sequences.Sequence("+" + self.name).AddMessageID(id)
+
+	def RemoveMsgID(self, id):
+		"""Remove a message by id from folder, see AddMsgID"""
+		sequences.Sequence("+" + self.name).DeleteID(id)
+		if self.vfquery.count(" AND headers.id = %d" % id):
+			sequences.Sequence("-" + self.name).AddMessageID(id)
+			
+	def MoveMsgID(self, id, dest_vf):
+		"""Move a message from current vfolder to another"""
+		self.RemoveMsgID(id)
+		dest_vf.AddMsgID(id)
+
+
+
 # Revision History
 # $Log: vfolder.py,v $
-# Revision 1.15  2001/05/23 10:21:31  dtrg
-# Removed some debug tracing.
+# Revision 1.16  2001/05/26 18:15:48  bescoto
+# Reorganization of vfolder and query structure.  Added adding/removing
+# individual messages of folders through use of override sequences.
+# Queries now support recursive macro substitution e.g. VFOLDER:foo
 #
 # Revision 1.14  2001/04/19 18:24:16  dtrg
 # Added the ability to change the readstatus of a message. Also did some
@@ -323,6 +563,3 @@ class VFolder:
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
-
-
-
