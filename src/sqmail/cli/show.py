@@ -31,9 +31,9 @@ def usage():
 def parseargs():
 	global currentmsg, attachment, saveattachment, nomime
 	try:
-		opts, args = getopt.getopt(sys.argv[2:], "ha:s:", \
-			["help", "attachment:", "save:"])
-	except getopt.GetoptError:
+		opts, args = getopt.getopt(sys.argv[2:], "hna:s:", \
+			["help", "nomime", "attachment:", "save:"])
+	except getopt.error:
 		usage()
 		sys.exit(2)
 
@@ -187,6 +187,9 @@ def SQmaiLShow():
 
 # Revision History
 # $Log: show.py,v $
+# Revision 1.3  2001/05/23 10:22:01  dtrg
+# Fixed some fairly stupid getopt bugs.
+#
 # Revision 1.2  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).
