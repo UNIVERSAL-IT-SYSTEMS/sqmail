@@ -99,6 +99,210 @@
 
 	<widget>
 	  <class>GtkMenuItem</class>
+	  <name>vfolder2</name>
+	  <label>_VFolder</label>
+	  <right_justify>False</right_justify>
+
+	  <widget>
+	    <class>GtkMenu</class>
+	    <name>vfolder2_menu</name>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>rescan1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_rescan1_activate</handler>
+		<last_modification_time>Mon, 19 Mar 2001 15:12:03 GMT</last_modification_time>
+	      </signal>
+	      <label>_Rescan</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>separator8</name>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>duplicate1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_vfolder_copy</handler>
+		<last_modification_time>Mon, 19 Mar 2001 17:09:03 GMT</last_modification_time>
+	      </signal>
+	      <label>_Duplicate</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>remove1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_vfolder_delete</handler>
+		<last_modification_time>Mon, 19 Mar 2001 15:12:03 GMT</last_modification_time>
+	      </signal>
+	      <label>_Remove</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>separator9</name>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>add_to_picons_queue1</name>
+	      <signal>
+		<name>activate</name>
+		<handler>on_add_to_picons_queue</handler>
+		<last_modification_time>Mon, 19 Mar 2001 15:14:10 GMT</last_modification_time>
+	      </signal>
+	      <label>Add to _picons queue</label>
+	      <right_justify>False</right_justify>
+	    </widget>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>mark_messages_as1</name>
+	      <label>Mark _messages as</label>
+	      <right_justify>False</right_justify>
+
+	      <widget>
+		<class>GtkMenu</class>
+		<name>mark_messages_as1_menu</name>
+
+		<widget>
+		  <class>GtkMenuItem</class>
+		  <name>read1</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_mark_vfolder_read</handler>
+		    <last_modification_time>Tue, 27 Mar 2001 09:55:52 GMT</last_modification_time>
+		  </signal>
+		  <label>_Read</label>
+		  <right_justify>False</right_justify>
+		</widget>
+
+		<widget>
+		  <class>GtkMenuItem</class>
+		  <name>unread1</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_mark_vfolder_unread</handler>
+		    <last_modification_time>Tue, 27 Mar 2001 09:55:52 GMT</last_modification_time>
+		  </signal>
+		  <label>_Unread</label>
+		  <right_justify>False</right_justify>
+		</widget>
+
+		<widget>
+		  <class>GtkMenuItem</class>
+		  <name>deleted1</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_mark_vfolder_deleted</handler>
+		    <last_modification_time>Tue, 27 Mar 2001 09:55:52 GMT</last_modification_time>
+		  </signal>
+		  <label>_Deleted</label>
+		  <right_justify>False</right_justify>
+		</widget>
+
+		<widget>
+		  <class>GtkMenuItem</class>
+		  <name>sent1</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_mark_vfolder_sent</handler>
+		    <last_modification_time>Tue, 27 Mar 2001 09:55:52 GMT</last_modification_time>
+		  </signal>
+		  <label>_Sent</label>
+		  <right_justify>False</right_justify>
+		</widget>
+	      </widget>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkMenuItem</class>
+	  <name>message1</name>
+	  <label>_Message</label>
+	  <right_justify>False</right_justify>
+
+	  <widget>
+	    <class>GtkMenu</class>
+	    <name>message1_menu</name>
+
+	    <widget>
+	      <class>GtkMenuItem</class>
+	      <name>mark_message_as1</name>
+	      <label>Mark _message as</label>
+	      <right_justify>False</right_justify>
+
+	      <widget>
+		<class>GtkMenu</class>
+		<name>mark_message_as1_menu</name>
+
+		<widget>
+		  <class>GtkMenuItem</class>
+		  <name>read2</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_mark_message_read</handler>
+		    <last_modification_time>Tue, 27 Mar 2001 09:55:52 GMT</last_modification_time>
+		  </signal>
+		  <label>_Read</label>
+		  <right_justify>False</right_justify>
+		</widget>
+
+		<widget>
+		  <class>GtkMenuItem</class>
+		  <name>unread2</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_mark_message_unread</handler>
+		    <last_modification_time>Tue, 27 Mar 2001 09:55:52 GMT</last_modification_time>
+		  </signal>
+		  <label>_Unread</label>
+		  <right_justify>False</right_justify>
+		</widget>
+
+		<widget>
+		  <class>GtkMenuItem</class>
+		  <name>deleted2</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_mark_message_deleted</handler>
+		    <last_modification_time>Tue, 27 Mar 2001 09:55:52 GMT</last_modification_time>
+		  </signal>
+		  <label>_Deleted</label>
+		  <right_justify>False</right_justify>
+		</widget>
+
+		<widget>
+		  <class>GtkMenuItem</class>
+		  <name>sent2</name>
+		  <signal>
+		    <name>activate</name>
+		    <handler>on_mark_message_sent</handler>
+		    <last_modification_time>Tue, 27 Mar 2001 09:55:52 GMT</last_modification_time>
+		  </signal>
+		  <label>_Sent</label>
+		  <right_justify>False</right_justify>
+		</widget>
+	      </widget>
+	    </widget>
+	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkMenuItem</class>
 	  <name>settings1</name>
 	  <label>_Settings</label>
 	  <right_justify>False</right_justify>
@@ -344,8 +548,8 @@
 	  <name>button19</name>
 	  <signal>
 	    <name>clicked</name>
-	    <handler>on_mark_read</handler>
-	    <last_modification_time>Wed, 06 Dec 2000 19:54:37 GMT</last_modification_time>
+	    <handler>on_mark_message_read</handler>
+	    <last_modification_time>Tue, 27 Mar 2001 09:54:49 GMT</last_modification_time>
 	  </signal>
 	  <label>Read</label>
 	  <stock_pixmap>GNOME_STOCK_PIXMAP_BOOK_OPEN</stock_pixmap>
@@ -3168,7 +3372,6 @@ Try launching the MIME handler for it instead.</label>
     <widget>
       <class>GtkVBox</class>
       <name>vbox8</name>
-      <sensitive>False</sensitive>
       <homogeneous>False</homogeneous>
       <spacing>0</spacing>
 
@@ -3206,12 +3409,37 @@ Try launching the MIME handler for it instead.</label>
 	    <column_spacing>0</column_spacing>
 
 	    <widget>
-	      <class>GtkVBox</class>
-	      <name>vbox9</name>
-	      <homogeneous>False</homogeneous>
-	      <spacing>0</spacing>
+	      <class>GtkCheckButton</class>
+	      <name>deletespamreply</name>
+	      <can_focus>True</can_focus>
+	      <label>Delete Spamcop's reply when clicked on</label>
+	      <active>False</active>
+	      <draw_indicator>True</draw_indicator>
 	      <child>
-		<left_attach>1</left_attach>
+		<left_attach>0</left_attach>
+		<right_attach>2</right_attach>
+		<top_attach>1</top_attach>
+		<bottom_attach>2</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>True</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
+	      </child>
+	    </widget>
+
+	    <widget>
+	      <class>GtkCheckButton</class>
+	      <name>deletespam</name>
+	      <can_focus>True</can_focus>
+	      <label>Delete spam when clicked on</label>
+	      <active>False</active>
+	      <draw_indicator>True</draw_indicator>
+	      <child>
+		<left_attach>0</left_attach>
 		<right_attach>2</right_attach>
 		<top_attach>0</top_attach>
 		<bottom_attach>1</bottom_attach>
@@ -3222,194 +3450,7 @@ Try launching the MIME handler for it instead.</label>
 		<xshrink>False</xshrink>
 		<yshrink>False</yshrink>
 		<xfill>True</xfill>
-		<yfill>True</yfill>
-	      </child>
-
-	      <widget>
-		<class>GtkRadioButton</class>
-		<name>radiobutton3</name>
-		<can_focus>True</can_focus>
-		<label>Delete message</label>
-		<active>False</active>
-		<draw_indicator>True</draw_indicator>
-		<group>spamcoponspam</group>
-		<child>
-		  <padding>0</padding>
-		  <expand>False</expand>
-		  <fill>False</fill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkHBox</class>
-		<name>hbox7</name>
-		<homogeneous>False</homogeneous>
-		<spacing>0</spacing>
-		<child>
-		  <padding>0</padding>
-		  <expand>True</expand>
-		  <fill>True</fill>
-		</child>
-
-		<widget>
-		  <class>GtkRadioButton</class>
-		  <name>radiobutton4</name>
-		  <can_focus>True</can_focus>
-		  <label></label>
-		  <active>False</active>
-		  <draw_indicator>True</draw_indicator>
-		  <group>spamcoponspam</group>
-		  <child>
-		    <padding>0</padding>
-		    <expand>False</expand>
-		    <fill>False</fill>
-		  </child>
-		</widget>
-
-		<widget>
-		  <class>GtkEntry</class>
-		  <name>entry9296</name>
-		  <can_focus>True</can_focus>
-		  <editable>True</editable>
-		  <text_visible>True</text_visible>
-		  <text_max_length>0</text_max_length>
-		  <text></text>
-		  <child>
-		    <padding>0</padding>
-		    <expand>True</expand>
-		    <fill>True</fill>
-		  </child>
-		</widget>
-	      </widget>
-	    </widget>
-
-	    <widget>
-	      <class>GtkVBox</class>
-	      <name>vbox10</name>
-	      <homogeneous>False</homogeneous>
-	      <spacing>0</spacing>
-	      <child>
-		<left_attach>1</left_attach>
-		<right_attach>2</right_attach>
-		<top_attach>1</top_attach>
-		<bottom_attach>2</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>False</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>True</yfill>
-	      </child>
-
-	      <widget>
-		<class>GtkRadioButton</class>
-		<name>radiobutton5</name>
-		<can_focus>True</can_focus>
-		<label>radiobutton5</label>
-		<active>False</active>
-		<draw_indicator>True</draw_indicator>
-		<group>spamcoponreply</group>
-		<child>
-		  <padding>0</padding>
-		  <expand>False</expand>
-		  <fill>False</fill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkHBox</class>
-		<name>hbox8</name>
-		<homogeneous>False</homogeneous>
-		<spacing>0</spacing>
-		<child>
-		  <padding>0</padding>
-		  <expand>True</expand>
-		  <fill>True</fill>
-		</child>
-
-		<widget>
-		  <class>GtkRadioButton</class>
-		  <name>radiobutton6</name>
-		  <can_focus>True</can_focus>
-		  <label></label>
-		  <active>False</active>
-		  <draw_indicator>True</draw_indicator>
-		  <group>spamcoponreply</group>
-		  <child>
-		    <padding>0</padding>
-		    <expand>False</expand>
-		    <fill>False</fill>
-		  </child>
-		</widget>
-
-		<widget>
-		  <class>GtkEntry</class>
-		  <name>entry9297</name>
-		  <can_focus>True</can_focus>
-		  <editable>True</editable>
-		  <text_visible>True</text_visible>
-		  <text_max_length>0</text_max_length>
-		  <text></text>
-		  <child>
-		    <padding>0</padding>
-		    <expand>True</expand>
-		    <fill>True</fill>
-		  </child>
-		</widget>
-	      </widget>
-	    </widget>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label155</name>
-	      <label>When clicked on spam:</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <child>
-		<left_attach>0</left_attach>
-		<right_attach>1</right_attach>
-		<top_attach>0</top_attach>
-		<bottom_attach>1</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>False</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>True</yfill>
-	      </child>
-	    </widget>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label156</name>
-	      <label>When clicked on reply:</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <child>
-		<left_attach>0</left_attach>
-		<right_attach>1</right_attach>
-		<top_attach>1</top_attach>
-		<bottom_attach>2</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>False</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>True</yfill>
+		<yfill>False</yfill>
 	      </child>
 	    </widget>
 	  </widget>
@@ -3585,7 +3626,7 @@ Try launching the MIME handler for it instead.</label>
 
 	      <widget>
 		<class>GtkRadioButton</class>
-		<name>radiobutton1</name>
+		<name>spamcopmemberyes</name>
 		<can_focus>True</can_focus>
 		<label>I am a SpamCop member</label>
 		<active>False</active>
@@ -3600,7 +3641,7 @@ Try launching the MIME handler for it instead.</label>
 
 	      <widget>
 		<class>GtkRadioButton</class>
-		<name>radiobutton2</name>
+		<name>spamcopmemberno</name>
 		<can_focus>True</can_focus>
 		<label>I am not a SpamCop member</label>
 		<active>False</active>
@@ -3921,6 +3962,26 @@ Try launching the MIME handler for it instead.</label>
 	      <last_modification_time>Fri, 09 Mar 2001 16:49:19 GMT</last_modification_time>
 	    </signal>
 	    <label>Use HTTP proxy</label>
+	    <active>False</active>
+	    <draw_indicator>True</draw_indicator>
+	    <child>
+	      <padding>0</padding>
+	      <expand>False</expand>
+	      <fill>False</fill>
+	    </child>
+	  </widget>
+
+	  <widget>
+	    <class>GtkCheckButton</class>
+	    <name>omitpiconsuser</name>
+	    <tooltip>Do you want me to remove the user part of an email address? This will speed things up considerably, because all users of the same domain will end up using the same picon. However, it means you won't see any personalised picons, just the generic domain ones.</tooltip>
+	    <can_focus>True</can_focus>
+	    <signal>
+	      <name>toggled</name>
+	      <handler>on_changed</handler>
+	      <last_modification_time>Thu, 19 Apr 2001 14:30:22 GMT</last_modification_time>
+	    </signal>
+	    <label>Omit user part of email address</label>
 	    <active>False</active>
 	    <draw_indicator>True</draw_indicator>
 	    <child>
@@ -5557,7 +5618,7 @@ Try launching the MIME handler for it instead.</label>
 
 <widget>
   <class>GnomeDialog</class>
-  <name>purgeswin</name>
+  <name>purgeswin-old</name>
   <signal>
     <name>close</name>
     <handler>on_deactivate</handler>
@@ -5646,6 +5707,7 @@ Try launching the MIME handler for it instead.</label>
       <widget>
 	<class>GtkScrolledWindow</class>
 	<name>scrolledwindow14</name>
+	<height>150</height>
 	<hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
 	<vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
 	<hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
@@ -5659,11 +5721,29 @@ Try launching the MIME handler for it instead.</label>
 	  <class>GtkCList</class>
 	  <name>list</name>
 	  <can_focus>True</can_focus>
-	  <columns>3</columns>
-	  <column_widths>80,80,80</column_widths>
+	  <signal>
+	    <name>select_row</name>
+	    <handler>on_selection</handler>
+	    <last_modification_time>Wed, 14 Mar 2001 19:36:49 GMT</last_modification_time>
+	  </signal>
+	  <columns>4</columns>
+	  <column_widths>25,80,80,80</column_widths>
 	  <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
 	  <show_titles>True</show_titles>
 	  <shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	  <widget>
+	    <class>GtkLabel</class>
+	    <child_name>CList:title</child_name>
+	    <name>label167</name>
+	    <label></label>
+	    <justify>GTK_JUSTIFY_CENTER</justify>
+	    <wrap>False</wrap>
+	    <xalign>0.5</xalign>
+	    <yalign>0.5</yalign>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	  </widget>
 
 	  <widget>
 	    <class>GtkLabel</class>
@@ -5798,31 +5878,14 @@ Try launching the MIME handler for it instead.</label>
 	</widget>
 
 	<widget>
-	  <class>GtkOptionMenu</class>
-	  <name>vfolder</name>
-	  <can_focus>True</can_focus>
-	  <items></items>
-	  <initial_choice>0</initial_choice>
-	  <child>
-	    <left_attach>0</left_attach>
-	    <right_attach>1</right_attach>
-	    <top_attach>4</top_attach>
-	    <bottom_attach>5</bottom_attach>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <xexpand>False</xexpand>
-	    <yexpand>False</yexpand>
-	    <xshrink>False</xshrink>
-	    <yshrink>False</yshrink>
-	    <xfill>True</xfill>
-	    <yfill>False</yfill>
-	  </child>
-	</widget>
-
-	<widget>
 	  <class>GtkCheckButton</class>
 	  <name>active</name>
 	  <can_focus>True</can_focus>
+	  <signal>
+	    <name>toggled</name>
+	    <handler>on_changed</handler>
+	    <last_modification_time>Wed, 14 Mar 2001 19:48:41 GMT</last_modification_time>
+	  </signal>
 	  <label>Enabled</label>
 	  <active>False</active>
 	  <draw_indicator>True</draw_indicator>
@@ -5846,6 +5909,11 @@ Try launching the MIME handler for it instead.</label>
 	  <class>GtkEntry</class>
 	  <name>name</name>
 	  <can_focus>True</can_focus>
+	  <signal>
+	    <name>activate</name>
+	    <handler>on_changed</handler>
+	    <last_modification_time>Wed, 14 Mar 2001 19:49:05 GMT</last_modification_time>
+	  </signal>
 	  <editable>True</editable>
 	  <text_visible>True</text_visible>
 	  <text_max_length>0</text_max_length>
@@ -5892,9 +5960,200 @@ Try launching the MIME handler for it instead.</label>
 	    <class>GtkText</class>
 	    <name>condition</name>
 	    <can_focus>True</can_focus>
-	    <editable>False</editable>
+	    <signal>
+	      <name>changed</name>
+	      <handler>on_changed</handler>
+	      <last_modification_time>Wed, 14 Mar 2001 19:49:30 GMT</last_modification_time>
+	    </signal>
+	    <editable>True</editable>
 	    <text></text>
 	  </widget>
+	</widget>
+
+	<widget>
+	  <class>GtkCombo</class>
+	  <name>vfolder_combo</name>
+	  <value_in_list>False</value_in_list>
+	  <ok_if_empty>True</ok_if_empty>
+	  <case_sensitive>False</case_sensitive>
+	  <use_arrows>True</use_arrows>
+	  <use_arrows_always>False</use_arrows_always>
+	  <items></items>
+	  <child>
+	    <left_attach>0</left_attach>
+	    <right_attach>1</right_attach>
+	    <top_attach>4</top_attach>
+	    <bottom_attach>5</bottom_attach>
+	    <xpad>0</xpad>
+	    <ypad>0</ypad>
+	    <xexpand>True</xexpand>
+	    <yexpand>False</yexpand>
+	    <xshrink>False</xshrink>
+	    <yshrink>False</yshrink>
+	    <xfill>True</xfill>
+	    <yfill>False</yfill>
+	  </child>
+
+	  <widget>
+	    <class>GtkEntry</class>
+	    <child_name>GtkCombo:entry</child_name>
+	    <name>vfolder_text</name>
+	    <can_focus>True</can_focus>
+	    <signal>
+	      <name>activate</name>
+	      <handler>on_changed</handler>
+	      <last_modification_time>Wed, 14 Mar 2001 19:48:57 GMT</last_modification_time>
+	    </signal>
+	    <editable>True</editable>
+	    <text_visible>True</text_visible>
+	    <text_max_length>0</text_max_length>
+	    <text></text>
+	  </widget>
+	</widget>
+      </widget>
+    </widget>
+  </widget>
+</widget>
+
+<widget>
+  <class>GnomeDialog</class>
+  <name>purgeswin</name>
+  <type>GTK_WINDOW_TOPLEVEL</type>
+  <position>GTK_WIN_POS_NONE</position>
+  <modal>False</modal>
+  <allow_shrink>True</allow_shrink>
+  <allow_grow>True</allow_grow>
+  <auto_shrink>False</auto_shrink>
+  <auto_close>False</auto_close>
+  <hide_on_close>False</hide_on_close>
+
+  <widget>
+    <class>GtkVBox</class>
+    <child_name>GnomeDialog:vbox</child_name>
+    <name>dialog-vbox4</name>
+    <homogeneous>False</homogeneous>
+    <spacing>8</spacing>
+    <child>
+      <padding>4</padding>
+      <expand>True</expand>
+      <fill>True</fill>
+    </child>
+
+    <widget>
+      <class>GtkHButtonBox</class>
+      <child_name>GnomeDialog:action_area</child_name>
+      <name>dialog-action_area4</name>
+      <layout_style>GTK_BUTTONBOX_END</layout_style>
+      <spacing>8</spacing>
+      <child_min_width>85</child_min_width>
+      <child_min_height>27</child_min_height>
+      <child_ipad_x>7</child_ipad_x>
+      <child_ipad_y>0</child_ipad_y>
+      <child>
+	<padding>0</padding>
+	<expand>False</expand>
+	<fill>True</fill>
+	<pack>GTK_PACK_END</pack>
+      </child>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button1819</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<label>New</label>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button1820</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<label>Delete</label>
+      </widget>
+
+      <widget>
+	<class>GtkButton</class>
+	<name>button1821</name>
+	<can_default>True</can_default>
+	<can_focus>True</can_focus>
+	<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
+      </widget>
+    </widget>
+
+    <widget>
+      <class>GtkScrolledWindow</class>
+      <name>scrolledwindow16</name>
+      <hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
+      <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
+      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
+      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+      <child>
+	<padding>0</padding>
+	<expand>True</expand>
+	<fill>True</fill>
+      </child>
+
+      <widget>
+	<class>GtkCList</class>
+	<name>list</name>
+	<can_focus>True</can_focus>
+	<columns>4</columns>
+	<column_widths>27,80,80,80</column_widths>
+	<selection_mode>GTK_SELECTION_SINGLE</selection_mode>
+	<show_titles>True</show_titles>
+	<shadow_type>GTK_SHADOW_IN</shadow_type>
+
+	<widget>
+	  <class>GtkLabel</class>
+	  <child_name>CList:title</child_name>
+	  <name>label177</name>
+	  <label></label>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
+	  <wrap>False</wrap>
+	  <xalign>0.5</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	</widget>
+
+	<widget>
+	  <class>GtkLabel</class>
+	  <child_name>CList:title</child_name>
+	  <name>label178</name>
+	  <label>Name</label>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
+	  <wrap>False</wrap>
+	  <xalign>0.5</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	</widget>
+
+	<widget>
+	  <class>GtkLabel</class>
+	  <child_name>CList:title</child_name>
+	  <name>label179</name>
+	  <label>VFolder</label>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
+	  <wrap>False</wrap>
+	  <xalign>0.5</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
+	</widget>
+
+	<widget>
+	  <class>GtkLabel</class>
+	  <child_name>CList:title</child_name>
+	  <name>label180</name>
+	  <label>Condition</label>
+	  <justify>GTK_JUSTIFY_CENTER</justify>
+	  <wrap>False</wrap>
+	  <xalign>0.5</xalign>
+	  <yalign>0.5</yalign>
+	  <xpad>0</xpad>
+	  <ypad>0</ypad>
 	</widget>
       </widget>
     </widget>
