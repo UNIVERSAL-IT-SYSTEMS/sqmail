@@ -23,15 +23,6 @@ def setsetting(cursor, name, value):
 		"  values ('"+name+"', '"+\
 			sqmail.db.escape(fp.getvalue())+"')");
 
-def addvfolder(cursor, name, query, parent):
-	cursor.execute( \
-		"insert into vfolders"\
-		"  (name, query, parent)"\
-		"  values ('"+sqmail.db.escape(name)+"', '"+sqmail.db.escape(query)+"', "+str(parent)+")");
-	cursor.execute( \
-		"select last_insert_id()")
-	return int(cursor.fetchone()[0])
-
 def SQmaiLCreateDB():
 	dbname = "sqmail"
 	username = getpass.getuser()
@@ -117,13 +108,19 @@ def SQmaiLCreateDB():
 		"  body longtext)");
 	setsetting(cursor, "message data version", "0.3")
 
-	cursor.execute ( \
-		"create table vfolders"\
-		"  (id integer not null primary key auto_increment,"\
-		"  name text,"\
-		"  query text,"\
-		"  parent integer)");
-	setsetting(cursor, "vfolder data version", "0.2")
+	cursor.execute("""
+            CREATE TABLE vfolders
+                (id INTEGER UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                 name TEXT,
+                 size INTEGER UNSIGNED,
+                 unread INTEGER UNSIGNED,
+                 curmsg INTEGER UNSIGNED,
+                 curmsgpos INTEGER UNSIGNED,
+                 query TEXT,
+                 children TEXT)""")
+	cursor.execute("INSERT INTO vfolders (name, query, children) "
+				   "VALUES ('/', '1', '')")
+	setsetting(cursor, "vfolder data version", "0.3")
 		
 	cursor.execute( \
 		"create table addressbook"\
@@ -170,20 +167,16 @@ def SQmaiLCreateDB():
 		"  (name, value)"\
 		"  values ('idcounter', '1')");
 
-	v1 = addvfolder(cursor, "Received Messages", \
-		"(readstatus = 'Read') or (readstatus = 'Unread')", \
-		0)
-	v2 = addvfolder(cursor, "Messages from root", \
-		"fromfield like '%root%'", \
-		v1)
-	v3 = addvfolder(cursor, "Deleted Messages", \
-		"(readstatus = 'Deleted')", \
-		0)
-	v4 = addvfolder(cursor, "Sent Messages", \
-		"(readstatus = 'Sent')", \
-		0)
-	setsetting(cursor, "vfolders", [v1, v2, v3, v4])
-
+	from sqmail import vfolder
+	rootid = vfolder.get_by_name("/").id
+	vfolder.create_vfolder("Received Messages", rootid,
+						   "(readstatus = 'Read') or (readstatus = 'Unread')")
+	vfolder.create_vfolder("Messages from root", rootid,
+						   "fromfield like '%root%'")
+	vfolder.create_vfolder("Deleted Messages", rootid,
+						   "(readstatus = 'Deleted')")
+	vfolder.create_vfolder("Sent Messages", rootid,
+						   "(readstatus = 'Sent')")
 
 	print "Disconnecting..."
 
@@ -192,6 +185,10 @@ def SQmaiLCreateDB():
 
 # Revision History
 # $Log: createdb.py,v $
+# Revision 1.7  2001/08/06 20:45:47  bescoto
+# Changed SQmaiLCreateDB() to make the new version of the vfolder table (v0.3)
+# now expected by the rest of SQmaiL.
+#
 # Revision 1.6  2001/06/08 04:38:16  bescoto
 # Multifile diff: added a few convenience functions to db.py and sequences.py.
 # vfolder.py and queries.py are largely new, they are part of a system that
