@@ -20,18 +20,20 @@ tomsg = None
 lastmsg = None
 vfname = None
 currentmsg = None
+mboxfile = None
 
 def usage():
 	print "Syntax: " + sys.argv[0] + " scan [options] vfolder"
 	print "  --from <n>         Start listing from message #n"
 	print "  --to <n>           Stop listing at message #n"
 	print "  --last <n>         Only show last n messages"
+	print "  --export <file>    Emit the message to the named mbox file"
 	
 def parseargs():
-	global frommsg, tomsg, lastmsg, vfname
+	global frommsg, tomsg, lastmsg, vfname, mboxfile
 	try:
-		opts, args = getopt.getopt(sys.argv[2:], "hl:f:t:", \
-			["help", "last=", "from=", "to="])
+		opts, args = getopt.getopt(sys.argv[2:], "hl:f:t:e:", \
+			["help", "last=", "from=", "to=", "export="])
 	except getopt.GetoptError:
 		usage()
 		sys.exit(2)
@@ -46,6 +48,8 @@ def parseargs():
 			frommsg = int(a)
 		if (o in ("-t", "--to")):
 			tomsg = int(a)
+		if (o in ("-e", "--export")):
+			mboxfile = open(a, "a")
 	
 	if (lastmsg != None):
 		if (frommsg != None) or (tomsg != None):
@@ -62,7 +66,7 @@ def parseargs():
 
 
 def SQmaiLScan():	
-	global frommsg, tomsg, lastmsg, vfname
+	global frommsg, tomsg, lastmsg, vfname, mboxfile
 	parseargs()
 
 	db = sqmail.db.db
@@ -124,9 +128,26 @@ def SQmaiLScan():
 			32+46*(o[1] == "Unread"), \
 			t, o[3], o[4])
 
+		if mboxfile:
+			msg = sqmail.message.Message(vf[i][0])
+			date = time.gmtime(msg.getdate())
+			fromfield = msg.getfrom() + "  " + time.asctime(date)
+			mboxfile.write("From  ")
+			mboxfile.write(fromfield)
+			mboxfile.write("\n")
+			mboxfile.write(msg.getheaders())
+			mboxfile.write("X-SQmaiL-Annotation: ")
+			mboxfile.write(msg.getannotation())
+			mboxfile.write("\n\n")
+			mboxfile.write(msg.getbody())
+			mboxfile.write("\n\012\012")
+			
+
+
 # Revision History
 # $Log: scan.py,v $
+# Revision 1.2  2001/01/16 20:13:48  dtrg
+# Added the ability to export all messages being listed to an mbox file.
+#
 # Revision 1.1  2001/01/08 14:58:55  dtrg
 # Added the scan CLI command.
-#
-
