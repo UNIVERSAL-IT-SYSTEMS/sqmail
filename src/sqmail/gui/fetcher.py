@@ -39,6 +39,7 @@ class Fetcher:
 	def do_abort(self):
 		if self.abort:
 			self.widget.progresswin.destroy()
+			self.reader.update_vfolderlist()
 			return 0
 		else:
 			self.abort = 1
@@ -47,6 +48,9 @@ class Fetcher:
 			return 1
 # Revision History
 # $Log: fetcher.py,v $
+# Revision 1.2  2001/01/18 19:30:07  dtrg
+# Automatically updates the vfolder list after a fetch (successful or not).
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
