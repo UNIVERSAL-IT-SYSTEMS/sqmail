@@ -43,6 +43,8 @@ def read_id():
 	return id
 
 def read_hierarchic_query(name, query):
+	if not name:
+		return query
 	p = sqmail.utils.getsetting("vfolder parent "+name)
 	if (p == name):
 		print "DANGER! Dastardly recursive loop found in vfolder", name+"."
@@ -164,6 +166,10 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.2  2001/01/16 20:13:12  dtrg
+# Fixed small bug that was preventing on-the-fly queries from the scan CLI
+# from working.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
