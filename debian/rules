@@ -7,7 +7,7 @@
 #export DH_VERBOSE=1
 
 # No leading slash!
-VERSION = 0.4
+VERSION = 0.3.1
 SQMAIL_LIBDIR = usr/share/sqmail-$(VERSION)
 SQMAIL_BINDIR = usr/bin
 
@@ -68,6 +68,9 @@ binary: binary-indep
 
 # Revision History
 # $Log: rules,v $
+# Revision 1.2  2001/05/23 10:22:44  dtrg
+# Changed the version from 0.4 to 0.3.1; 0.4 will come out later.
+#
 # Revision 1.1  2001/05/01 18:23:42  dtrg
 # Added the Debian package building stuff. Now much easier to install.
 # Some GUI tidying prior to the release.
