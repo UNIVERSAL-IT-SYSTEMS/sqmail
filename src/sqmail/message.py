@@ -12,6 +12,9 @@ import mimetools
 import multifile
 import types
 
+class MIMEDecodeAbortException(Exception):
+	pass
+
 class Message:
 	def __init__(self, id=0):
 		self.id = id
@@ -92,6 +95,9 @@ class Message:
 			self.annotation = self.fetchheader("annotation")
 		return self.annotation
 	
+	def setannotation(self, annotation):
+		self.annotation = annotation
+
 	def getreadstatus(self):
 		if self.readstatus == None:
 			self.readstatus = self.fetchheader("readstatus")
@@ -107,11 +113,17 @@ class Message:
 	
 	def getbody(self):
 		if self.body == None:
-			self.body = self.fetchbody("body")
-		if self.body == None:
+			b = self.fetchbody("body")
+			# Experimental optimisation: we may not actually need
+			# to cache the bodies (we don't look at them very
+			# often, and it may help the memory leak).
+			#self.body = b
+		else:
+			b = self.body
+		if (b == None):
 			print "WARNING: msg id", self.id, "has no body --- corrupt database?"
-			self.body = ""
-		return self.body
+			b = ""
+		return b
 	
 	def tosqlstring(self, o):
 		fp = cStringIO.StringIO()
@@ -265,10 +277,7 @@ class Message:
 				index = index + 1
 				if (index > 65+32):
 					# Emergency abort!
-					l.append(["(diagnostic)", "text/plain", \
-						"Too many attachments --- aborting (probably hit the Multifile bug)", \
-						id+chr(index)])
-					break
+					raise MIMEDecodeAbortException
 			multi.pop()
 			return [[name, type, l, ""]]
 		else:
@@ -322,6 +331,18 @@ class Message:
 
 # Revision History
 # $Log: message.py,v $
+# Revision 1.5  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.4  2001/01/18 19:28:59  dtrg
 # Added some bulletproofing for corrupt messages (sometimes generated when a
 # send fails). Checks for a header or body block of None.

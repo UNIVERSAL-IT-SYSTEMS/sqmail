@@ -197,7 +197,12 @@ class SQmaiLReader:
 		d = {}
 		for i in xrange(len(l)):
 			id = l[i]
-			vf = sqmail.vfolder.VFolder(id=id)
+			try:
+				vf = sqmail.vfolder.VFolder(id=id)
+			except KeyError:
+				print "WARNING! VFolder id",id,"is in the folderlist but does not seem to exist."
+				continue
+
 			name = vf.getname()
 			parent = vf.getparent()
 			if parent:
@@ -479,21 +484,24 @@ class SQmaiLReader:
 
 		# Now add the other panes for each attachment.
 
-		mime = msg.mimeflatten()
-		for i in range(len(mime)):
-			if (mime[i][1] in sqmail.gui.textviewer.displayable):
-				viewer = sqmail.gui.textviewer.TextViewer(self, mime[i])
-			elif (mime[i][1] in sqmail.gui.htmlviewer.displayable):
-				viewer = sqmail.gui.htmlviewer.HTMLViewer(self, mime[i])
-			else:
-				viewer = sqmail.gui.binaryviewer.BinaryViewer(self, mime[i])
-			self.widget.messagedisplay.append_page(viewer.getpage(), viewer.gettab())
-			self.messagepages.append(viewer)
+		try:
+			mime = msg.mimeflatten()
+			for i in range(len(mime)):
+				if (mime[i][1] in sqmail.gui.textviewer.displayable):
+					viewer = sqmail.gui.textviewer.TextViewer(self, mime[i])
+				elif (mime[i][1] in sqmail.gui.htmlviewer.displayable):
+					viewer = sqmail.gui.htmlviewer.HTMLViewer(self, mime[i])
+				else:
+					viewer = sqmail.gui.binaryviewer.BinaryViewer(self, mime[i])
+				self.widget.messagedisplay.append_page(viewer.getpage(), viewer.gettab())
+				self.messagepages.append(viewer)
 
-		# Make sure that the second pane, which will be the body text,
-		# is visible.
+			# Make sure that the second pane, which will be the body text,
+			# is visible.
 
-		self.widget.messagedisplay.set_page(1)
+			self.widget.messagedisplay.set_page(1)
+		except sqmail.message.MIMEDecodeAbortException:
+			pass
 
 	# Change the read-status of a message.
 
@@ -629,10 +637,10 @@ class SQmaiLReader:
 		sqmail.gui.compose.SQmaiLCompose(self, msg, to)
 
 	def on_save_configuration(self, obj):
-		sqmail.gui.utils.FileSelector("Save Configuration...", "", sqmail.preferences.save_config, None)
+		sqmail.gui.utils.FileSelector("Save Configuration...", "", sqmail.preferences.save_config)
 
 	def on_load_configuration(self, obj):
-		sqmail.gui.utils.FileSelector("Load Configuration...", "", sqmail.preferences.load_config, None)
+		sqmail.gui.utils.FileSelector("Load Configuration...", "", sqmail.preferences.load_config)
 
 	def on_check_mail(self, obj):
 		self.stopcounting()
@@ -681,6 +689,18 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.13  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.12  2001/02/23 19:50:26  dtrg
 # Lots of changes: added the beginnings of the purges system, CLI utility
 # for same, GUI utility & UI for same, plus a CLI vfolder lister.

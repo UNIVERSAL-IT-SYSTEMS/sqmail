@@ -9,6 +9,8 @@ import gnome.ui
 import libglade
 import types
 import sqmail.gui.reader
+import popen2
+import string
 
 def render_time(t):
 	return time.asctime(time.gmtime(t))
@@ -42,10 +44,12 @@ def update_ctree(ctree, node, values):
 		ctree.node_set_text(node, i, values[i])
 	ctree.thaw()
 
+# Browses for a file.
+
 class FileSelector:
-	def __init__(self, name, file, method, dest):
+	def __init__(self, name, file, method, user=None):
 		self.method = method
-		self.dest = dest
+		self.user = user
 		self.fsel = gtk.GtkFileSelection(name)
 		self.fsel.set_filename(file)
 		callbacks = Callback(self)
@@ -59,12 +63,8 @@ class FileSelector:
 	def on_select(self, obj):
 		filename = self.fsel.get_filename()
 		self.fsel.destroy()
-		if self.dest:
-			try:
-				self.method(self.dest, filename)
-			except TypeError:
-				print "Exception while calling", self.method.__name__, "on", self.dest
-				raise
+		if self.user:
+			self.method(filename, self.user)
 		else:
 			self.method(filename)
 
@@ -111,6 +111,8 @@ class Callback:
 	def __getitem__(self, name):
 		return _callback(self.dest, self.dict[name])
 
+# Pop up assorted message boxes, and block until the user OKs them.
+
 def errorbox(msg):
 	i = gnome.ui.GnomeErrorDialog(msg, sqmail.gui.reader.instance.widget.mainwin)
 	i.run_and_close()
@@ -127,8 +129,43 @@ def okcancelbox(msg):
 	i.destroy()
 	return j
 	
+# Applies an image, in face format, to a button.
+
+def set_face(w, f):
+	w.set_data("face", f)
+	decoder = sqmail.preferences.get_xfacedecoder()
+	pipefp = popen2.popen2(decoder)
+	pipefp[1].write(f)
+	pipefp[1].close()
+	pixdata = []
+	for i in pipefp[0].readlines():
+		i = string.split(i, '"')
+		if (len(i) == 3):
+			pixdata.append(i[1])
+
+	pixmap, mask = gtk.create_pixmap_from_xpm_d(w, None, pixdata)
+	c = w.children()
+	if c:
+		c[0].destroy()
+		
+	pixmap = gtk.GtkPixmap(pixmap, None)
+	w.add(pixmap)
+	pixmap.show()
+			
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.4  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.3  2001/02/20 17:22:36  dtrg
 # Moved the bulk of the preference system out of the gui directory, where it
 # doesn't belong. sqmail.gui.preferences still exists but it just contains

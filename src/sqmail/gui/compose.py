@@ -105,6 +105,10 @@ class SQmaiLCompose:
 		mw.addheader("Subject", self.widget.subjectfield.get_text())
 		mw.addheader("MIME-Version", "1.0")
 
+		# Send the X-Face?
+		if sqmail.preferences.get_sendxface():
+			mw.addheader("X-Face", sqmail.preferences.get_outgoingxfaceicon())
+
 		# If we were replying to something, write the in-reply-to
 		# header.
 		if (self.message):
@@ -236,7 +240,7 @@ class SQmaiLCompose:
 	
 	def on_attach(self, obj):
 		sqmail.gui.utils.FileSelector("Attach File...", "", \
-			SQmaiLCompose.on_attach_file, self)
+			self.on_attach_file)
 
 	def on_attach_file(self, name, type=None):
 		file = open(name)
@@ -300,6 +304,18 @@ class SQmaiLCompose:
 
 # Revision History
 # $Log: compose.py,v $
+# Revision 1.7  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.6  2001/02/20 17:22:36  dtrg
 # Moved the bulk of the preference system out of the gui directory, where it
 # doesn't belong. sqmail.gui.preferences still exists but it just contains

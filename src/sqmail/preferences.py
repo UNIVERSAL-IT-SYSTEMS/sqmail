@@ -57,6 +57,17 @@ def get_defaultdomain():
 	return sqmail.utils.getsetting("defaultdomain", \
 		"")
 
+def get_sendxface():
+	return sqmail.utils.getsetting("sendxface", \
+		0)
+
+def get_outgoingxfaceicon():
+	return sqmail.utils.getsetting("outgoingxfaceicon", \
+	 "\YjKl\"Y0zQE%=F3z`6lf5;>`MK+#{rZ(wf7J" \
+	 ":Z6]m\(Zcp#P;:\"5tgIW,G7THf;_m`S?|yW"\
+	 "PRX34@*D<wDO;mJMv#)'?rHOLO7S_TSIQURv@" \
+	 "ORx~JAe?Y7L#[F\kT8BD#F29P\"Bo)\V-i5N")
+
 # Appearances
 
 def get_textmessagefont():
@@ -110,6 +121,16 @@ def get_pendingmsglistfont():
 	return sqmail.utils.getsetting("pendingmsglistfont", \
 		"fixed")
 
+# Mail icons
+
+def get_xfaceencoder():
+	return sqmail.utils.getsetting("xfaceencoder", \
+		"compface %s")
+
+def get_xfacedecoder():
+	return sqmail.utils.getsetting("xfacedecoder", \
+		"uncompface -X | xbmtopbm | ppmtoxpm")
+
 # Miscellaneous
 
 def get_quoteprefix():
@@ -153,6 +174,18 @@ def load_config(filename):
 	
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.2  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.1  2001/02/20 17:22:36  dtrg
 # Moved the bulk of the preference system out of the gui directory, where it
 # doesn't belong. sqmail.gui.preferences still exists but it just contains
