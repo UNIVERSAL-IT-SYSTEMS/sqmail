@@ -19,7 +19,8 @@ import time
 def usage():
 	print "Syntax: " + sys.argv[0] + " fetch <cmd>"
 	print "Available commands:"
-	print "  file [<filename>]  Reads a single message from a file"
+	print "  file [<filename>]  Reads a single message from a file.  If"
+	print "                     <filename> is absent, read from stdin."
 
 def fetch_file():
 	if (len(sys.argv) == 3):
@@ -54,6 +55,9 @@ def SQmaiLFetch():
 
 # Revision History
 # $Log: fetch.py,v $
+# Revision 1.3  2001/08/06 20:43:20  bescoto
+# One line document change
+#
 # Revision 1.2  2001/06/08 04:38:16  bescoto
 # Multifile diff: added a few convenience functions to db.py and sequences.py.
 # vfolder.py and queries.py are largely new, they are part of a system that
