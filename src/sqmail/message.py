@@ -257,7 +257,7 @@ class Message:
 			while multi.next():
 				l.append(self.mimedecode(mimetools.Message(multi, 0), id+chr(index))[0])
 				index = index + 1
-				if (index > 32):
+				if (index > 65+32):
 					# Emergency abort!
 					l.append(["(diagnostic)", "text/plain", \
 						"Too many attachments --- aborting (probably hit the Multifile bug)", \
@@ -316,6 +316,10 @@ class Message:
 
 # Revision History
 # $Log: message.py,v $
+# Revision 1.3  2001/01/11 20:31:29  dtrg
+# Fixed the last fix, which was broken and prevented any MIME attachments
+# from being shown.
+#
 # Revision 1.2  2001/01/09 14:31:23  dtrg
 # Added workaround for a Multifile bug that was causing lock-ups on bogus
 # messages. Still doesn't work, but at least it doesn't work cleanly.
