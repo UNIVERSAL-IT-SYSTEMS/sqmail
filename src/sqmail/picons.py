@@ -94,9 +94,12 @@ def thread_func():
 	global __thread, __event, __queue
 	while 1:
 		while (__queue == []):
+			print "Picons: nothing to do, waiting"
 			__event.wait()
+			__event.clear()
 		address = __queue.pop(0)
 		get_picon_xpm(address)
+		print "Picons: all done for", address
 
 # Queue an address for background fetching.
 
