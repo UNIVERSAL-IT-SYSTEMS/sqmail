@@ -292,8 +292,8 @@ class UserQuery(Query):
 		"""Returns vfquery that VFOLDER:foldername represents"""
 		lowercase = string.lower(foldername)
 		if lowercase == "notsiblings":  # Disjoin negations of child vfqs
-			notsibs = map(lambda x: x.vfquery.Not(), self.vf.getsiblings())
-			if notsibs: return apply(VFQuery.Or, notsibs)
+			siblings = map(lambda x: x.vfquery, self.vf.getsiblings())
+			if siblings: return apply(VFQuery.Or, siblings).Not()
 			else: return VFQuery("1")
 		elif lowercase == "children":
 			children = map(lambda x: x.vfquery, self.vf.getchildren())
@@ -481,6 +481,9 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.17  2001/05/26 19:19:56  bescoto
+# *** empty log message ***
+#
 # Revision 1.16  2001/05/26 18:15:48  bescoto
 # Reorganization of vfolder and query structure.  Added adding/removing
 # individual messages of folders through use of override sequences.
