@@ -14,12 +14,13 @@ import tempfile
 import string
 import sqmail.vfolder
 import sqmail.message
+import sqmail.preferences
 import sqmail.gui.textviewer
 import sqmail.gui.binaryviewer
 import sqmail.gui.htmlviewer
 import sqmail.gui.headerspane
-import sqmail.gui.preferences
 import sqmail.gui.compose
+import sqmail.gui.preferences
 import sqmail.gui.utils
 import sqmail.gui.spoolfetcher
 import sqmail.gui.popfetcher
@@ -97,18 +98,23 @@ class SQmaiLReader:
 
 	def style_vfolder(self, vf, style):
 		if not vf.getcounted():
-			fg = sqmail.gui.preferences.get_vfolderpendingfg()
-			bg = sqmail.gui.preferences.get_vfolderpendingbg()
-			font = sqmail.gui.preferences.get_vfolderpendingfont()
+			fg = sqmail.preferences.get_vfolderpendingfg()
+			bg = sqmail.preferences.get_vfolderpendingbg()
+			font = sqmail.preferences.get_vfolderpendingfont()
 		elif vf.getunread():
-			fg = sqmail.gui.preferences.get_vfolderunreadfg()
-			bg = sqmail.gui.preferences.get_vfolderunreadbg()
-			font = sqmail.gui.preferences.get_vfolderunreadfont()
+			fg = sqmail.preferences.get_vfolderunreadfg()
+			bg = sqmail.preferences.get_vfolderunreadbg()
+			font = sqmail.preferences.get_vfolderunreadfont()
 		else:
-			fg = sqmail.gui.preferences.get_vfolderfg()
-			bg = sqmail.gui.preferences.get_vfolderbg()
-			font = sqmail.gui.preferences.get_vfolderfont()
-		style.font = gtk.load_font(font)
+			fg = sqmail.preferences.get_vfolderfg()
+			bg = sqmail.preferences.get_vfolderbg()
+			font = sqmail.preferences.get_vfolderfont()
+
+		try:
+			style.font = gtk.load_font(font)
+		except RuntimeError:
+			print "Couldn't load", font
+
 		colormap = self.widget.folderlist.get_colormap()
 		fg = colormap.alloc(fg[0], fg[1], fg[2])
 		bg = colormap.alloc(bg[0], bg[1], bg[2])
@@ -411,12 +417,13 @@ class SQmaiLReader:
 		# Build the annotations drop-down list from the list of
 		# folders.
 		
-		self.widget.annotationfield.list.clear_items(0, -1)
-		for i in self.vfolderlist():
-			vf = sqmail.vfolder.VFolder(id=i)
-			item = gtk.GtkListItem(vf.name)
-			self.widget.annotationfield.list.add(item)
-			item.show()
+		#self.widget.annotationfield.list.clear_items(0, -1)
+		#for i in self.vfolderlist():
+		#	vf = sqmail.vfolder.VFolder(id=i)
+		#	item = gtk.GtkListItem(vf.name)
+		#	self.widget.annotationfield.list.add(item)
+		#	item.show()
+		
 
 		# Is there a selected message?
 		
@@ -424,7 +431,7 @@ class SQmaiLReader:
 		if not msg:
 			self.widget.fromfield.set_text("")
 			self.widget.tofield.set_text("")
-			self.widget.annotationfield.entry.set_text("")
+			self.widget.annotationfield.set_text("")
 			self.widget.datefield.set_text("")
 			self.widget.subjectfield.set_text("")
 			return
@@ -434,7 +441,7 @@ class SQmaiLReader:
 		self.widget.fromfield.set_text(sqmail.gui.utils.render_address(\
 			(msg.getrealfrom(), msg.getfrom())))
 		self.widget.tofield.set_text(sqmail.gui.utils.render_addrlist(msg.getto()))
-		self.widget.annotationfield.entry.set_text(msg.getannotation())
+		self.widget.annotationfield.set_text(msg.getannotation())
 		self.widget.datefield.set_text(sqmail.gui.utils.render_time(msg.getdate()))
 		self.widget.subjectfield.set_text(msg.getsubject())
 		
@@ -592,14 +599,14 @@ class SQmaiLReader:
 		sqmail.gui.compose.SQmaiLCompose(self, msg, to)
 
 	def on_save_configuration(self, obj):
-		sqmail.gui.utils.FileSelector("Save Configuration...", "", sqmail.gui.preferences.save_config, None)
+		sqmail.gui.utils.FileSelector("Save Configuration...", "", sqmail.preferences.save_config, None)
 
 	def on_load_configuration(self, obj):
-		sqmail.gui.utils.FileSelector("Load Configuration...", "", sqmail.gui.preferences.load_config, None)
+		sqmail.gui.utils.FileSelector("Load Configuration...", "", sqmail.preferences.load_config, None)
 
 	def on_check_mail(self, obj):
 		self.stopcounting()
-		p = sqmail.gui.preferences.get_incomingprotocol()
+		p = sqmail.preferences.get_incomingprotocol()
 		if (p == "Spool"):
 			sqmail.gui.spoolfetcher.SpoolFetcher(self)
 		elif (p == "POP"):
@@ -630,6 +637,12 @@ class SQmaiLReader:
 		win = self.widget.mainwin.get_window()
 		sqmail.utils.setsetting("mainwin size", (win.width, win.height))
 		
+	def on_change_annotation(self, obj):
+		print "Changed annotation"
+
+	def on_message_drag_begin(self, obj):
+		print "Drag begin"
+
 	def on_unimplemented(self, obj):
 		sqmail.gui.utils.errorbox("Sorry --- this feature is not implemented yet.")
 
@@ -638,6 +651,12 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.10  2001/02/20 17:22:36  dtrg
+# Moved the bulk of the preference system out of the gui directory, where it
+# doesn't belong. sqmail.gui.preferences still exists but it just contains
+# the preferences editor. sqmail.preferences now contains the access
+# functions and load/save functions.
+#
 # Revision 1.9  2001/02/15 19:34:16  dtrg
 # Many changes. Bulletproofed the send box, so it should now give you
 # (reasonably) user-friendly messages when something goes wrong; rescan a

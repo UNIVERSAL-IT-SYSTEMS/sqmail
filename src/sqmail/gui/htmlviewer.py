@@ -12,7 +12,7 @@ import quopri
 import cStringIO
 import sqmail.utils
 import sqmail.gui.viewer
-import sqmail.gui.preferences
+import sqmail.preferences
 
 displayable = ("text/html",)
 
@@ -44,6 +44,12 @@ class HTMLViewer (sqmail.gui.viewer.Viewer):
 
 # Revision History
 # $Log: htmlviewer.py,v $
+# Revision 1.3  2001/02/20 17:22:36  dtrg
+# Moved the bulk of the preference system out of the gui directory, where it
+# doesn't belong. sqmail.gui.preferences still exists but it just contains
+# the preferences editor. sqmail.preferences now contains the access
+# functions and load/save functions.
+#
 # Revision 1.2  2001/01/22 18:31:55  dtrg
 # Assorted changes, comprising:
 #

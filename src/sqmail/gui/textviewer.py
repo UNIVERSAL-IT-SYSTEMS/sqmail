@@ -11,7 +11,7 @@ import quopri
 import cStringIO
 import sqmail.utils
 import sqmail.gui.viewer
-import sqmail.gui.preferences
+import sqmail.preferences
 
 displayable = ("text/quoted-printable", "text/plain", "text/english", \
 	"text/x-vcard", "text")
@@ -19,7 +19,7 @@ displayable = ("text/quoted-printable", "text/plain", "text/english", \
 class TextViewer (sqmail.gui.viewer.Viewer):
 	def __init__(self, reader, a):
 		sqmail.gui.viewer.Viewer.__init__(self, reader, a, "textmessage")
-		font = gtk.load_font(sqmail.gui.preferences.get_textmessagefont())
+		font = gtk.load_font(sqmail.preferences.get_textmessagefont())
 		# Ensure the text box is 80 columns wide.
 		width = gtk.gdk_char_width(font, "m")*82
 		# The text box is guaranteed to be empty.
@@ -43,6 +43,12 @@ class TextViewer (sqmail.gui.viewer.Viewer):
 
 # Revision History
 # $Log: textviewer.py,v $
+# Revision 1.2  2001/02/20 17:22:36  dtrg
+# Moved the bulk of the preference system out of the gui directory, where it
+# doesn't belong. sqmail.gui.preferences still exists but it just contains
+# the preferences editor. sqmail.preferences now contains the access
+# functions and load/save functions.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #

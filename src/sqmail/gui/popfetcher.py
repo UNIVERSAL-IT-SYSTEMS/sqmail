@@ -8,19 +8,19 @@ import mailbox
 import poplib
 import string
 import sqmail.message
-import sqmail.gui.preferences
+import sqmail.preferences
 import sqmail.gui.fetcher
 
 class POPFetcher (sqmail.gui.fetcher.Fetcher):
 	def __init__(self, reader):
 		sqmail.gui.fetcher.Fetcher.__init__(self, reader, "POP Read")
 
-		server = sqmail.gui.preferences.get_incomingserver()
-		port = sqmail.gui.preferences.get_incomingport()
+		server = sqmail.preferences.get_incomingserver()
+		port = sqmail.preferences.get_incomingport()
 		if not port:
 			port = 110
-		username = sqmail.gui.preferences.get_incomingusername()
-		password = sqmail.gui.preferences.get_incomingpassword()
+		username = sqmail.preferences.get_incomingusername()
+		password = sqmail.preferences.get_incomingpassword()
 
 		self.msg("Connecting to POP server")
 		pop = poplib.POP3(server, port)
@@ -52,7 +52,7 @@ class POPFetcher (sqmail.gui.fetcher.Fetcher):
 			msg.loadfromstring(smsg)
 			msg.savealltodatabase()
 		
-			if sqmail.gui.preferences.get_deleteremote():
+			if sqmail.preferences.get_deleteremote():
 				pop.dele(count+1)
 
 			if self.abort:
@@ -69,6 +69,12 @@ class POPFetcher (sqmail.gui.fetcher.Fetcher):
 
 # Revision History
 # $Log: popfetcher.py,v $
+# Revision 1.2  2001/02/20 17:22:36  dtrg
+# Moved the bulk of the preference system out of the gui directory, where it
+# doesn't belong. sqmail.gui.preferences still exists but it just contains
+# the preferences editor. sqmail.preferences now contains the access
+# functions and load/save functions.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #

@@ -6,14 +6,14 @@ import os
 import os.path
 import mailbox
 import sqmail.message
-import sqmail.gui.preferences
+import sqmail.preferences
 import sqmail.gui.fetcher
 
 class SpoolFetcher (sqmail.gui.fetcher.Fetcher):
 	def __init__(self, reader):
 		sqmail.gui.fetcher.Fetcher.__init__(self, reader, "Spool Read")
 
-		filename = sqmail.gui.preferences.get_incomingpath()
+		filename = sqmail.preferences.get_incomingpath()
 		self.msg("Using spool file "+filename)
 		self.msg("Locking spool file")
 		rv = os.system("mail-lock --retry 1")
@@ -59,7 +59,7 @@ class SpoolFetcher (sqmail.gui.fetcher.Fetcher):
 		self.msg(str(count)+" message(s) read")
 
 		if not self.abort:
-			if sqmail.gui.preferences.get_deleteremote():
+			if sqmail.preferences.get_deleteremote():
 				self.msg("All messages read; truncating spool file")
 				fp.truncate(0)
 			else:
@@ -78,6 +78,12 @@ class SpoolFetcher (sqmail.gui.fetcher.Fetcher):
 
 # Revision History
 # $Log: spoolfetcher.py,v $
+# Revision 1.2  2001/02/20 17:22:36  dtrg
+# Moved the bulk of the preference system out of the gui directory, where it
+# doesn't belong. sqmail.gui.preferences still exists but it just contains
+# the preferences editor. sqmail.preferences now contains the access
+# functions and load/save functions.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
