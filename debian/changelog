@@ -1,0 +1,11 @@
+sqmail (0.4) unstable; urgency=low
+
+  * Initial Release
+  * This is my first Debian package.
+
+ -- David Given <dg@cowlark.com>  Mon, 30 Apr 2001 20:00:00 +0100
+
+Local variables:
+ mode: debian-changelog
+End:
+

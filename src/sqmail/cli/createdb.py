@@ -110,12 +110,12 @@ def SQmaiLCreateDB():
 		"  date datetime not null,"\
 		"  annotation text,"\
 		"  readstatus enum ('Read', 'Unread', 'Deleted', 'Sent') not null)");
-		  
 	cursor.execute( \
 		"create table bodies"\
 		"  (id integer not null primary key,"\
 		"  header longtext,"\
 		"  body longtext)");
+	setsetting(cursor, "message data version", "0.3")
 
 	cursor.execute ( \
 		"create table vfolders"\
@@ -123,6 +123,7 @@ def SQmaiLCreateDB():
 		"  name text,"\
 		"  query text,"\
 		"  parent integer)");
+	setsetting(cursor, "vfolder data version", "0.2")
 		
 	cursor.execute( \
 		"create table addressbook"\
@@ -133,8 +134,20 @@ def SQmaiLCreateDB():
 		"create table aliases"\
 		"  (name text,"\
 		"  addresslist text)");
+	setsetting(cursor, "aliases data version", "0.3")
 		
-	print "Setting up..."
+	cursor.execute( \
+		"CREATE TABLE purges"\
+		"  (active TINYINT,"\
+		"  name TEXT,"\
+		"  vfolder INTEGER,"\
+		"  condition TEXT)");
+
+	cursor.execute( \
+		"CREATE TABLE picons"\
+		"  (email VARCHAR(128) PRIMARY KEY NOT NULL,"\
+		"  image TEXT)");
+	setsetting(cursor, "purges data version", "0.2")
 
 	cursor.execute( \
 		"insert into settings"\
@@ -144,20 +157,17 @@ def SQmaiLCreateDB():
 	v1 = addvfolder(cursor, "Received Messages", \
 		"(readstatus = 'Read') or (readstatus = 'Unread')", \
 		0)
-
 	v2 = addvfolder(cursor, "Messages from root", \
 		"fromfield like '%root%'", \
 		v1)
-
 	v3 = addvfolder(cursor, "Deleted Messages", \
 		"(readstatus = 'Deleted')", \
 		0)
-
 	v4 = addvfolder(cursor, "Sent Messages", \
 		"(readstatus = 'Sent')", \
 		0)
-
 	setsetting(cursor, "vfolders", [v1, v2, v3, v4])
+
 
 	print "Disconnecting..."
 
@@ -166,6 +176,13 @@ def SQmaiLCreateDB():
 
 # Revision History
 # $Log: createdb.py,v $
+# Revision 1.4  2001/05/01 18:23:42  dtrg
+# Added the Debian package building stuff. Now much easier to install.
+# Some GUI tidying prior to the release.
+# Did some work on the message DnD... turns out to be rather harder than I
+# thought, as you can't have a CTree do its own native DnD and also drag
+# your own stuff onto it at the same time.
+#
 # Revision 1.3  2001/01/22 11:47:45  dtrg
 # create-database turned out not to be working (a simple syntax bug plus I
 # forgot to emit a new-style vfolders setting). Fixed. Also added some

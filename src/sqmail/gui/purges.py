@@ -2,6 +2,7 @@
 # $Source: /cvsroot/sqmail/sqmail/src/sqmail/gui/purges.py,v $
 # $State: Exp $
 
+import sys
 import os
 import sqmail.gui.reader
 import sqmail.gui.utils
@@ -31,9 +32,9 @@ class SQmaiLPurges:
 		# Load the pixmaps.
 
 		self.enabled_purge_pixmap = gtk.GtkPixmap(self.widget.list.get_window(), \
-			"images/enabled-purge.xpm")
+			sys.path[0] + "/images/enabled-purge.xpm")
 		self.disabled_purge_pixmap = gtk.GtkPixmap(self.widget.list.get_window(), \
-			"images/disabled-purge.xpm")
+			sys.path[0] + "/images/disabled-purge.xpm")
 
 		# Look up the purges, and add them to the list.
 
@@ -191,6 +192,12 @@ class SQmaiLPurges:
 
 # Revision History
 # $Log: purges.py,v $
+# Revision 1.2  2001/05/01 18:23:42  dtrg
+# Added the Debian package building stuff. Now much easier to install.
+# Some GUI tidying prior to the release.
+# Did some work on the message DnD... turns out to be rather harder than I
+# thought, as you can't have a CTree do its own native DnD and also drag
+# your own stuff onto it at the same time.
+#
 # Revision 1.1  2001/04/19 18:17:47  dtrg
 # Added a GUI purges editor that appears to work.
-#

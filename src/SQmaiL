@@ -4,8 +4,19 @@
 # $State: Exp $
 
 import sys
+import os
 # Note that the other sqmail modules are only imported when needed, to prevent
 # Gnome from stealing the command line options when we don't want it.
+
+# Check to see if we've been loaded with SQMAIL_LIBDIR set. If so, set us up
+# to read modules and images from there.
+
+if os.environ.has_key("SQMAIL_LIBDIR"):
+	libdir = os.environ["SQMAIL_LIBDIR"]
+	print "Using libdir", libdir
+	sys.path[0] = libdir
+else:
+	print "No libdir --- using current directory"
 
 def usage():
 	print "Syntax: SQmaiL <command> [options]"
@@ -60,6 +71,13 @@ else:
 
 # Revision History
 # $Log: SQmaiL,v $
+# Revision 1.9  2001/05/01 18:23:42  dtrg
+# Added the Debian package building stuff. Now much easier to install.
+# Some GUI tidying prior to the release.
+# Did some work on the message DnD... turns out to be rather harder than I
+# thought, as you can't have a CTree do its own native DnD and also drag
+# your own stuff onto it at the same time.
+#
 # Revision 1.8  2001/02/23 19:50:26  dtrg
 # Lots of changes: added the beginnings of the purges system, CLI utility
 # for same, GUI utility & UI for same, plus a CLI vfolder lister.

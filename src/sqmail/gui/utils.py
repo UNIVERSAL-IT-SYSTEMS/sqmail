@@ -164,15 +164,23 @@ def set_xpm(w, xpm):
 	if c:
 		c[0].destroy()
 	if not xpm:
-		return
+		return None
 
 	pixmap, mask = gtk.create_pixmap_from_xpm_d(w, None, xpm)
 	pixmap = gtk.GtkPixmap(pixmap, None)
 	w.add(pixmap)
 	pixmap.show()
+	return pixmap
 			
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.9  2001/05/01 18:23:42  dtrg
+# Added the Debian package building stuff. Now much easier to install.
+# Some GUI tidying prior to the release.
+# Did some work on the message DnD... turns out to be rather harder than I
+# thought, as you can't have a CTree do its own native DnD and also drag
+# your own stuff onto it at the same time.
+#
 # Revision 1.8  2001/04/19 18:17:47  dtrg
 # Added a GUI purges editor that appears to work.
 #

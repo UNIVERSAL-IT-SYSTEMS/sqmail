@@ -1,0 +1,77 @@
+#!/usr/bin/make -f
+# Debian rules file
+# $Source: /cvsroot/sqmail/sqmail/debian/rules,v $
+# $State: Exp $
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# No leading slash!
+VERSION = 0.4
+SQMAIL_LIBDIR = usr/share/sqmail-$(VERSION)
+SQMAIL_BINDIR = usr/bin
+
+SQMAIL_SRCS = $(shell cd src; find sqmail -name "*.py")
+
+build:
+	dh_testdir
+	python -OO -c "import compileall; compileall.compile_dir('src')"
+	# Nothing to do.
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean
+
+# Build architecture-independent files here.
+binary-indep: build
+#	dh_testversion
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs $(SQMAIL_LIBDIR) $(SQMAIL_BINDIR) $(SQMAIL_LIBDIR)/images
+	for f in $(SQMAIL_SRCS); do \
+		mkdir -p debian/tmp/$(SQMAIL_LIBDIR)/`dirname $$f`; \
+		cp src/$${f} debian/tmp/$(SQMAIL_LIBDIR)/$${f}; \
+		cp src/$${f}o debian/tmp/$(SQMAIL_LIBDIR)/$${f}o; \
+	done
+	cp src/SQmaiL debian/tmp/$(SQMAIL_LIBDIR)
+	cp src/sqmail.glade debian/tmp/$(SQMAIL_LIBDIR)
+	cp src/images/*.xpm debian/tmp/$(SQMAIL_LIBDIR)/images
+	echo "#!/bin/sh" > debian/tmp/$(SQMAIL_BINDIR)/SQmaiL
+	echo "SQMAIL_LIBDIR=/$(SQMAIL_LIBDIR) exec python /$(SQMAIL_LIBDIR)/SQmaiL" '"$$@"' >> debian/tmp/usr/bin/SQmaiL
+	chmod a+rx debian/tmp/$(SQMAIL_BINDIR)/SQmaiL
+	(cd debian/tmp/$(SQMAIL_BINDIR); ln -s SQmaiL sqmail)
+	dh_installdocs
+#	dh_installexamples
+#	dh_installmenu
+#	dh_installinit
+#	dh_installcron
+	dh_undocumented
+	dh_installchangelogs
+#	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_suidregister
+	dh_installdeb
+#	-dh_shlibdeps
+	dh_gencontrol
+#	dh_makeshlibs
+	dh_md5sums
+	dh_builddeb
+
+source diff:                                                                  
+	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+binary: binary-indep
+.PHONY: build clean binary-indep binary-arch binary
+
+# Revision History
+# $Log: rules,v $
+# Revision 1.1  2001/05/01 18:23:42  dtrg
+# Added the Debian package building stuff. Now much easier to install.
+# Some GUI tidying prior to the release.
+# Did some work on the message DnD... turns out to be rather harder than I
+# thought, as you can't have a CTree do its own native DnD and also drag
+# your own stuff onto it at the same time.
+#
