@@ -20,6 +20,7 @@ import sqmail.picons
 import sqmail.gui.textviewer
 import sqmail.gui.binaryviewer
 import sqmail.gui.htmlviewer
+import sqmail.gui.imageviewer
 import sqmail.gui.headerspane
 import sqmail.gui.compose
 import sqmail.gui.preferences
@@ -243,7 +244,6 @@ class SQmaiLReader:
 
 	def startcounting(self):
 		if not self.counting:
-			print "Starting counting"
 			self.counting = gtk.idle_add_priority(200, \
 				sqmail.gui.utils._callback(self, self.count_vfolder))
 
@@ -514,6 +514,8 @@ class SQmaiLReader:
 					viewer = sqmail.gui.textviewer.TextViewer(self, mime[i])
 				elif (mime[i][1] in sqmail.gui.htmlviewer.displayable):
 					viewer = sqmail.gui.htmlviewer.HTMLViewer(self, mime[i])
+				elif (mime[i][1] in sqmail.gui.imageviewer.displayable):
+					viewer = sqmail.gui.imageviewer.ImageViewer(self, mime[i])
 				else:
 					viewer = sqmail.gui.binaryviewer.BinaryViewer(self, mime[i])
 				self.widget.messagedisplay.append_page(viewer.getpage(), viewer.gettab())
@@ -737,6 +739,9 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.21  2001/05/23 10:08:31  dtrg
+# Added the image viewer; now gifs, jpegs and pngs will be viewed inline.
+#
 # Revision 1.20  2001/05/01 18:23:42  dtrg
 # Added the Debian package building stuff. Now much easier to install.
 # Some GUI tidying prior to the release.
