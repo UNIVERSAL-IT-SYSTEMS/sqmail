@@ -111,9 +111,9 @@ class SQmaiLCompose:
 
 		# If we were replying to something, write the in-reply-to
 		# header.
-		if (self.message):
+		if self.message:
 			msg = self.message.rfc822()
-			msg = msg.getheader("Message-ID")
+			msg = msg.getheader("Message-Id")
 			if msg:
 				mw.addheader("In-Reply-To", msg)
 
@@ -304,6 +304,11 @@ class SQmaiLCompose:
 
 # Revision History
 # $Log: compose.py,v $
+# Revision 1.8  2001/04/25 12:51:46  dtrg
+# Fixed generation of the In-Reply-To headers (it was looking for the
+# Message-Id field of the original message in the wrong place and with the
+# wrong spelling).
+#
 # Revision 1.7  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).
