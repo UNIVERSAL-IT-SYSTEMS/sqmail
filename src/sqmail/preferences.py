@@ -70,17 +70,18 @@ def get_outgoingxfaceicon():
 
 # Appearances
 
+defaultfont = "-misc-fixed-medium-r-semicondensed-*-*-120-*-*-c-*-iso8859-1"
 def get_textmessagefont():
 	return sqmail.utils.getsetting("textmessagefont", \
-		"fixed")
+		defaultfont)
 
 def get_composefont():
 	return sqmail.utils.getsetting("composefont", \
-		"fixed")
+		defaultfont)
 
 def get_vfolderfont():
 	return sqmail.utils.getsetting("vfolderfont", \
-		"fixed")
+		defaultfont)
 
 def get_vfolderfg():
 	return sqmail.utils.getsetting("vfolderfg", (0, 0, 0, 65535))
@@ -90,7 +91,7 @@ def get_vfolderbg():
 
 def get_vfolderunreadfont():
 	return sqmail.utils.getsetting("vfolderunreadfont", \
-		"fixed")
+		defaultfont)
 
 def get_vfolderunreadfg():
 	return sqmail.utils.getsetting("vfolderunreadfg", (0, 0, 0, 65535))
@@ -100,7 +101,7 @@ def get_vfolderunreadbg():
 
 def get_vfolderpendingfont():
 	return sqmail.utils.getsetting("vfolderpendingfont", \
-		"fixed")
+		defaultfont)
 
 def get_vfolderpendingfg():
 	return sqmail.utils.getsetting("vfolderpendingfg", (32767, 32767, 32767, 65535))
@@ -111,15 +112,15 @@ def get_vfolderpendingbg():
 
 def get_msglistfont():
 	return sqmail.utils.getsetting("msglistfont", \
-		"fixed")
+		defaultfont)
 
 def get_unreadmsglistfont():
 	return sqmail.utils.getsetting("unreadmsglistfont", \
-		"fixed")
+		defaultfont)
 
 def get_pendingmsglistfont():
 	return sqmail.utils.getsetting("pendingmsglistfont", \
-		"fixed")
+		defaultfont)
 
 # Spamcop
 
@@ -224,6 +225,12 @@ def load_config(filename):
 	
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.6  2001/04/19 19:04:26  dtrg
+# Changed the default font from "fixed" (which doesn't word for some reason
+# --- blame Gnome, not me) to
+# "-misc-fixed-medium-r-semicondensed-*-*-120-*-*-c-*-iso8859-1", which
+# does. I hope it's universal.
+#
 # Revision 1.5  2001/04/19 14:56:53  dtrg
 # Added support for using domain names only for picons. This means that all
 # hotmail users share the same picon, for example; this reduces the number
