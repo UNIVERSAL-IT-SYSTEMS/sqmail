@@ -17,7 +17,7 @@ def usage():
 	print "For more help on individual commands, try the -h option for the"
 	print "command in question."
 
-if (len(sys.argv) < 1):
+if (len(sys.argv) < 2):
 	usage()
 	sys.exit(2)
 
@@ -40,6 +40,10 @@ else:
 
 # Revision History
 # $Log: SQmaiL,v $
+# Revision 1.5  2001/01/10 12:17:16  dtrg
+# Fixed an OB1 error when testing for a command; now, doing SQmaiL by itself
+# no longer causes an ugly traceback.
+#
 # Revision 1.4  2001/01/09 11:41:24  dtrg
 # Added the create-database CLI command.
 #
