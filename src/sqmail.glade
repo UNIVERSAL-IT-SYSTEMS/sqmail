@@ -1660,6 +1660,7 @@ Try launching the MIME handler for it instead.</label>
 	    <widget>
 	      <class>GtkRadioButton</class>
 	      <name>imapbutton</name>
+	      <sensitive>False</sensitive>
 	      <tooltip>Use IMAP to read messages from a remote server.</tooltip>
 	      <can_focus>True</can_focus>
 	      <signal>
@@ -3411,6 +3412,7 @@ Try launching the MIME handler for it instead.</label>
 	    <widget>
 	      <class>GtkCheckButton</class>
 	      <name>deletespamreply</name>
+	      <sensitive>False</sensitive>
 	      <can_focus>True</can_focus>
 	      <label>Delete Spamcop's reply when clicked on</label>
 	      <active>False</active>
@@ -3557,6 +3559,7 @@ Try launching the MIME handler for it instead.</label>
 	    <widget>
 	      <class>GtkEntry</class>
 	      <name>spamreplyfrom</name>
+	      <sensitive>False</sensitive>
 	      <can_focus>True</can_focus>
 	      <editable>True</editable>
 	      <text_visible>True</text_visible>
@@ -3627,6 +3630,7 @@ Try launching the MIME handler for it instead.</label>
 	      <widget>
 		<class>GtkRadioButton</class>
 		<name>spamcopmemberyes</name>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<label>I am a SpamCop member</label>
 		<active>False</active>
@@ -3642,6 +3646,7 @@ Try launching the MIME handler for it instead.</label>
 	      <widget>
 		<class>GtkRadioButton</class>
 		<name>spamcopmemberno</name>
+		<sensitive>False</sensitive>
 		<can_focus>True</can_focus>
 		<label>I am not a SpamCop member</label>
 		<active>False</active>
@@ -3742,6 +3747,7 @@ Try launching the MIME handler for it instead.</label>
 	    <widget>
 	      <class>GnomeIconEntry</class>
 	      <name>messagedefaulticon</name>
+	      <sensitive>False</sensitive>
 	      <max_saved>10</max_saved>
 	      <child>
 		<padding>0</padding>
@@ -4732,6 +4738,7 @@ Try launching the MIME handler for it instead.</label>
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button1816</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Invoke external editor</tooltip>
 	  <signal>
 	    <name>clicked</name>
@@ -4763,6 +4770,7 @@ Try launching the MIME handler for it instead.</label>
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button31</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Insert a file into the body of the message</tooltip>
 	  <signal>
 	    <name>clicked</name>
@@ -4777,6 +4785,7 @@ Try launching the MIME handler for it instead.</label>
 	  <class>GtkButton</class>
 	  <child_name>Toolbar:button</child_name>
 	  <name>button33</name>
+	  <sensitive>False</sensitive>
 	  <tooltip>Word-wrap the text</tooltip>
 	  <signal>
 	    <name>clicked</name>
