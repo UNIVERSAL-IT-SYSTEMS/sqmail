@@ -64,6 +64,8 @@ class Message:
 	def getfrom(self):
 		if self.fromfield == None:
 			self.fromfield = self.fetchheader("fromfield")
+			if (self.fromfield == None):
+				self.fromfield = "(no address)"
 		return self.fromfield
 	
 	def getrealfrom(self):
@@ -331,6 +333,9 @@ class Message:
 
 # Revision History
 # $Log: message.py,v $
+# Revision 1.7  2001/04/19 18:22:36  dtrg
+# Added some bulletproofing against trying to render incorrect addresses.
+#
 # Revision 1.6  2001/03/09 10:34:14  dtrg
 # When you do str(i) when i is a long, Python returns a string like "123L".
 # This really upsets the SQL server. So I've rewritten large numbers of the
