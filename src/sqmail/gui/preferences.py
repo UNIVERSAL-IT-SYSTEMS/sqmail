@@ -54,6 +54,10 @@ def get_smtpdebuglevel():
 	return sqmail.utils.getsetting("smtpdebuglevel", \
 		1)
 
+def get_defaultdomain():
+	return sqmail.utils.getsetting("defaultdomain", \
+		"")
+
 # Appearances
 
 def get_textmessagefont():
@@ -191,6 +195,8 @@ class SQmaiLPreferences:
 
 		self.widget.smtpdebug.set_active(get_smtpdebuglevel())
 
+		self.widget.defaultdomain.set_text(get_defaultdomain())
+
 		# Appearances
 
 		self.widget.textmessagefont.set_font_name(get_textmessagefont())
@@ -272,6 +278,9 @@ class SQmaiLPreferences:
 		sqmail.utils.setsetting("smtpdebuglevel", \
 			self.widget.smtpdebug.get_active())
 
+		sqmail.utils.setsetting("defaultdomain", \
+			self.widget.defaultdomain.get_text())
+
 		# Appearances
 	
 		sqmail.utils.setsetting("textmessagefont", \
@@ -324,6 +333,11 @@ class SQmaiLPreferences:
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.5  2001/02/02 20:03:01  dtrg
+# Added mail alias and default domain support.
+# Saves the size of the main window, but as yet doesn't set the size on
+# startup.
+#
 # Revision 1.4  2001/01/25 20:55:06  dtrg
 # Woohoo! Vfolder styling now works (mostly, except backgrounds). Also added
 # background vfolder counting to avoid that nasty delay on startup or
