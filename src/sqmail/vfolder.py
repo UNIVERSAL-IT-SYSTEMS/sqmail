@@ -13,6 +13,11 @@ import cStringIO
 
 def get_folder_list():
 	l = sqmail.utils.getsetting("vfolders")
+	if (l == None):
+		print "WARNING: your database seems not to have been initialised correctly."
+		print "(I can't seem to find the vfolder list.) I'm trying to work round this"
+		print "but there may be other problems."
+		l = []
 	if ("" in l):
 		print "WARNING: one or more vfolders have empty names. Replacing with randomly-"
 		print "generated ones."
@@ -218,6 +223,11 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.4  2001/01/22 11:47:44  dtrg
+# create-database turned out not to be working (a simple syntax bug plus I
+# forgot to emit a new-style vfolders setting). Fixed. Also added some
+# bulletproofing to protect against this sort of problem.
+#
 # Revision 1.3  2001/01/19 20:37:23  dtrg
 # Changed the way vfolders are stored in the database.
 #
