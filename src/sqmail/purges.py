@@ -123,7 +123,7 @@ class Purge:
 			id = cursor.fetchone()
 			if not id:
 				break
-			idlist.append(str(id[0]))
+			idlist.append(str(int(id[0])))
 			count = count + 1
 		if (count > 0):
 			idlist = "((id=" + string.join(idlist, ") OR (id=") + "))"
@@ -141,6 +141,10 @@ class Purge:
 
 # Revision History
 # $Log: purges.py,v $
+# Revision 1.2  2001/06/15 09:34:36  dtrg
+# Changed a str(x) to a str(int(x))... Python's habit of putting L after
+# longs is confused MySQL.
+#
 # Revision 1.1  2001/03/01 19:55:38  dtrg
 # Completed the command-line based purges system. Hesitantly applied it to
 # my own data. Nothing catastrophic has happened yet.
