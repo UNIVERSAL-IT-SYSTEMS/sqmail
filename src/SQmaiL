@@ -28,6 +28,7 @@ def usage():
 	print "  scan               List the contents of a vfolder"
 	print "  show               Show an individual message"
 	print "  fetch              Incorporate messages into the database"
+	print "  client             Connect to running SQmaiL process"
 	print "For more help on individual commands, try the -h option for the"
 	print "command in question."
 
@@ -66,12 +67,18 @@ elif (cmd == "upgrade"):
 elif (cmd == "fetch"):
 	import sqmail.cli.fetch
 	sqmail.cli.fetch.SQmaiLFetch()
+elif (cmd == "client"):
+	import sqmail.cli.cliclient
+	sqmail.cli.cliclient.SQmaiLClient()
 else:
 	usage()
 	sys.exit(2)
 
 # Revision History
 # $Log: SQmaiL,v $
+# Revision 1.12  2001/05/31 20:24:53  bescoto
+# Added the new "client" option from the command line
+#
 # Revision 1.11  2001/05/23 10:49:37  dtrg
 # Added the ability to incorporate messages into the database without the
 # GUI. (Currently just for single messages.)
