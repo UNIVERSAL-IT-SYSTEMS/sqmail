@@ -1,4 +1,4 @@
-sqmail (0.4) unstable; urgency=low
+sqmail (0.3.1) unstable; urgency=low
 
   * Initial Release
   * This is my first Debian package.
