@@ -34,7 +34,7 @@ def parseargs():
 	try:
 		opts, args = getopt.getopt(sys.argv[2:], "hl:f:t:e:", \
 			["help", "last=", "from=", "to=", "export="])
-	except getopt.GetoptError:
+	except getopt.error:
 		usage()
 		sys.exit(2)
 
@@ -165,6 +165,9 @@ def SQmaiLScan():
 
 # Revision History
 # $Log: scan.py,v $
+# Revision 1.6  2001/05/23 10:22:01  dtrg
+# Fixed some fairly stupid getopt bugs.
+#
 # Revision 1.5  2001/03/07 12:23:17  dtrg
 # Checks for empty vfolders.
 #
