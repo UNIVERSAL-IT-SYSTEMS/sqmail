@@ -6,6 +6,7 @@ import os
 import sys
 import time
 import gtk
+import GDK
 import gnome.ui
 import gnome.url
 import libglade
@@ -32,7 +33,8 @@ import sqmail.gui.aliases
 
 instance = None
 class SQmaiLReader:
-	gladefilename = "sqmail.glade"
+	gladefilename = sys.path[0] + "/sqmail.glade"
+	dnd_target = [("application/x-sqmail-message", 0, -1)]
 
 	def __init__(self):
 		global instance
@@ -58,14 +60,18 @@ class SQmaiLReader:
 		# Load the pixmaps.
 
 		self.deleted_pixmap = gtk.GtkPixmap(self.widget.messagelist.get_window(), \
-			"images/deleted-message.xpm")
+			sys.path[0] + "/images/deleted-message.xpm")
 		self.unread_pixmap = gtk.GtkPixmap(self.widget.messagelist.get_window(), \
-			"images/unread-message.xpm")
+			sys.path[0] + "/images/unread-message.xpm")
 		self.sent_pixmap = gtk.GtkPixmap(self.widget.messagelist.get_window(), \
-			"images/sent-message.xpm")
+			sys.path[0] + "/images/sent-message.xpm")
 
 		# Enable DND on the vfolder list.
 
+		self.widget.folderlist.drag_dest_set(gtk.DEST_DEFAULT_ALL, \
+			self.dnd_target, GDK.ACTION_MOVE)
+		self.widget.messageicon.drag_source_set(GDK.BUTTON1_MASK, \
+			self.dnd_target, GDK.ACTION_MOVE)
 		self.widget.folderlist.set_reorderable(1)
 
 		self.update_vfolderlist()
@@ -720,11 +726,24 @@ class SQmaiLReader:
 	def on_unimplemented(self, obj):
 		sqmail.gui.utils.errorbox("Sorry --- this feature is not implemented yet.")
 
+	# Start dragging the message icon.
+
+	def on_message_start_drag(self, obj, context, selection_data, info, time):
+		data = "Hello, world!"
+		selection_data.set(selection_data.target, 8, data)
+
 	on_addresses = on_unimplemented
 	on_forward = on_unimplemented
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.20  2001/05/01 18:23:42  dtrg
+# Added the Debian package building stuff. Now much easier to install.
+# Some GUI tidying prior to the release.
+# Did some work on the message DnD... turns out to be rather harder than I
+# thought, as you can't have a CTree do its own native DnD and also drag
+# your own stuff onto it at the same time.
+#
 # Revision 1.19  2001/04/19 18:24:16  dtrg
 # Added the ability to change the readstatus of a message. Also did some
 # minor tweaking to various areas.

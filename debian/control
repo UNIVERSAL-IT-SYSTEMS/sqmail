@@ -1,0 +1,22 @@
+Source: sqmail
+Section: mail
+Priority: optional
+Maintainer: David Given <dg@cowlark.com>
+Standards-Version: 3.0.1
+Build-Depends: python-gnome, python-mysqldb
+
+Package: sqmail
+Architecture: all
+Depends: python-gnome, python-mysqldb
+Suggests: compface
+Description:  SQmaiL is a mail reader for GNOME that stores all its mail in a
+ MySQL database. This makes it blazingly fast for very large (10000 message)
+ mail databases. It supports hierarchical vfolders based on SQL queries, so
+ you can have your mail automatically categorized based on arbitrarily
+ complex SQL expressions. It has excellent MIME support on both incoming and
+ outgoing mail. Mail can be fetched from local spool files and POP servers.
+ Full picons support and partial xface support is available, to give your
+ mail that personal touch. The user interface is customizable with Glade, and
+ the program itself is easily extensible with Python. Some command line
+ utilities allowing access to the mail database without X are available.
+
