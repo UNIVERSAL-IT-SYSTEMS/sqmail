@@ -83,6 +83,21 @@ class SQmaiLReader:
 			unread = ""
 		return (vf.name, unread, str(vf.getlen()))
 
+	# Modify the passed style to reflect the status of the current folder.
+
+	def style_vfolder(self, vf, style):
+		if vf.getunread():
+			fg = sqmail.gui.preferences.get_vfolderunreadfg()
+			bg = sqmail.gui.preferences.get_vfolderunreadbg()
+			font = sqmail.gui.preferences.get_vfolderunreadfont()
+		else:
+			fg = sqmail.gui.preferences.get_vfolderfg()
+			bg = sqmail.gui.preferences.get_vfolderbg()
+			font = sqmail.gui.preferences.get_vfolderfont()
+		style.font = gtk.load_font(font)
+		style.fg[gtk.STATE_NORMAL] = gtk.GdkColor(fg[0], fg[1], fg[2])
+		style.bg[gtk.STATE_NORMAL] = gtk.GdkColor(bg[0], bg[1], bg[2])
+
 	# Ditto, for a message.
 
 	def describe_message(self, msg):
@@ -94,7 +109,10 @@ class SQmaiLReader:
 			d = time.strftime("%Y/%m/%d", time.localtime(d))
 		else:
 			d = time.strftime("%H:%M", time.localtime(d))
-		return ("", msg.getreadstatus(), f, msg.getsubject(), d)
+		readstatus = msg.getreadstatus()
+		if (readstatus == "Read"):
+			readstatus = ""
+		return ("", readstatus, f, msg.getsubject(), d)
 		
 	# Return the current vfolder, or the vfolder corresponding to a
 	# particular node.
@@ -143,7 +161,12 @@ class SQmaiLReader:
 			node = self.widget.folderlist.insert_node(parent, None, \
 				self.describe_vfolder(vf), \
 				is_leaf=0, expanded=1)
+			style = self.widget.folderlist.get_style().copy()
+			self.style_vfolder(vf, style)
+			self.widget.folderlist.node_set_row_style(node, style)
 			self.widget.folderlist.node_set_row_data(node, vf)
+			#self.widget.folderlist.node_set_foreground(node, fg)
+			#self.widget.folderlist.node_set_background(node, bg)
 			d[name] = node
 			if (vf.name == sel):
 				self.widget.folderlist.select(node)
@@ -492,6 +515,9 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.3  2001/01/18 19:27:54  dtrg
+# First attempt at vfolder list styles (font works, colours don't).
+#
 # Revision 1.2  2001/01/11 20:07:23  dtrg
 # Added preliminary HTML rendering support (ten minutes work!).
 #
