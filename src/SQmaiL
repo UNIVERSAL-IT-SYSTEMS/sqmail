@@ -13,6 +13,7 @@ def usage():
 	print "  create-database    Create a new SQmaiL database"
 	print "  upgrade            Upgrade data from an old SQmaiL version"
 	print "  recover            Attempt to recover broken data"
+	print "  settings           Manage the SQmaiL configuration information"
 	print "  gui                Start up the Gnome MUA"
 	print "  scan               List the contents of a vfolder"
 	print "  show               Show an individual message"
@@ -36,6 +37,9 @@ elif (cmd == "show"):
 elif (cmd == "create-database"):
 	import sqmail.cli.createdb
 	sqmail.cli.createdb.SQmaiLCreateDB()
+elif (cmd == "settings"):
+	import sqmail.cli.settings
+	sqmail.cli.settings.SQmaiLSettings()
 elif (cmd == "recover"):
 	import sqmail.cli.recover
 	sqmail.cli.recover.SQmaiLRecover()
@@ -48,6 +52,11 @@ else:
 
 # Revision History
 # $Log: SQmaiL,v $
+# Revision 1.7  2001/02/20 18:14:05  dtrg
+# Added the settings command. This gives you a basic CLI to the settings
+# database, which should let you play with the configuration without having
+# to start the GUI.
+#
 # Revision 1.6  2001/01/19 20:34:55  dtrg
 # Added the recover and upgrade commands, plus the back-end code. recover
 # will let you rebuild various bits of the database (currently just the
