@@ -17,6 +17,7 @@ import sqmail.vfolder
 import sqmail.message
 import sqmail.preferences
 import sqmail.picons
+import sqmail.server
 import sqmail.gui.textviewer
 import sqmail.gui.binaryviewer
 import sqmail.gui.htmlviewer
@@ -51,6 +52,11 @@ class SQmaiLReader:
 		# Create various background threads.
 
 		sqmail.picons.start_thread()
+
+		# Initialize SQmaiL server and add callback
+
+		self.server = sqmail.server.Server()
+		gtk.timeout_add(300, self.server.loop)
 
 		# Initialise instance variables.
 
@@ -643,6 +649,7 @@ class SQmaiLReader:
 		self.on_next_message(None)
 		
 	def on_quit(self, obj):
+		self.server.stop()   # Stop server, remove socket
 		sys.exit(0)
 
 	def on_preferences(self, obj):
@@ -739,6 +746,10 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.23  2001/05/31 20:28:01  bescoto
+# Added a few lines so reader starts server, polls periodically, and then
+# stops on_quit.
+#
 # Revision 1.22  2001/05/26 18:17:47  bescoto
 # A few changes to work with new vfolder.py changes
 #
