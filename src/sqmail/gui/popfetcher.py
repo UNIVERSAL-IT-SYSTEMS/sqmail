@@ -10,6 +10,7 @@ import string
 import sqmail.message
 import sqmail.preferences
 import sqmail.gui.fetcher
+import sqmail.picons
 
 class POPFetcher (sqmail.gui.fetcher.Fetcher):
 	def __init__(self, reader):
@@ -51,6 +52,7 @@ class POPFetcher (sqmail.gui.fetcher.Fetcher):
 			msg = sqmail.message.Message()
 			msg.loadfromstring(smsg)
 			msg.savealltodatabase()
+			sqmail.picons.queue_address(msg.getfrom())
 		
 			if sqmail.preferences.get_deleteremote():
 				pop.dele(count+1)
@@ -69,6 +71,10 @@ class POPFetcher (sqmail.gui.fetcher.Fetcher):
 
 # Revision History
 # $Log: popfetcher.py,v $
+# Revision 1.3  2001/03/12 19:30:10  dtrg
+# Now automatically queues up new messages for picon fetching in the
+# background (using a real thread, too).
+#
 # Revision 1.2  2001/02/20 17:22:36  dtrg
 # Moved the bulk of the preference system out of the gui directory, where it
 # doesn't belong. sqmail.gui.preferences still exists but it just contains

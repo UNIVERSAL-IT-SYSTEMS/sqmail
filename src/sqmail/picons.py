@@ -6,6 +6,7 @@ import urllib
 import string
 import cPickle
 import cStringIO
+import threading
 
 # Return the picon for a particular email address, fetching it off the net if
 # need be.
@@ -76,4 +77,34 @@ def flush():
 	print "Flushing picons cache..."
 	cursor.execute("TRUNCATE picons")
 	print "Done."
+
+# Start background lookup thread.
+
+__thread = None
+__event = None
+__queue = []
+def start_thread():
+	global __thread, __event, __queue
+	__event = threading.Event()
+	__thread = threading.Thread(target=thread_func, name="Picons background fetcher")
+	__thread.setDaemon(1)
+	__thread.start()
+
+def thread_func():
+	global __thread, __event, __queue
+	while 1:
+		while (__queue == []):
+			__event.wait()
+		address = __queue.pop(0)
+		get_picon_xpm(address)
+
+# Queue an address for background fetching.
+
+def queue_address(email):
+	global __thread, __event, __queue
+	if not sqmail.preferences.get_usepicons():
+		return
+	if __thread:
+		__queue.append(email)
+		__event.set()
 
