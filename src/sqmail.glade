@@ -1096,6 +1096,7 @@
 <widget>
   <class>GtkWindow</class>
   <name>textmessage</name>
+  <visible>False</visible>
   <title>window1</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
@@ -1132,6 +1133,7 @@
 <widget>
   <class>GtkWindow</class>
   <name>imagemessage</name>
+  <visible>False</visible>
   <title>window2</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
@@ -1171,6 +1173,7 @@
 <widget>
   <class>GtkWindow</class>
   <name>messageframe</name>
+  <visible>False</visible>
   <title>window3</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
@@ -1284,6 +1287,7 @@
 <widget>
   <class>GtkWindow</class>
   <name>binarymessage</name>
+  <visible>False</visible>
   <title>window2</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
@@ -4564,6 +4568,7 @@ Try launching the MIME handler for it instead.</label>
 <widget>
   <class>GtkWindow</class>
   <name>htmlmessage</name>
+  <visible>False</visible>
   <title>window1</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
@@ -4761,6 +4766,7 @@ Try launching the MIME handler for it instead.</label>
 <widget>
   <class>GtkWindow</class>
   <name>headerspane</name>
+  <visible>False</visible>
   <title>window2</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
