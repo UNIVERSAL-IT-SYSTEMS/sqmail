@@ -78,7 +78,7 @@ def vfolder_get(id):
 	# Check if it's a new-style vfolder.
 	cursor = sqmail.db.cursor()
 	cursor.execute("SELECT name, query, parent FROM vfolders"\
-		       " WHERE id = "+str(id))
+		       " WHERE id = "+str(int(id)))
 	i = cursor.fetchone()
 	if i:
 		return i
@@ -90,7 +90,7 @@ def vfolder_set(id, name, query, parent):
 	    " name = '"+sqmail.db.escape(name)+"', "\
 	    " query = '"+sqmail.db.escape(query)+"', "\
 	    " parent = "+str(parent)+" "\
-	    "WHERE id = "+str(id)
+	    "WHERE id = "+str(int(id))
 	print q
 	cursor.execute(q)
 	
@@ -125,10 +125,11 @@ class VFolder:
 			raise RuntimeError("Can't create a VFolder instance without at least one of id, name and query")
 		if name and not id:
 			id = vfolder_find(name)
-			if not id and query:
-				id = vfolder_add(name, query, parent)
-			else:
-				raise KeyError
+			if not id:
+				if query:
+					id = vfolder_add(name, query, parent)
+				else:
+					raise KeyError
 		if id and query:
 			self.id = id
 			self.name = name
@@ -240,6 +241,10 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.10  2001/03/07 12:25:44  dtrg
+# Prevented some longs from being sent to the SQL server, and fixed a logic
+# bug in the vfolder constructor code.
+#
 # Revision 1.9  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).
