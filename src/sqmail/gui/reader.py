@@ -45,6 +45,10 @@ class SQmaiLReader:
 		self.mainwindow = self.readglade("mainwin")
 		self.widget = sqmail.gui.utils.WidgetStore(self.mainwindow)
 		
+		# Create various background threads.
+
+		sqmail.picons.start_thread()
+
 		# Initialise instance variables.
 
 		self.messagelist = []
@@ -699,6 +703,10 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.17  2001/03/12 19:30:11  dtrg
+# Now automatically queues up new messages for picon fetching in the
+# background (using a real thread, too).
+#
 # Revision 1.16  2001/03/12 10:35:06  dtrg
 # Now lets you turn off picons.
 #
