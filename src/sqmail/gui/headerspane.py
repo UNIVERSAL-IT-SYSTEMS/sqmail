@@ -11,13 +11,13 @@ import quopri
 import cStringIO
 import sqmail.utils
 import sqmail.gui.viewer
-import sqmail.gui.preferences
+import sqmail.preferences
 
 class HeadersViewer (sqmail.gui.viewer.Viewer):
 	def __init__(self, reader, msg):
 		self.message = msg
 		sqmail.gui.viewer.Viewer.__init__(self, reader, ["*"], "headerspane")
-		font = gtk.load_font(sqmail.gui.preferences.get_textmessagefont())
+		font = gtk.load_font(sqmail.preferences.get_textmessagefont())
 		# Ensure the text box is 80 columns wide.
 		width = gtk.gdk_char_width(font, "m")*82
 		# The text box is guaranteed to be empty.
@@ -36,6 +36,12 @@ class HeadersViewer (sqmail.gui.viewer.Viewer):
 	
 # Revision History
 # $Log: headerspane.py,v $
+# Revision 1.2  2001/02/20 17:22:36  dtrg
+# Moved the bulk of the preference system out of the gui directory, where it
+# doesn't belong. sqmail.gui.preferences still exists but it just contains
+# the preferences editor. sqmail.preferences now contains the access
+# functions and load/save functions.
+#
 # Revision 1.1  2001/01/22 18:31:55  dtrg
 # Assorted changes, comprising:
 #

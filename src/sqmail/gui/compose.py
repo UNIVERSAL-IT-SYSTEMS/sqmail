@@ -35,7 +35,7 @@ class SQmaiLCompose:
 		composewin = reader.readglade("composewin", self)
 		self.widget = sqmail.gui.utils.WidgetStore(composewin)
 
-		self.font = gtk.load_font(sqmail.gui.preferences.get_composefont())
+		self.font = gtk.load_font(sqmail.preferences.get_composefont())
 		# Ensure the text box is 80 columns wide.
 		width = gtk.gdk_char_width(self.font, "m")*82
 
@@ -43,7 +43,7 @@ class SQmaiLCompose:
 
 		if addrlist:
 			self.widget.tofield.set_text(sqmail.gui.utils.render_addrlist(addrlist))
-		self.widget.fromfield.set_text(sqmail.gui.preferences.get_fromaddress())
+		self.widget.fromfield.set_text(sqmail.preferences.get_fromaddress())
 		if message:
 			i = self.message.getsubject()
 			if (i[:3] == "Re:") or (i[:3] == "re:"):
@@ -185,7 +185,7 @@ class SQmaiLCompose:
 				else:
 					# No alias found. Do we want to warn the
 					# user?
-					domain = sqmail.gui.preferences.get_defaultdomain()
+					domain = sqmail.preferences.get_defaultdomain()
 					if not domain:
 						raise RuntimeError, "You did not specify a domain name for `"+i[0]+"'."
 					# Add default domain.
@@ -195,9 +195,9 @@ class SQmaiLCompose:
 
 	def on_send(self, obj):
 		try:
-			smtp = smtplib.SMTP(sqmail.gui.preferences.get_outgoingserver(), \
-				sqmail.gui.preferences.get_outgoingport())
-			smtp.set_debuglevel(sqmail.gui.preferences.get_smtpdebuglevel())
+			smtp = smtplib.SMTP(sqmail.preferences.get_outgoingserver(), \
+				sqmail.preferences.get_outgoingport())
+			smtp.set_debuglevel(sqmail.preferences.get_smtpdebuglevel())
 			fromaddr = self.widget.fromfield.get_text()
 			# Construct the To: list. First, work out what the user asked
 			# for...
@@ -289,7 +289,7 @@ class SQmaiLCompose:
 	def on_quote_with(self, obj):
 		fp = cStringIO.StringIO(obj.get_data("msg"))
 		self.widget.textbox.freeze()
-		prefix = sqmail.gui.preferences.get_quoteprefix()
+		prefix = sqmail.preferences.get_quoteprefix()
 		while 1:
 			i = fp.readline()
 			if not i:
@@ -300,6 +300,12 @@ class SQmaiLCompose:
 
 # Revision History
 # $Log: compose.py,v $
+# Revision 1.6  2001/02/20 17:22:36  dtrg
+# Moved the bulk of the preference system out of the gui directory, where it
+# doesn't belong. sqmail.gui.preferences still exists but it just contains
+# the preferences editor. sqmail.preferences now contains the access
+# functions and load/save functions.
+#
 # Revision 1.5  2001/02/20 15:46:01  dtrg
 # Fixed a bug where the To: line on outgoing messages was, if mail aliases
 # were being used, set to the unexpanded value (which would cause replies to

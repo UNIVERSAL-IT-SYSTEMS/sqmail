@@ -14,6 +14,8 @@ def render_time(t):
 	return time.asctime(time.gmtime(t))
 
 def render_address(a):
+	if (type(a) == types.StringType):
+		return a
 	s = ""
 	if ((not a[0]) or (a[0] == a[1])):
 		s = s + a[1]
@@ -127,6 +129,12 @@ def okcancelbox(msg):
 	
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.3  2001/02/20 17:22:36  dtrg
+# Moved the bulk of the preference system out of the gui directory, where it
+# doesn't belong. sqmail.gui.preferences still exists but it just contains
+# the preferences editor. sqmail.preferences now contains the access
+# functions and load/save functions.
+#
 # Revision 1.2  2001/02/15 19:34:16  dtrg
 # Many changes. Bulletproofed the send box, so it should now give you
 # (reasonably) user-friendly messages when something goes wrong; rescan a

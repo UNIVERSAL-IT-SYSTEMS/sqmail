@@ -2,156 +2,13 @@
 # $Source: /cvsroot/sqmail/sqmail/src/sqmail/gui/preferences.py,v $
 # $State: Exp $
 
+import sqmail.preferences
 import sqmail.gui.reader
 import sqmail.utils
 import sqmail.db
 import cPickle
 import getpass
 
-# Transport
-
-def get_incomingprotocol():
-	return sqmail.utils.getsetting("incomingprotocol", \
-		"Spool")
-		
-def get_incomingserver():
-	return sqmail.utils.getsetting("incomingserver", \
-		"")
-
-def get_incomingport():
-	return sqmail.utils.getsetting("incomingport", \
-		0)
-
-def get_incomingusername():
-	return sqmail.utils.getsetting("incomingusername", \
-		getpass.getuser())
-
-def get_incomingpassword():
-	return sqmail.utils.getsetting("incomingpassword", \
-		"")
-
-def get_deleteremote():
-	return sqmail.utils.getsetting("deleteremote", \
-		0)
-
-def get_incomingpath():
-	return sqmail.utils.getsetting("incomingpath", \
-		"/var/spool/mail/"+getpass.getuser())
-
-def get_fromaddress():
-	return sqmail.utils.getsetting("fromaddress", \
-		"(you have to set your from address)")
-
-def get_outgoingserver():
-	return sqmail.utils.getsetting("outgoingserver", \
-		"localhost")
-
-def get_outgoingport():
-	return sqmail.utils.getsetting("outgoingport", \
-		25)
-
-def get_smtpdebuglevel():
-	return sqmail.utils.getsetting("smtpdebuglevel", \
-		1)
-
-def get_defaultdomain():
-	return sqmail.utils.getsetting("defaultdomain", \
-		"")
-
-# Appearances
-
-def get_textmessagefont():
-	return sqmail.utils.getsetting("textmessagefont", \
-		"fixed")
-
-def get_composefont():
-	return sqmail.utils.getsetting("composefont", \
-		"fixed")
-
-def get_vfolderfont():
-	return sqmail.utils.getsetting("vfolderfont", \
-		"fixed")
-
-def get_vfolderfg():
-	return sqmail.utils.getsetting("vfolderfg", (0, 0, 0, 65535))
-
-def get_vfolderbg():
-	return sqmail.utils.getsetting("vfolderbg", (65535, 65535, 65535, 65535))
-
-def get_vfolderunreadfont():
-	return sqmail.utils.getsetting("vfolderunreadfont", \
-		"fixed")
-
-def get_vfolderunreadfg():
-	return sqmail.utils.getsetting("vfolderunreadfg", (0, 0, 0, 65535))
-
-def get_vfolderunreadbg():
-	return sqmail.utils.getsetting("vfolderunreadbg", (65535, 65535, 65535, 65535))
-
-def get_vfolderpendingfont():
-	return sqmail.utils.getsetting("vfolderpendingfont", \
-		"fixed")
-
-def get_vfolderpendingfg():
-	return sqmail.utils.getsetting("vfolderpendingfg", (32767, 32767, 32767, 65535))
-
-def get_vfolderpendingbg():
-	return sqmail.utils.getsetting("vfolderpendingbg", (65535, 65535, 65535, 65535))
-
-
-def get_msglistfont():
-	return sqmail.utils.getsetting("msglistfont", \
-		"fixed")
-
-def get_unreadmsglistfont():
-	return sqmail.utils.getsetting("unreadmsglistfont", \
-		"fixed")
-
-def get_pendingmsglistfont():
-	return sqmail.utils.getsetting("pendingmsglistfont", \
-		"fixed")
-
-# Miscellaneous
-
-def get_quoteprefix():
-	return sqmail.utils.getsetting("quoteprefix", \
-		"> ")
-
-#def get_spamcommand():
-#	return sqmail.utils.getsetting("spamcommand", \
-#		"echo 'You have not configured the spam command yet.'")
-
-# Load & Save configuration
-
-def save_config(filename):
-	fp = open(filename, "w")
-	d = {}
-	cursor = sqmail.db.cursor()
-	cursor.execute("SELECT name FROM settings")
-	while 1:
-		n = cursor.fetchone()
-		if not n:
-			break
-
-		n = n[0]
-		if (n != "idcounter"):
-			d[n] = sqmail.utils.getsetting(n)
-	
-	cPickle.dump("SQmaiL preferences", fp)
-	cPickle.dump(d, fp)
-	fp.close()
-
-def load_config(filename):
-	fp = open(filename, "r")
-	o = cPickle.load(fp)
-	if (o != "SQmaiL preferences"):
-		print "Not a valid preferences file!"
-		return
-	
-	o = cPickle.load(fp)
-	for i in o.keys():
-		sqmail.utils.setsetting(i, o[i])
-	
 instance = None
 class SQmaiLPreferences:
 	def __init__(self, reader):
@@ -167,7 +24,7 @@ class SQmaiLPreferences:
 
 		# Transport
 
-		p = get_incomingprotocol()
+		p = sqmail.preferences.get_incomingprotocol()
 		if (p == "IMAP"):
 			self.widget.imapbutton.set_active(1)
 		elif (p == "POP"):
@@ -175,55 +32,55 @@ class SQmaiLPreferences:
 		elif (p == "Spool"):
 			self.widget.spoolbutton.set_active(1)
 
-		self.widget.incomingserver.set_text(get_incomingserver())
+		self.widget.incomingserver.set_text(sqmail.preferences.get_incomingserver())
 
-		self.widget.incomingport.set_text(str(get_incomingport()))
+		self.widget.incomingport.set_text(str(sqmail.preferences.get_incomingport()))
 
-		self.widget.incomingusername.set_text(get_incomingusername())
+		self.widget.incomingusername.set_text(sqmail.preferences.get_incomingusername())
 
-		self.widget.incomingpassword.set_text(get_incomingpassword())
+		self.widget.incomingpassword.set_text(sqmail.preferences.get_incomingpassword())
 
-		self.widget.incomingpath.set_text(get_incomingpath())
+		self.widget.incomingpath.set_text(sqmail.preferences.get_incomingpath())
 
-		self.widget.deleteremotebutton.set_active(get_deleteremote())
+		self.widget.deleteremotebutton.set_active(sqmail.preferences.get_deleteremote())
 
-		self.widget.fromaddress.set_text(get_fromaddress())
+		self.widget.fromaddress.set_text(sqmail.preferences.get_fromaddress())
 
-		self.widget.outgoingserver.set_text(get_outgoingserver())
+		self.widget.outgoingserver.set_text(sqmail.preferences.get_outgoingserver())
 
-		self.widget.outgoingport.set_text(str(get_outgoingport()))
+		self.widget.outgoingport.set_text(str(sqmail.preferences.get_outgoingport()))
 
-		self.widget.smtpdebug.set_active(get_smtpdebuglevel())
+		self.widget.smtpdebug.set_active(sqmail.preferences.get_smtpdebuglevel())
 
-		self.widget.defaultdomain.set_text(get_defaultdomain())
+		self.widget.defaultdomain.set_text(sqmail.preferences.get_defaultdomain())
 
 		# Appearances
 
-		self.widget.textmessagefont.set_font_name(get_textmessagefont())
+		self.widget.textmessagefont.set_font_name(sqmail.preferences.get_textmessagefont())
 
-		self.widget.composefont.set_font_name(get_composefont())
+		self.widget.composefont.set_font_name(sqmail.preferences.get_composefont())
 
-		self.widget.vfolderfont.set_font_name(get_vfolderfont())
-		apply(self.widget.vfolderfg.set_i16, get_vfolderfg())
-		apply(self.widget.vfolderbg.set_i16, get_vfolderbg())
+		self.widget.vfolderfont.set_font_name(sqmail.preferences.get_vfolderfont())
+		apply(self.widget.vfolderfg.set_i16, sqmail.preferences.get_vfolderfg())
+		apply(self.widget.vfolderbg.set_i16, sqmail.preferences.get_vfolderbg())
 
-		self.widget.vfolderunreadfont.set_font_name(get_vfolderunreadfont())
-		apply(self.widget.vfolderunreadfg.set_i16, get_vfolderunreadfg())
-		apply(self.widget.vfolderunreadbg.set_i16, get_vfolderunreadbg())
+		self.widget.vfolderunreadfont.set_font_name(sqmail.preferences.get_vfolderunreadfont())
+		apply(self.widget.vfolderunreadfg.set_i16, sqmail.preferences.get_vfolderunreadfg())
+		apply(self.widget.vfolderunreadbg.set_i16, sqmail.preferences.get_vfolderunreadbg())
 
-		self.widget.vfolderpendingfont.set_font_name(get_vfolderpendingfont())
-		apply(self.widget.vfolderpendingfg.set_i16, get_vfolderpendingfg())
-		apply(self.widget.vfolderpendingbg.set_i16, get_vfolderpendingbg())
+		self.widget.vfolderpendingfont.set_font_name(sqmail.preferences.get_vfolderpendingfont())
+		apply(self.widget.vfolderpendingfg.set_i16, sqmail.preferences.get_vfolderpendingfg())
+		apply(self.widget.vfolderpendingbg.set_i16, sqmail.preferences.get_vfolderpendingbg())
 
-		self.widget.msglistfont.set_font_name(get_msglistfont())
+		self.widget.msglistfont.set_font_name(sqmail.preferences.get_msglistfont())
 
-		self.widget.unreadmsglistfont.set_font_name(get_unreadmsglistfont())
+		self.widget.unreadmsglistfont.set_font_name(sqmail.preferences.get_unreadmsglistfont())
 
-		self.widget.pendingmsglistfont.set_font_name(get_pendingmsglistfont())
+		self.widget.pendingmsglistfont.set_font_name(sqmail.preferences.get_pendingmsglistfont())
 		
 		# Miscellaneous
 
-		self.widget.quoteprefix.set_text(get_quoteprefix())
+		self.widget.quoteprefix.set_text(sqmail.preferences.get_quoteprefix())
 	
 		#self.widget.spamcommand.set_text(get_spamcommand())
 
@@ -333,6 +190,12 @@ class SQmaiLPreferences:
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.7  2001/02/20 17:22:36  dtrg
+# Moved the bulk of the preference system out of the gui directory, where it
+# doesn't belong. sqmail.gui.preferences still exists but it just contains
+# the preferences editor. sqmail.preferences now contains the access
+# functions and load/save functions.
+#
 # Revision 1.6  2001/02/20 15:46:00  dtrg
 # Fixed a bug where the To: line on outgoing messages was, if mail aliases
 # were being used, set to the unexpanded value (which would cause replies to
