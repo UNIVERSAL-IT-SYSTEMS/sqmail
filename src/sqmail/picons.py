@@ -1,3 +1,7 @@
+# Manages picons lookup and background fetching.
+# $Source: /cvsroot/sqmail/sqmail/src/sqmail/picons.py,v $
+# $State: Exp $
+
 import os
 import sqmail.utils
 import sqmail.db
@@ -145,3 +149,28 @@ def queue_address(email):
 			# An error here means the lock's already released.
 			pass
 
+# Revision History
+# $Log: picons.py,v $
+# Revision 1.5  2001/04/19 15:00:43  dtrg
+# Realised I'd forgotten to put in any CVS header or revision history. Have
+# now done so, in a certain state of embarrasment.
+#
+# Revision 1.4  2001/04/19 14:56:53  dtrg
+# Added support for using domain names only for picons. This means that all
+# hotmail users share the same picon, for example; this reduces the number
+# of lookups, but means you don't get personalised picons.
+#
+# Revision 1.3  2001/03/13 11:56:54  dtrg
+# It seems that Event.wait, bizarrely, doesn't reset the event flag. This
+# means that the picons fetch thread will spin endlessly after finishing a
+# fetch. I have added an explicit call to Event.clear, which prevents this,
+# but introduces a minor race condition that may cause some picons not to be
+# fetched properly (hardly critical). I can't seem to find an atomic
+# wait/clear...
+#
+# Revision 1.2  2001/03/12 19:30:10  dtrg
+# Now automatically queues up new messages for picon fetching in the
+# background (using a real thread, too).
+#
+# Revision 1.1  2001/03/09 20:36:19  dtrg
+# First draft picons support.
