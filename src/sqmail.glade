@@ -1069,13 +1069,12 @@
 	  </widget>
 
 	  <widget>
-	    <class>GnomePixmap</class>
+	    <class>GtkFrame</class>
 	    <name>messageicon</name>
-	    <signal>
-	      <name>drag_begin</name>
-	      <handler>on_message_drag_begin</handler>
-	      <last_modification_time>Mon, 19 Feb 2001 18:08:16 GMT</last_modification_time>
-	    </signal>
+	    <width>54</width>
+	    <height>54</height>
+	    <label_xalign>0</label_xalign>
+	    <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
 	    <child>
 	      <left_attach>0</left_attach>
 	      <right_attach>1</right_attach>
@@ -1087,9 +1086,13 @@
 	      <yexpand>False</yexpand>
 	      <xshrink>False</xshrink>
 	      <yshrink>False</yshrink>
-	      <xfill>True</xfill>
-	      <yfill>True</yfill>
+	      <xfill>False</xfill>
+	      <yfill>False</yfill>
 	    </child>
+
+	    <widget>
+	      <class>Placeholder</class>
+	    </widget>
 	  </widget>
 	</widget>
       </widget>
@@ -3653,7 +3656,6 @@ Try launching the MIME handler for it instead.</label>
 	  <class>GtkFrame</class>
 	  <name>frame10</name>
 	  <border_width>2</border_width>
-	  <sensitive>False</sensitive>
 	  <label>Default</label>
 	  <label_xalign>0</label_xalign>
 	  <shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -3840,7 +3842,6 @@ Try launching the MIME handler for it instead.</label>
 	<class>GtkFrame</class>
 	<name>frame8</name>
 	<border_width>2</border_width>
-	<sensitive>False</sensitive>
 	<label>PIcons database</label>
 	<label_xalign>0</label_xalign>
 	<shadow_type>GTK_SHADOW_ETCHED_IN</shadow_type>
@@ -3858,9 +3859,15 @@ Try launching the MIME handler for it instead.</label>
 
 	  <widget>
 	    <class>GtkCheckButton</class>
-	    <name>usepiconstoggle</name>
+	    <name>usepicons</name>
+	    <tooltip>Picons are icons that identify the sender of a particular message. Use the link below for more information. If you select this, then I will try to find a picon for any message that doesn't come with an X-Face (this may involve an HTTP transaction).</tooltip>
 	    <can_focus>True</can_focus>
-	    <label>Use picons database</label>
+	    <signal>
+	      <name>toggled</name>
+	      <handler>on_changed</handler>
+	      <last_modification_time>Fri, 09 Mar 2001 16:49:13 GMT</last_modification_time>
+	    </signal>
+	    <label>Use picons</label>
 	    <active>False</active>
 	    <draw_indicator>True</draw_indicator>
 	    <child>
@@ -3872,9 +3879,15 @@ Try launching the MIME handler for it instead.</label>
 
 	  <widget>
 	    <class>GtkCheckButton</class>
-	    <name>uselocalpiconstoggle</name>
+	    <name>usepiconsproxy</name>
+	    <tooltip>Do you want me to use an HTTP proxy when querying the picons server?</tooltip>
 	    <can_focus>True</can_focus>
-	    <label>Search local store</label>
+	    <signal>
+	      <name>toggled</name>
+	      <handler>on_changed</handler>
+	      <last_modification_time>Fri, 09 Mar 2001 16:49:19 GMT</last_modification_time>
+	    </signal>
+	    <label>Use HTTP proxy</label>
 	    <active>False</active>
 	    <draw_indicator>True</draw_indicator>
 	    <child>
@@ -3885,112 +3898,181 @@ Try launching the MIME handler for it instead.</label>
 	  </widget>
 
 	  <widget>
-	    <class>GtkHBox</class>
-	    <name>hbox10</name>
+	    <class>GtkTable</class>
+	    <name>table15</name>
+	    <rows>2</rows>
+	    <columns>3</columns>
 	    <homogeneous>False</homogeneous>
-	    <spacing>0</spacing>
+	    <row_spacing>0</row_spacing>
+	    <column_spacing>0</column_spacing>
 	    <child>
 	      <padding>0</padding>
 	      <expand>True</expand>
-	      <fill>True</fill>
+	      <fill>False</fill>
 	    </child>
 
 	    <widget>
 	      <class>GtkLabel</class>
-	      <name>label160</name>
-	      <label>At:</label>
+	      <name>label174</name>
+	      <label>Server:</label>
 	      <justify>GTK_JUSTIFY_CENTER</justify>
 	      <wrap>False</wrap>
-	      <xalign>0.5</xalign>
+	      <xalign>0</xalign>
 	      <yalign>0.5</yalign>
 	      <xpad>0</xpad>
 	      <ypad>0</ypad>
 	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>False</fill>
+		<left_attach>0</left_attach>
+		<right_attach>1</right_attach>
+		<top_attach>0</top_attach>
+		<bottom_attach>1</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
+	      </child>
+	    </widget>
+
+	    <widget>
+	      <class>GtkLabel</class>
+	      <name>label175</name>
+	      <label>Proxy:</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <child>
+		<left_attach>0</left_attach>
+		<right_attach>1</right_attach>
+		<top_attach>1</top_attach>
+		<bottom_attach>2</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>False</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
 	      </child>
 	    </widget>
 
 	    <widget>
 	      <class>GtkEntry</class>
-	      <name>localpiconsdatabase</name>
+	      <name>piconsproxyserver</name>
+	      <tooltip>Where is your HTTP proxy? (If you don't want to use one, it's safe to leave this blank.)</tooltip>
 	      <can_focus>True</can_focus>
+	      <signal>
+		<name>changed</name>
+		<handler>on_changed</handler>
+		<last_modification_time>Fri, 09 Mar 2001 16:48:54 GMT</last_modification_time>
+	      </signal>
 	      <editable>True</editable>
 	      <text_visible>True</text_visible>
 	      <text_max_length>0</text_max_length>
 	      <text></text>
 	      <child>
-		<padding>0</padding>
-		<expand>True</expand>
-		<fill>True</fill>
+		<left_attach>1</left_attach>
+		<right_attach>2</right_attach>
+		<top_attach>1</top_attach>
+		<bottom_attach>2</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>True</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
+	      </child>
+	    </widget>
+
+	    <widget>
+	      <class>GtkEntry</class>
+	      <name>piconsserver</name>
+	      <tooltip>Which picons server do you want me to query? (You will almost certainly not want to change this.)</tooltip>
+	      <can_focus>True</can_focus>
+	      <signal>
+		<name>changed</name>
+		<handler>on_changed</handler>
+		<last_modification_time>Fri, 09 Mar 2001 16:48:48 GMT</last_modification_time>
+	      </signal>
+	      <editable>True</editable>
+	      <text_visible>True</text_visible>
+	      <text_max_length>0</text_max_length>
+	      <text></text>
+	      <child>
+		<left_attach>1</left_attach>
+		<right_attach>3</right_attach>
+		<top_attach>0</top_attach>
+		<bottom_attach>1</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>True</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
+	      </child>
+	    </widget>
+
+	    <widget>
+	      <class>GtkEntry</class>
+	      <name>piconsproxyport</name>
+	      <width>30</width>
+	      <tooltip>What port is your HTTP proxy on?</tooltip>
+	      <can_focus>True</can_focus>
+	      <signal>
+		<name>changed</name>
+		<handler>on_changed</handler>
+		<last_modification_time>Fri, 09 Mar 2001 16:48:59 GMT</last_modification_time>
+	      </signal>
+	      <editable>True</editable>
+	      <text_visible>True</text_visible>
+	      <text_max_length>0</text_max_length>
+	      <text></text>
+	      <child>
+		<left_attach>2</left_attach>
+		<right_attach>3</right_attach>
+		<top_attach>1</top_attach>
+		<bottom_attach>2</bottom_attach>
+		<xpad>0</xpad>
+		<ypad>0</ypad>
+		<xexpand>True</xexpand>
+		<yexpand>False</yexpand>
+		<xshrink>False</xshrink>
+		<yshrink>False</yshrink>
+		<xfill>True</xfill>
+		<yfill>False</yfill>
 	      </child>
 	    </widget>
 	  </widget>
 
 	  <widget>
-	    <class>GtkCheckButton</class>
-	    <name>useremotepiconstoggle</name>
+	    <class>GnomeHRef</class>
+	    <name>href2</name>
 	    <can_focus>True</can_focus>
-	    <label>Search remote store</label>
-	    <active>False</active>
-	    <draw_indicator>True</draw_indicator>
+	    <url>http://www.cs.indiana.edu/picons/ftp/faq.html</url>
+	    <label>What are picons?</label>
 	    <child>
 	      <padding>0</padding>
 	      <expand>False</expand>
 	      <fill>False</fill>
 	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkHBox</class>
-	    <name>hbox11</name>
-	    <homogeneous>False</homogeneous>
-	    <spacing>0</spacing>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label161</name>
-	      <label>At:</label>
-	      <justify>GTK_JUSTIFY_CENTER</justify>
-	      <wrap>False</wrap>
-	      <xalign>0.5</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>False</fill>
-	      </child>
-	    </widget>
-
-	    <widget>
-	      <class>GtkEntry</class>
-	      <name>remotepiconsdatabase</name>
-	      <can_focus>True</can_focus>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text></text>
-	      <child>
-		<padding>0</padding>
-		<expand>True</expand>
-		<fill>True</fill>
-	      </child>
-	    </widget>
 	  </widget>
 
 	  <widget>
 	    <class>GtkLabel</class>
-	    <name>label162</name>
-	    <label>Search in these databases:</label>
-	    <justify>GTK_JUSTIFY_LEFT</justify>
+	    <name>label176</name>
+	    <label></label>
+	    <justify>GTK_JUSTIFY_CENTER</justify>
 	    <wrap>False</wrap>
 	    <xalign>0.5</xalign>
 	    <yalign>0.5</yalign>
@@ -4004,25 +4086,69 @@ Try launching the MIME handler for it instead.</label>
 	  </widget>
 
 	  <widget>
-	    <class>GtkScrolledWindow</class>
-	    <name>scrolledwindow13</name>
-	    <hscrollbar_policy>GTK_POLICY_NEVER</hscrollbar_policy>
-	    <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
-	    <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-	    <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
+	    <class>GtkHBox</class>
+	    <name>hbox10</name>
+	    <homogeneous>False</homogeneous>
+	    <spacing>0</spacing>
 	    <child>
 	      <padding>0</padding>
-	      <expand>True</expand>
-	      <fill>True</fill>
+	      <expand>False</expand>
+	      <fill>False</fill>
 	    </child>
 
 	    <widget>
-	      <class>GtkText</class>
-	      <name>piconsdatabases</name>
-	      <can_focus>True</can_focus>
-	      <editable>False</editable>
-	      <text></text>
+	      <class>GtkLabel</class>
+	      <name>piconsstatus</name>
+	      <label>label177</label>
+	      <justify>GTK_JUSTIFY_CENTER</justify>
+	      <wrap>False</wrap>
+	      <xalign>0.5</xalign>
+	      <yalign>0.5</yalign>
+	      <xpad>0</xpad>
+	      <ypad>0</ypad>
+	      <child>
+		<padding>0</padding>
+		<expand>True</expand>
+		<fill>False</fill>
+	      </child>
 	    </widget>
+
+	    <widget>
+	      <class>GtkButton</class>
+	      <name>button1818</name>
+	      <can_focus>True</can_focus>
+	      <signal>
+		<name>clicked</name>
+		<handler>on_update_piconsstatus</handler>
+		<last_modification_time>Fri, 09 Mar 2001 19:52:42 GMT</last_modification_time>
+	      </signal>
+	      <label>Update</label>
+	      <relief>GTK_RELIEF_NORMAL</relief>
+	      <child>
+		<padding>0</padding>
+		<expand>False</expand>
+		<fill>False</fill>
+	      </child>
+	    </widget>
+	  </widget>
+
+	  <widget>
+	    <class>GtkButton</class>
+	    <name>button1817</name>
+	    <tooltip>Picons are cached locally, so I don't have to do a HTTP lookup for every message. Because this cache will grow idefinitely, you may want to flush it periodically. To do this, press this button.</tooltip>
+	    <can_focus>True</can_focus>
+	    <signal>
+	      <name>clicked</name>
+	      <handler>on_flushpicons</handler>
+	      <last_modification_time>Fri, 09 Mar 2001 19:33:21 GMT</last_modification_time>
+	    </signal>
+	    <label>Flush picons cache</label>
+	    <relief>GTK_RELIEF_NORMAL</relief>
+	    <child>
+	      <padding>0</padding>
+	      <expand>False</expand>
+	      <fill>False</fill>
+	    </child>
 	  </widget>
 	</widget>
       </widget>

@@ -85,8 +85,23 @@ def get_mime_param(list, name):
 			return rfc822.unquote(p[n:])
 	return None
 
+def load_xpm(fp):
+	pixdata = []
+	if (fp.readline()[:-1] != "/* XPM */"):
+		return None
+	for i in fp.readlines():
+		i = string.split(i, '"')
+		if (len(i) == 3):
+			pixdata.append(i[1])
+	if (pixdata == []):
+		return None
+	return pixdata
+	
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.3  2001/03/09 20:36:19  dtrg
+# First draft picons support.
+#
 # Revision 1.2  2001/03/09 10:34:14  dtrg
 # When you do str(i) when i is a long, Python returns a string like "123L".
 # This really upsets the SQL server. So I've rewritten large numbers of the

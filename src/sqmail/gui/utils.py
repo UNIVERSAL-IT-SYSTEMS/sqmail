@@ -129,7 +129,7 @@ def okcancelbox(msg):
 	i.destroy()
 	return j
 	
-# Applies an image, in face format, to a button.
+# Applies an image, in face format, to a container widget.
 
 def set_face(w, f):
 	w.set_data("face", f)
@@ -137,26 +137,32 @@ def set_face(w, f):
 	pipefp = popen2.popen2(decoder)
 	pipefp[1].write(f)
 	pipefp[1].close()
-	pixdata = []
-	for i in pipefp[0].readlines():
-		i = string.split(i, '"')
-		if (len(i) == 3):
-			pixdata.append(i[1])
-	if (pixdata == []):
+	pixdata = sqmail.utils.load_xpm(pipefp[0])
+	if not pixdata:
 		sqmail.gui.utils.errorbox("I was unable to decode an X-Face string. See the error message on the console.")
 		return
+	set_xpm(w, pixdata)
 
-	pixmap, mask = gtk.create_pixmap_from_xpm_d(w, None, pixdata)
+
+# Applies an XPM image to a container widget.
+
+def set_xpm(w, xpm):
 	c = w.children()
 	if c:
 		c[0].destroy()
-		
+	if not xpm:
+		return
+
+	pixmap, mask = gtk.create_pixmap_from_xpm_d(w, None, xpm)
 	pixmap = gtk.GtkPixmap(pixmap, None)
 	w.add(pixmap)
 	pixmap.show()
 			
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.6  2001/03/09 20:36:19  dtrg
+# First draft picons support.
+#
 # Revision 1.5  2001/03/07 12:21:21  dtrg
 # Now tests for the X-Face encoder and decoder commands failing, and no
 # longer seg faults.
