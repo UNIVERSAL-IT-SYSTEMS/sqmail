@@ -311,7 +311,7 @@ class SQmaiLReader:
 		self.widget.folderquery.set_point(0)
 		self.widget.folderquery.delete_text(0, -1)
 		self.widget.folderquery.insert(None, None, None, \
-			vf.getquery())
+			vf.getuquerystr())
 		self.widget.folderquery.set_word_wrap(1)
 		self.widget.folderquery.thaw()
 		self.update_messagelist()
@@ -334,7 +334,7 @@ class SQmaiLReader:
 		vf = self.vfolder()
 		node = self.widget.folderlist.selection[0]
 		vf.setname(self.widget.foldername.get_text())
-		vf.setquery(query)
+		vf.setuquery(query)
 		vf.save()
 		self.write_vfolderlist()
 
@@ -347,7 +347,7 @@ class SQmaiLReader:
 	def copy_vfolder(self):
 		node = self.widget.folderlist.selection[0]
 		vf = self.vfolder()
-		newvf = sqmail.vfolder.VFolder(name="***new***", query=vf.query, \
+		newvf = sqmail.vfolder.VFolder(name="***new***", uquery=vf.uquery,
 			parent=vf.parent)
 		newvf.setname("Copy of "+vf.getname())
 		newvf.save()
@@ -739,6 +739,9 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.22  2001/05/26 18:17:47  bescoto
+# A few changes to work with new vfolder.py changes
+#
 # Revision 1.21  2001/05/23 10:08:31  dtrg
 # Added the image viewer; now gifs, jpegs and pngs will be viewed inline.
 #
