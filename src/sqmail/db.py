@@ -88,8 +88,31 @@ def escape(str):
 	str = string.replace(str, '"', '\\"')
 	return str
 
+def execute(command, argtuple = None):
+	"""Get a cursor and run command on it.  Returns of cursor.execute"""
+	c = cursor()
+	if argtuple: return c.execute(command, argtuple)
+	else: return c.execute(command)
+
+def fetchall(query, argtuple = None):
+	"""Get a cursor, run query, and return results of cursor() fetchall."""
+	c = cursor()
+	if argtuple: c.execute(query, argtuple)
+	else: c.execute(query)
+	return c.fetchall()
+
+def fetchone(query, argtuple = None):
+	"""Same as fetchall but only return one row"""
+	c = cursor()
+	if argtuple: c.execute(query, argtuple)
+	else: c.execute(query)
+	return c.fetchone()
+
 # Revision History
 # $Log: db.py,v $
+# Revision 1.3  2001/06/01 19:26:59  bescoto
+# Defined a few convenience functions
+#
 # Revision 1.2  2001/03/09 10:58:42  dtrg
 # getnewid() was returning the new id as a string. Eeek.
 #
