@@ -100,11 +100,17 @@ class Message:
 	def getheaders(self):
 		if self.headers == None:
 			self.headers = self.fetchbody("header")
+		if self.headers == None:
+			print "WARNING: msg id", self.id, "has no headers --- corrupt database?"
+			self.headers = ""
 		return self.headers
 	
 	def getbody(self):
 		if self.body == None:
 			self.body = self.fetchbody("body")
+		if self.body == None:
+			print "WARNING: msg id", self.id, "has no body --- corrupt database?"
+			self.body = ""
 		return self.body
 	
 	def tosqlstring(self, o):
@@ -316,6 +322,10 @@ class Message:
 
 # Revision History
 # $Log: message.py,v $
+# Revision 1.4  2001/01/18 19:28:59  dtrg
+# Added some bulletproofing for corrupt messages (sometimes generated when a
+# send fails). Checks for a header or body block of None.
+#
 # Revision 1.3  2001/01/11 20:31:29  dtrg
 # Fixed the last fix, which was broken and prevented any MIME attachments
 # from being shown.
