@@ -721,8 +721,8 @@ class MessageList:
 		self.blocksize = sqmail.utils.getsetting("Header blocksize", 100)
 		self.curmsg = None
 		self.curmsgpos = None
-		self.at_top = None
-		self.at_bottom = None
+		self.at_top = self.at_bottom = 1
+		self.top_msgid = self.bottom_msgid = 0
 		self.messagelist = None
 		self.vfolder = None
 
@@ -734,11 +734,12 @@ class MessageList:
 		self.sent_pixmap = gtk.GtkPixmap(self.widget.get_window(),
 			sys.path[0] + "/images/sent-message.xpm")
 
+		self.mlscroll = MessageListScroll(reader, self)
 
 	def update_messagelist(self, vfolder):
 		"""Update message list to reflect currently selected vfolder
 
-		First insert some messages aftet and including the current
+		First insert some messages after and including the current
 		message, and mark the first one inserted as the current.  Then
 		insert the previous ones at the beginning.
 
@@ -749,16 +750,38 @@ class MessageList:
 		self.widget.clear()
 		
 		self.messagelist = []
-		self.insert_messagelist(vfolder.scan(vfolder.curmsg, self.blocksize))
+		self.at_top = self.at_bottom = None
+		self.insert_messages(vfolder.curmsg - 1, self.blocksize)
 		self.curmsgpos = 0
-		self.insert_messagelist(vfolder.scan(vfolder.curmsg,
-											 -self.blocksize), 0)
+		self.insert_messages(vfolder.curmsg, -self.blocksize, 0)
+
 		# This moveto doesn't work, don't know why not
 		self.widget.moveto(self.curmsgpos)
 		self.widget.select_row(self.curmsgpos, 0)
 		self.widget.thaw()
 		self.reader.setprogress("Analyzing message", 1, 1)
 		self.reader.update_messagewindow()
+
+	def insert_messages(self, msgid, i, position = -1):
+		"""Inserts i messages starting with curmsg at position
+
+		If i is negative, count backwards from msgid.  position == -1
+		means append.  insert_messages also sets at_top/at_bottom and
+		and top_msgid and bottom_msgid, and returns the number of
+		messages inserted.
+
+		"""
+		l = self.vfolder.scan(msgid, i)
+		llen = len(l)
+		if llen < abs(i):
+			if i > 0: self.at_bottom = 1
+			else: self.at_top = 1
+		if not llen: return llen
+		
+		if position == 0: self.top_msgid = l[0][0]
+		elif position == -1: self.bottom_msgid = l[-1][0]
+		self.insert_messagelist(l)
+		return llen
 
 	def insert_messagelist(self, newlist, position = -1):
 		"""Insert sequence of message headers at specified position
@@ -826,8 +849,52 @@ class MessageList:
 		if current_message:
 			vf.setcurmsg(current_message.id)
 
+
+class MessageListScroll:
+	"""Add callback to the scrolling window to dynamically add messages
+
+	Currently, when there are less than three screens of messages
+	above or below what is currently displayed, insert more messages
+	before or after if available.
+
+	"""
+	def __init__(self, reader, messagelist):
+		self.reader = reader
+		self.messagelist = messagelist
+		self.swin = reader.widget.scroll99
+
+		self.vadjust = self.swin.get_vadjustment()
+		self.vadjust.connect("value-changed", self.vadj_change)
+
+	def vadj_change(self, vadjust):
+		"""Signal handler - called when window scrolls"""
+		print vadjust.lower, vadjust.upper, vadjust.value, vadjust.page_size
+		if (vadjust.lower + (3*vadjust.page_size) > vadjust.value and
+			not self.messagelist.at_top):
+			self.add_totop()
+		elif ((vadjust.upper - (3*vadjust.page_size) <
+			   vadjust.value + vadjust.page_size) and
+			  not self.messagelist.at_bottom):
+			self.add_tobottom()
+
+	def add_totop(self):
+		"""Insert blocksize messages at beginning of messagelist"""
+		self.messagelist.insert_messages(self.messagelist.top_msgid,
+										 -self.messagelist.blocksize, 0)
+
+	def add_tobottom(self):
+		"""Insert blocksize messages at end of messagelist"""
+		self.messagelist.insert_messages(self.messagelist.bottom_msgid,
+										 self.messagelist.blocksize, -1)
+
+
+
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.25  2001/08/06 21:18:11  bescoto
+# A few bug fixes; changed reader.py to download message headers incrementally
+# as the user scrolls up and down.
+#
 # Revision 1.24  2001/06/08 04:38:16  bescoto
 # Multifile diff: added a few convenience functions to db.py and sequences.py.
 # vfolder.py and queries.py are largely new, they are part of a system that

@@ -59,7 +59,7 @@ class VFolder:
 		self.name = name
 		self.size = size
 		self.unread = unread
-		self.curmsg = curmsg
+		self.curmsg = curmsg or 0
 		self.curmsgpos = curmsgpos
 		self.uquery = sqmail.queries.UserQuery(querystring, self)
 		self.childids = childids
@@ -72,8 +72,8 @@ class VFolder:
 		"""Return scan listings in range about msgid
 
 		If range is positive, the scan will return range messages
-		after or equal to msgid, if available.  If range is negative,
-		try to return -range messages before msgid.
+		after msgid, if available.  If range is negative, try to
+		return -range messages before msgid.
 
 		"""
 		if msgid is None: msgid = 0
@@ -86,7 +86,7 @@ class VFolder:
 			beforeid.reverse()
 			return beforeid
 		return self.cquery.selectcolumns(columns,
-							 "AND sequence_data.id >= %d" % msgid,
+							 "AND sequence_data.id > %d" % msgid,
                              "sequence_data.id", range)
 
 	def rebuildindex(self):
@@ -458,7 +458,8 @@ class VFolderManagerClass:
 		seq = (sqmail.sequences.get_by_name("UpdatedVFolders") or
 			   sqmail.sequences.create_sequence("UpdatedVFolders"))
 		for vf in self.list_vfolders_by_dep():
-			if vf.processmsg(sqmsg): seq.addid(vf.id)
+			if vf.processmsg(sqmsg) and not seq.checkid(vf.id):
+				seq.addid(vf.id)
 			
 
 # Warning, this is active code, so vfolder should not be imported if
@@ -478,6 +479,10 @@ for methodname in filter(lambda x: not x[0]=="_",
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.20  2001/08/06 21:18:11  bescoto
+# A few bug fixes; changed reader.py to download message headers incrementally
+# as the user scrolls up and down.
+#
 # Revision 1.19  2001/06/08 04:38:16  bescoto
 # Multifile diff: added a few convenience functions to db.py and sequences.py.
 # vfolder.py and queries.py are largely new, they are part of a system that
