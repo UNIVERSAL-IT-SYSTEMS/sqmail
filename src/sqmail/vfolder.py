@@ -56,7 +56,6 @@ def read_id():
 
 def vfolder_add(name, query, parent):
 	cursor = sqmail.db.cursor()
-	print "Adding vfolder", name, "query", query
 	cursor.execute("INSERT INTO vfolders (name, query, parent) values " \
 			" ('%s', '%s', %d)" \
 			% (sqmail.db.escape(name), sqmail.db.escape(query), parent))
@@ -86,7 +85,6 @@ def vfolder_set(id, name, query, parent):
 	cursor = sqmail.db.cursor()
 	q = "UPDATE vfolders SET name='%s', query='%s', parent=%d WHERE id=%d"\
 	    % (sqmail.db.escape(name), sqmail.db.escape(query), parent, id)
-	print q
 	cursor.execute(q)
 	
 def read_hierarchic_query(id, query):
@@ -156,7 +154,6 @@ class VFolder:
 			self.total = cursor.fetchone()[0]
 		except sqmail.db.db().OperationalError:
 			print "SQL syntax error in folder", self.name
-		print self.unread,"/", self.total
 
 	def scan(self):
 		cursor = sqmail.db.cursor()
@@ -246,6 +243,9 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.15  2001/05/23 10:21:31  dtrg
+# Removed some debug tracing.
+#
 # Revision 1.14  2001/04/19 18:24:16  dtrg
 # Added the ability to change the readstatus of a message. Also did some
 # minor tweaking to various areas.
