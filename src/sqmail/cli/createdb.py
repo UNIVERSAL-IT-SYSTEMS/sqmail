@@ -149,6 +149,20 @@ def SQmaiLCreateDB():
 		"  image TEXT)");
 	setsetting(cursor, "purges data version", "0.2")
 
+	# Add sequence tables
+	cursor.execute(
+		"""CREATE TABLE sequence_data
+        (sid VARCHAR(40) NOT NULL,
+		id INTEGER NOT NULL,
+		INDEX sidid (sid,id))
+		""")
+	cursor.execute(
+		"""CREATE TABLE sequence_descriptions
+        (sid VARCHAR(40) NOT NULL PRIMARY KEY,
+		description text)
+		""")
+	setsetting(cursor, "sequences data version", "0.0")
+
 	cursor.execute( \
 		"insert into settings"\
 		"  (name, value)"\
@@ -176,6 +190,9 @@ def SQmaiLCreateDB():
 
 # Revision History
 # $Log: createdb.py,v $
+# Revision 1.5  2001/05/26 18:22:29  bescoto
+# Now adds sequence_data and sequence_descriptions tables
+#
 # Revision 1.4  2001/05/01 18:23:42  dtrg
 # Added the Debian package building stuff. Now much easier to install.
 # Some GUI tidying prior to the release.
