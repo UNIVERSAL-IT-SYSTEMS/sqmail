@@ -94,7 +94,7 @@ def read_hierarchic_query(id, query):
 		return query
 	p = vfolder_get(id)[2]
 	if (p == id):
-		print "DANGER! Dastardly recursive loop found in vfolder", id+"."
+		print "DANGER! Dastardly recursive loop found in vfolder", id, "---"
 		print "Terminating loop before your machine crashes."
 		return query
 	if not p:
@@ -149,7 +149,6 @@ class VFolder:
 	def count(self):
 		cursor = sqmail.db.cursor()
 		query = self.gethierarchicquery()
-		print "Counting", self.name
 		try:
 			cursor.execute("SELECT COUNT(*) FROM headers WHERE "+query+" AND readstatus='Unread'")
 			self.unread = cursor.fetchone()[0]
@@ -247,6 +246,10 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.14  2001/04/19 18:24:16  dtrg
+# Added the ability to change the readstatus of a message. Also did some
+# minor tweaking to various areas.
+#
 # Revision 1.13  2001/03/13 19:28:23  dtrg
 # Doesn't load message headers until you select the folder; this improves
 # speed and memory consumption considerably (because it's not keeping huge
