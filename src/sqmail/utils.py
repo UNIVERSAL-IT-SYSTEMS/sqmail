@@ -28,7 +28,7 @@ def getsetting(name, default=None):
 	if (__settings.has_key(name)):
 		return __settings[name]
 	cursor = sqmail.db.cursor()
-	cursor.execute("SELECT value FROM settings WHERE name = '"+name+"'")
+	cursor.execute("SELECT value FROM settings WHERE name = '%s'" % name)
 	value = cursor.fetchone()
 	if not value:
 		return default
@@ -44,13 +44,13 @@ def setsetting(name, value):
 	cPickle.dump(value, fp)
 	cursor = sqmail.db.cursor()
 	value = sqmail.db.escape(fp.getvalue())
-	cursor.execute("SELECT COUNT(*) FROM settings WHERE name = '"+name+"'")
+	cursor.execute("SELECT COUNT(*) FROM settings WHERE name = '%s'" % name)
 	if (cursor.fetchone()[0] == 0):
-		cursor.execute("INSERT INTO settings (name, value) VALUES "+\
-			"('"+name+"', '"+value+"')")
+		cursor.execute("INSERT INTO settings (name, value) VALUES ('%s', '%s')" \
+			% (name, value))
 	else:
-		cursor.execute("UPDATE settings SET value = '"+value+"' WHERE " \
-			"name = '"+name+"'")
+		cursor.execute("UPDATE settings SET value = '%s' WHERE " \
+			"name = '%s'" % (value, name))
 
 def parse_mimeheader(s):
 	if not s:
@@ -87,6 +87,11 @@ def get_mime_param(list, name):
 
 # Revision History
 # $Log: utils.py,v $
+# Revision 1.2  2001/03/09 10:34:14  dtrg
+# When you do str(i) when i is a long, Python returns a string like "123L".
+# This really upsets the SQL server. So I've rewritten large numbers of the
+# SQL queries to use % syntax, which doesn't do that.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #

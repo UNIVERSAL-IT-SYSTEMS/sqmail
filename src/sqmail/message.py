@@ -38,7 +38,7 @@ class Message:
 			raise RuntimeError, "Trying to fetch field `"+fieldname+"' from non-database message"
 		if not self.cursor:
 			self.cursor = sqmail.db.cursor()
-		self.cursor.execute("SELECT "+fieldname+" FROM headers WHERE id = "+str(self.id))
+		self.cursor.execute("SELECT %s FROM headers WHERE id = %d" % (fieldname, self.id))
 		return self.cursor.fetchone()[0]
 		
 	def fetchbody(self, fieldname):
@@ -46,7 +46,7 @@ class Message:
 			raise RuntimeError, "Trying to fetch field `"+fieldname+"' from non-database message"
 		if not self.cursor:
 			self.cursor = sqmail.db.cursor()
-		self.cursor.execute("SELECT "+fieldname+" FROM bodies WHERE id = "+str(self.id))
+		self.cursor.execute("SELECT %s FROM bodies WHERE id = %d" % (fieldname, self.id))
 		return self.cursor.fetchone()[0]
 		
 	def getid(self):
@@ -215,7 +215,7 @@ class Message:
 			cmd = cmd + "readstatus = '"+self.readstatus+"',"
 		if (cmd == ""):
 			return
-		cmd = "UPDATE headers SET "+cmd[0:-1]+" WHERE id = "+str(self.id)
+		cmd = "UPDATE headers SET %s WHERE id = %d" % (cmd[0:-1], self.id)
 		self.cursor.execute(cmd)
 	
 	def _writebodiestodatabase(self):
@@ -226,7 +226,7 @@ class Message:
 			cmd = cmd + "body = '"+sqmail.db.escape(self.body)+"',"
 		if (cmd == ""):
 			return
-		cmd = "UPDATE bodies SET "+cmd[0:-1]+" WHERE id = "+str(self.id)
+		cmd = "UPDATE bodies SET %s WHERE id = %d" % (cmd[0:-1], self.id)
 		self.cursor.execute(cmd)
 
 	def savealltodatabase(self):
@@ -236,8 +236,8 @@ class Message:
 		if not self.id:
 			# Need to create a new entry.
 			self.id = sqmail.db.getnewid(self.cursor)
-			self.cursor.execute("INSERT INTO headers (id) VALUES ("+str(self.id)+")")
-			self.cursor.execute("INSERT INTO bodies (id) VALUES ("+str(self.id)+")")
+			self.cursor.execute("INSERT INTO headers (id) VALUES (%d)" % self.id)
+			self.cursor.execute("INSERT INTO bodies (id) VALUES (%d)" % self.id)
 		self._writeheaderstodatabase()
 		self._writebodiestodatabase()
 		sqmail.db.unlock(self.cursor)
@@ -246,7 +246,7 @@ class Message:
 		if not self.cursor:
 			self.cursor = sqmail.db.cursor()
 		if (self.getreadstatus() == "Unread"):
-			self.cursor.execute("UPDATE headers SET readstatus = 'Read' WHERE id="+str(self.id))
+			self.cursor.execute("UPDATE headers SET readstatus = 'Read' WHERE id=%d" % self.id)
 			self.readstatus = "Read"
 
 	def mimedecode(self, msg=None, id=""):
@@ -331,6 +331,11 @@ class Message:
 
 # Revision History
 # $Log: message.py,v $
+# Revision 1.6  2001/03/09 10:34:14  dtrg
+# When you do str(i) when i is a long, Python returns a string like "123L".
+# This really upsets the SQL server. So I've rewritten large numbers of the
+# SQL queries to use % syntax, which doesn't do that.
+#
 # Revision 1.5  2001/03/05 20:44:41  dtrg
 # Lots of changes.
 # * Added outgoing X-Face support (relies on netppm and compface).
