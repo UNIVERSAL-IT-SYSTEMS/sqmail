@@ -3,14 +3,39 @@
 # $Source: /cvsroot/sqmail/sqmail/src/SQmaiL,v $
 # $State: Exp $
 
-import sqmail.gui.reader
-#import gc
+import sys
+# Note that the other sqmail modules are only imported when needed, to prevent
+# Gnome from stealing the command line options when we don't want it.
 
-#gc.set_debug(gc.DEBUG_LEAK)
-sqmail.gui.reader.SQmaiLReader()
+def usage():
+	print "Syntax: SQmaiL <command> [options]"
+	print "Available commands:"
+	print "  gui                Start up the Gnome MUA"
+	print "  scan               List the contents of a vfolder"
+	print "  show               Show an individual message"
+	print "For more help on individual commands, try the -h option for the"
+	print "command in question."
+
+if (len(sys.argv) < 1):
+	usage()
+	sys.exit(2)
+
+cmd = sys.argv[1]
+if (cmd == "gui"):
+	import sqmail.gui.reader
+	sqmail.gui.reader.SQmaiLReader()
+elif (cmd == "scan"):
+	import sqmail.cli.scan
+	sqmail.cli.scan.SQmaiLScan()
+else:
+	usage()
+	sys.exit(2)
 
 # Revision History
 # $Log: SQmaiL,v $
+# Revision 1.2  2001/01/08 14:58:54  dtrg
+# Added the scan CLI command.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
