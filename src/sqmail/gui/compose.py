@@ -91,14 +91,17 @@ class SQmaiLCompose:
 
 		self.widget.textbox.thaw()
 
-	def makemessage(self):
+	def makemessage(self, tofield=None):
+		if not tofield:
+			tofield = self.widget.tofield.get_text()
+
 		out = cStringIO.StringIO()
 		mw = MimeWriter.MimeWriter(out)
 
 		# Write standard header.
 		mw.addheader("X-Mailer", "SQmaiL (http://sqmail.sourceforge.net)")
 		mw.addheader("From", self.widget.fromfield.get_text())
-		mw.addheader("To", self.widget.tofield.get_text())
+		mw.addheader("To", tofield)
 		mw.addheader("Subject", self.widget.subjectfield.get_text())
 		mw.addheader("MIME-Version", "1.0")
 
@@ -204,7 +207,7 @@ class SQmaiLCompose:
 			# ...and expand aliases and unqualified addresses.
 			toaddr = self.expand_addrlist(toaddr)
 			# Construct and send the message itself.
-			msgstring = self.makemessage()
+			msgstring = self.makemessage(tofield=sqmail.gui.utils.render_addrlist(toaddr))
 			smtp.sendmail(fromaddr, toaddr, msgstring)
 			smtp.quit()
 			# If we got this far, the message went out successfully.
@@ -297,6 +300,11 @@ class SQmaiLCompose:
 
 # Revision History
 # $Log: compose.py,v $
+# Revision 1.5  2001/02/20 15:46:01  dtrg
+# Fixed a bug where the To: line on outgoing messages was, if mail aliases
+# were being used, set to the unexpanded value (which would cause replies to
+# the messages to be sent to bogus addresses).
+#
 # Revision 1.4  2001/02/15 19:34:16  dtrg
 # Many changes. Bulletproofed the send box, so it should now give you
 # (reasonably) user-friendly messages when something goes wrong; rescan a
