@@ -56,6 +56,20 @@ def upgrade_vfolders():
 		sqmail.utils.setsetting("vfolders", l)
 		sqmail.utils.setsetting("vfolder data version", "0.2")
 
+def upgrade_purges():
+	cursor = sqmail.db.cursor()
+	version = sqmail.utils.getsetting("purges data version")
+	if (version == None):
+		print "Adding new purges data."
+		cursor.execute( \
+			"CREATE TABLE purges"\
+			"  (active TINYINT,"\
+			"  name TEXT,"\
+			"  vfolder INTEGER,"\
+			"  condition TEXT)");
+
+		sqmail.utils.setsetting("purges data version", "0.2")
+
 def SQmaiLUpgrade():	
 	if (len(sys.argv) != 2):
 		usage()
@@ -63,10 +77,15 @@ def SQmaiLUpgrade():
 	
 	print "Beginning upgrade"
 	upgrade_vfolders()
+	upgrade_purges()
 	print "Finished upgrade"
 
 # Revision History
 # $Log: upgrade.py,v $
+# Revision 1.2  2001/02/23 19:50:26  dtrg
+# Lots of changes: added the beginnings of the purges system, CLI utility
+# for same, GUI utility & UI for same, plus a CLI vfolder lister.
+#
 # Revision 1.1  2001/01/19 20:34:55  dtrg
 # Added the recover and upgrade commands, plus the back-end code. recover
 # will let you rebuild various bits of the database (currently just the

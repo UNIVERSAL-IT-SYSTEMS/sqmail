@@ -133,8 +133,10 @@ class VFolder:
 			self.parent = parent
 		elif id:
 			self.id = id
-			(self.name, self.query, self.parent) = \
-				vfolder_get(id)
+			i = vfolder_get(id)
+			if not i:
+				raise KeyError
+			(self.name, self.query, self.parent) = i
 		else:
 			self.id = None
 			self.name = None
@@ -146,14 +148,7 @@ class VFolder:
 
 	def scan(self):
 		cursor = sqmail.db.cursor()
-		if not self.query:
-			# An empty query means `all messages that are left'. We
-			# need to find all the folders with the same parent as
-			# this one, OR the queries together, and NOT the result.
-			query = read_allthatsleft_query(self.id)
-		else:
-			query = self.query
-		query = read_hierarchic_query(self.id, query)
+		query = self.gethierarchicquery()
 		try:
 			cursor.execute("SELECT COUNT(*) FROM headers WHERE "+query+" AND readstatus='Unread'")
 			self.unread = cursor.fetchone()[0]
@@ -176,6 +171,17 @@ class VFolder:
 	def getquery(self):
 		return self.query
 	
+	def gethierarchicquery(self):
+		if not self.query:
+			# An empty query means `all messages that are left'. We
+			# need to find all the folders with the same parent as
+			# this one, OR the queries together, and NOT the result.
+			query = read_allthatsleft_query(self.id)
+		else:
+			query = self.query
+		query = read_hierarchic_query(self.id, query)
+		return query
+
 	def setquery(self, query):
 		self.query = query
 		self.unread = None
@@ -231,6 +237,10 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.7  2001/02/23 19:50:26  dtrg
+# Lots of changes: added the beginnings of the purges system, CLI utility
+# for same, GUI utility & UI for same, plus a CLI vfolder lister.
+#
 # Revision 1.6  2001/02/15 19:34:16  dtrg
 # Many changes. Bulletproofed the send box, so it should now give you
 # (reasonably) user-friendly messages when something goes wrong; rescan a
