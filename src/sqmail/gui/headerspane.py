@@ -16,16 +16,16 @@ import sqmail.preferences
 class HeadersViewer (sqmail.gui.viewer.Viewer):
 	def __init__(self, reader, msg):
 		self.message = msg
-		sqmail.gui.viewer.Viewer.__init__(self, reader, ["*"], "headerspane")
+		msg = self.message.getheaders()+"\n\n"+\
+			self.message.getbody()
+		sqmail.gui.viewer.Viewer.__init__(self, reader, ["*", "", msg], "headerspane")
 		font = gtk.load_font(sqmail.preferences.get_textmessagefont())
 		# Ensure the text box is 80 columns wide.
 		width = gtk.gdk_char_width(font, "m")*82
 		# The text box is guaranteed to be empty.
 		self.viewer_widget.messagetext.freeze()
 		self.viewer_widget.messagetext.set_usize(width, 0)
-		self.viewer_widget.messagetext.insert(font, None, None, \
-			self.message.getheaders()+"\n\n"+\
-			self.message.getbody())
+		self.viewer_widget.messagetext.insert(font, None, None, msg)
 		self.viewer_widget.messagetext.thaw()
 	
 	def on_save(self, obj):
@@ -36,6 +36,10 @@ class HeadersViewer (sqmail.gui.viewer.Viewer):
 	
 # Revision History
 # $Log: headerspane.py,v $
+# Revision 1.3  2001/04/19 18:21:02  dtrg
+# Added the message contents to the fake attachment structure, so that the
+# Viewer superclass can successfully save/launch the entire message.
+#
 # Revision 1.2  2001/02/20 17:22:36  dtrg
 # Moved the bulk of the preference system out of the gui directory, where it
 # doesn't belong. sqmail.gui.preferences still exists but it just contains
