@@ -2,12 +2,17 @@
 # $Source: /cvsroot/sqmail/sqmail/src/sqmail/gui/preferences.py,v $
 # $State: Exp $
 
+import os
 import sqmail.preferences
 import sqmail.gui.reader
 import sqmail.utils
 import sqmail.db
 import cPickle
 import getpass
+import tempfile
+import gtk
+import GdkImlib
+import string
 
 instance = None
 class SQmaiLPreferences:
@@ -54,6 +59,10 @@ class SQmaiLPreferences:
 
 		self.widget.defaultdomain.set_text(sqmail.preferences.get_defaultdomain())
 
+		self.widget.sendxface.set_active(sqmail.preferences.get_sendxface())
+
+		sqmail.gui.utils.set_face(self.widget.outgoingxfaceicon, sqmail.preferences.get_outgoingxfaceicon())
+
 		# Appearances
 
 		self.widget.textmessagefont.set_font_name(sqmail.preferences.get_textmessagefont())
@@ -78,6 +87,12 @@ class SQmaiLPreferences:
 
 		self.widget.pendingmsglistfont.set_font_name(sqmail.preferences.get_pendingmsglistfont())
 		
+		# Mail icons
+
+		self.widget.xfacedecoder.set_text(sqmail.preferences.get_xfacedecoder())
+
+		self.widget.xfaceencoder.set_text(sqmail.preferences.get_xfaceencoder())
+
 		# Miscellaneous
 
 		self.widget.quoteprefix.set_text(sqmail.preferences.get_quoteprefix())
@@ -138,6 +153,12 @@ class SQmaiLPreferences:
 		sqmail.utils.setsetting("defaultdomain", \
 			self.widget.defaultdomain.get_text())
 
+		sqmail.utils.setsetting("sendxface", \
+			self.widget.sendxface.get_active())
+
+		sqmail.utils.setsetting("outgoingxfaceicon", \
+			self.widget.outgoingxfaceicon.get_data("face"))
+
 		# Appearances
 	
 		sqmail.utils.setsetting("textmessagefont", \
@@ -176,6 +197,13 @@ class SQmaiLPreferences:
 		sqmail.utils.setsetting("pendingmsglistfont", \
 			self.widget.pendingmsglistfont.get_font_name())
 
+		# Mail icons
+
+		sqmail.utils.setsetting("xfaceencoder", \
+			self.widget.xfaceencoder.get_text())
+
+		sqmail.utils.setsetting("xfacedecoder", \
+			self.widget.xfacedecoder.get_text())
 	
 		# Miscellaneous
 
@@ -187,9 +215,37 @@ class SQmaiLPreferences:
 
 	def on_changed(self, *args):
 		self.widget.preferenceswin.set_modified(1)
+	
+	# Loads a new face into the specified object.
+
+	def on_load_bitmap(self, obj):
+		sqmail.gui.utils.FileSelector("Select new X-Face", "", self.on_load_bitmap_done, obj)
+	
+	def on_load_bitmap_done(self, filename, obj):
+		if ((len(filename) < 4) or (filename[-4:] != ".xbm")):
+			sqmail.gui.utils.errorbox("X-Faces must be 48x48 XBM files.")
+			return
+
+		encoder = sqmail.preferences.get_xfaceencoder()
+		pipefp = os.popen(encoder % filename)
+		f = string.join(pipefp.readlines(), "")
+		sqmail.gui.utils.set_face(self.widget.outgoingxfaceicon, f)
+		self.widget.preferenceswin.set_modified(1)
 
 # Revision History
 # $Log: preferences.py,v $
+# Revision 1.8  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.7  2001/02/20 17:22:36  dtrg
 # Moved the bulk of the preference system out of the gui directory, where it
 # doesn't belong. sqmail.gui.preferences still exists but it just contains

@@ -70,6 +70,13 @@ def upgrade_purges():
 
 		sqmail.utils.setsetting("purges data version", "0.2")
 
+def upgrade_data():
+	cursor = sqmail.db.cursor()
+	version = sqmail.utils.getsetting("message data version")
+	if (version == None):
+		print "Converting message data."
+		sqmail.utils.setsetting("message data version", "0.3")
+
 def SQmaiLUpgrade():	
 	if (len(sys.argv) != 2):
 		usage()
@@ -78,10 +85,23 @@ def SQmaiLUpgrade():
 	print "Beginning upgrade"
 	upgrade_vfolders()
 	upgrade_purges()
+	upgrade_data()
 	print "Finished upgrade"
 
 # Revision History
 # $Log: upgrade.py,v $
+# Revision 1.3  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.2  2001/02/23 19:50:26  dtrg
 # Lots of changes: added the beginnings of the purges system, CLI utility
 # for same, GUI utility & UI for same, plus a CLI vfolder lister.

@@ -56,6 +56,7 @@ def read_id():
 
 def vfolder_add(name, query, parent):
 	cursor = sqmail.db.cursor()
+	print "Adding vfolder", name, "query", query
 	cursor.execute("INSERT INTO vfolders" \
 			" (name, query, parent) values " \
 			" ('"+sqmail.db.escape(name)+"', "\
@@ -124,8 +125,10 @@ class VFolder:
 			raise RuntimeError("Can't create a VFolder instance without at least one of id, name and query")
 		if name and not id:
 			id = vfolder_find(name)
-			if not id:
+			if not id and query:
 				id = vfolder_add(name, query, parent)
+			else:
+				raise KeyError
 		if id and query:
 			self.id = id
 			self.name = name
@@ -237,6 +240,18 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.9  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.8  2001/02/27 16:35:31  dtrg
 # Fixed a nasty little bug that caused it to think that empty vfolders were
 # never counted, causing the background counting routine to keep trying

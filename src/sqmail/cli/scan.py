@@ -82,9 +82,22 @@ def SQmaiLScan():
 			# Manual SQL query
 			vfname = vfname[1:]
 			vf = sqmail.vfolder.VFolder(query=vfname)
+		elif (vfname[0] == "="):
+			# Preconfigured vfolder by ID
+			vfnum = int(vfname[1:])
+			try:
+				vf = sqmail.vfolder.VFolder(id=vfnum)
+				vfname = vf.getname()
+			except KeyError:
+				print "No vfolder with that ID is available."
+				sys.exit(1)
 		else:
-			# Preconfigured vfolder
-			vf = sqmail.vfolder.VFolder(name=vfname)
+			# Preconfigured vfolder by name
+			try:
+				vf = sqmail.vfolder.VFolder(name=vfname)
+			except KeyError:
+				print "No vfolder of that name is available."
+				sys.exit(1)
 
 		vf.scan()
 		sqmail.vfolder.write_to_cache(vf)
@@ -148,6 +161,18 @@ def SQmaiLScan():
 
 # Revision History
 # $Log: scan.py,v $
+# Revision 1.4  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.3  2001/01/18 18:50:06  dtrg
 # Forgot to get it to emit the ReadStatus field.
 #

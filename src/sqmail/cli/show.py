@@ -19,15 +19,17 @@ import types
 currentmsg = None
 attachment = None
 saveattachment = None
+nomime = 0
 
 def usage():
 	print "Syntax: " + sys.argv[0] + " show [options] [msgnumber]"
+	print "  --nomime           Don't attempt to MIME decode"
 	print "  --attachment <id>  Show attachment (defaults to first text/plain)"
 	print "  --save <filename>  Save attachment, don't display it"
 	print "msgnumber can be n or p for the next or previous message."
 	
 def parseargs():
-	global currentmsg, attachment, saveattachment
+	global currentmsg, attachment, saveattachment, nomime
 	try:
 		opts, args = getopt.getopt(sys.argv[2:], "ha:s:", \
 			["help", "attachment:", "save:"])
@@ -39,6 +41,8 @@ def parseargs():
 		if (o in ("-h", "--help")):
 			usage()
 			sys.exit()
+		elif (o in ("-n", "--nomime")):
+			nomime = 1
 		elif (o in ("-a", "--attachment")):
 			attachment = a
 		elif (o in ("-s", "--save")):
@@ -102,6 +106,7 @@ def mimedisplay(d):
 def SQmaiLShow():	
 	global currentmsg
 	global attachment
+	global nomime
 	parseargs()
 
 	db = sqmail.db.db
@@ -133,7 +138,24 @@ def SQmaiLShow():
 	print "Arrived at:",
 	print time.asctime(time.localtime(vf[currentmsg][5]))
 	print "Subject: %s" % (msg.getsubject())
-	decoded = msg.mimedecode()
+
+	if not nomime:
+		try:
+			decoded = msg.mimedecode()
+		except sqmail.message.MIMEDecodeAbortException:
+			print "ERROR: MIME decode failed!"
+			nomime = 1
+	
+	if nomime:
+		print "-"*78
+		while 1:
+			i = msg.readline()
+			if (i == ""):
+				break
+			print i[:-1]
+		print "-"*78
+		return
+
 	sections = len(decoded)
 	if (sections > 1):
 		print "%d sections." % (len(decoded))
@@ -165,6 +187,18 @@ def SQmaiLShow():
 
 # Revision History
 # $Log: show.py,v $
+# Revision 1.2  2001/03/05 20:44:41  dtrg
+# Lots of changes.
+# * Added outgoing X-Face support (relies on netppm and compface).
+# * Rearrange the FileSelector code now I understand about bound and unbound
+# method calls.
+# * Put in a workaround for the MimeReader bug, so that when given a message
+# that triggers it, it fails cleanly and presents the user with the
+# undecoded message rather than eating all the core and locking the system.
+# * Put some sanity checking in VFolder so that attempts to access unknown
+# vfolders are trapped cleanly, rather than triggering the
+# create-new-vfolder code and falling over in a heap.
+#
 # Revision 1.1  2001/01/08 15:34:28  dtrg
 # Added the show CLI command.
 #
