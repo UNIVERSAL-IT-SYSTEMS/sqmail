@@ -57,18 +57,16 @@ def read_id():
 def vfolder_add(name, query, parent):
 	cursor = sqmail.db.cursor()
 	print "Adding vfolder", name, "query", query
-	cursor.execute("INSERT INTO vfolders" \
-			" (name, query, parent) values " \
-			" ('"+sqmail.db.escape(name)+"', "\
-			" '"+sqmail.db.escape(query)+"', "\
-			" "+str(parent)+")")
+	cursor.execute("INSERT INTO vfolders (name, query, parent) values " \
+			" ('%s', '%s', %d)" \
+			% (name, query, parent))
 	cursor.execute("SELECT LAST_INSERT_ID()")
 	return int(cursor.fetchone()[0])
 	
 def vfolder_find(name):
 	cursor = sqmail.db.cursor()
-	cursor.execute("SELECT id FROM vfolders" \
-			" WHERE name = '"+sqmail.db.escape(name)+"'")
+	cursor.execute("SELECT id FROM vfolders WHERE name = '%s'" \
+			% sqmail.db.escape(name))
 	i = cursor.fetchone()
 	if i:
 		return int(i[0])
@@ -78,7 +76,7 @@ def vfolder_get(id):
 	# Check if it's a new-style vfolder.
 	cursor = sqmail.db.cursor()
 	cursor.execute("SELECT name, query, parent FROM vfolders"\
-		       " WHERE id = "+str(int(id)))
+		       " WHERE id = %d" % id)
 	i = cursor.fetchone()
 	if i:
 		return i
@@ -86,11 +84,8 @@ def vfolder_get(id):
 
 def vfolder_set(id, name, query, parent):
 	cursor = sqmail.db.cursor()
-	q = "UPDATE vfolders SET "\
-	    " name = '"+sqmail.db.escape(name)+"', "\
-	    " query = '"+sqmail.db.escape(query)+"', "\
-	    " parent = "+str(parent)+" "\
-	    "WHERE id = "+str(int(id))
+	q = "UPDATE vfolders SET name='%s', query='%s', parent=%d WHERE id=%d"\
+	    % (name, query, parent, id)
 	print q
 	cursor.execute(q)
 	
@@ -241,6 +236,11 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.11  2001/03/09 10:34:14  dtrg
+# When you do str(i) when i is a long, Python returns a string like "123L".
+# This really upsets the SQL server. So I've rewritten large numbers of the
+# SQL queries to use % syntax, which doesn't do that.
+#
 # Revision 1.10  2001/03/07 12:25:44  dtrg
 # Prevented some longs from being sent to the SQL server, and fixed a logic
 # bug in the vfolder constructor code.
