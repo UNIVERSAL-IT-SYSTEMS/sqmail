@@ -16,12 +16,14 @@ class Viewer:
 		self.page = gtk.GtkFrame(None)
 		xml = self.reader.readglade("messageframe", self)
 		self.frame_widget = sqmail.gui.utils.WidgetStore(xml)
+		self.frame_widget.frame.hide()
 
 		self.frame_widget.frame.reparent(self.page)
 		self.frame_widget.messageframe.destroy()
 
 		xml = self.reader.readglade(w, self)
 		self.viewer_widget = sqmail.gui.utils.WidgetStore(xml)
+		self.viewer_widget.frame.hide()
 
 		self.viewer_widget.frame.reparent(self.frame_widget.container)
 		self.viewer_widget[w].destroy()
@@ -30,8 +32,11 @@ class Viewer:
 
 		self.frame_widget.attachmentinfo.set_text(self.getdescription())
 
+		self.viewer_widget.frame.show()
+		self.frame_widget.frame.show()
+
 	def destroy(self):
-		pass
+		self.frame_widget.frame.hide()
 
 	def getpage(self):
 		return self.page
@@ -58,6 +63,9 @@ class Viewer:
 
 # Revision History
 # $Log: viewer.py,v $
+# Revision 1.2  2001/01/11 20:31:54  dtrg
+# Small performance enhancement to reduce flicker when changing messages.
+#
 # Revision 1.1  2001/01/05 17:27:48  dtrg
 # Initial version.
 #
