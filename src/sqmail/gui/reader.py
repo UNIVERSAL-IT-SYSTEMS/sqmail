@@ -21,6 +21,7 @@ import sqmail.gui.htmlviewer
 import sqmail.gui.headerspane
 import sqmail.gui.compose
 import sqmail.gui.preferences
+import sqmail.gui.purges
 import sqmail.gui.utils
 import sqmail.gui.spoolfetcher
 import sqmail.gui.popfetcher
@@ -603,6 +604,9 @@ class SQmaiLReader:
 	def on_preferences(self, obj):
 		sqmail.gui.preferences.SQmaiLPreferences(self)
 
+	def on_purges(self, obj):
+		sqmail.gui.purges.SQmaiLPurges(self)
+
 	def on_about(self, obj):
 		self.readglade("aboutwin")
 		
@@ -677,6 +681,10 @@ class SQmaiLReader:
 
 # Revision History
 # $Log: reader.py,v $
+# Revision 1.12  2001/02/23 19:50:26  dtrg
+# Lots of changes: added the beginnings of the purges system, CLI utility
+# for same, GUI utility & UI for same, plus a CLI vfolder lister.
+#
 # Revision 1.11  2001/02/23 16:56:35  dtrg
 # Added real icons for the Unread/Deleted/Sent field on the message list.
 # Also removed the first field, which we never used.

@@ -14,7 +14,9 @@ def usage():
 	print "  upgrade            Upgrade data from an old SQmaiL version"
 	print "  recover            Attempt to recover broken data"
 	print "  settings           Manage the SQmaiL configuration information"
+	print "  purges             Manage the message purging facility"
 	print "  gui                Start up the Gnome MUA"
+	print "  vfolders           Manage vfolders"
 	print "  scan               List the contents of a vfolder"
 	print "  show               Show an individual message"
 	print "For more help on individual commands, try the -h option for the"
@@ -34,12 +36,18 @@ elif (cmd == "scan"):
 elif (cmd == "show"):
 	import sqmail.cli.show
 	sqmail.cli.show.SQmaiLShow()
+elif (cmd == "vfolders"):
+	import sqmail.cli.vfolders
+	sqmail.cli.vfolders.SQmaiLVFolders()
 elif (cmd == "create-database"):
 	import sqmail.cli.createdb
 	sqmail.cli.createdb.SQmaiLCreateDB()
 elif (cmd == "settings"):
 	import sqmail.cli.settings
 	sqmail.cli.settings.SQmaiLSettings()
+elif (cmd == "purges"):
+	import sqmail.cli.purges
+	sqmail.cli.purges.SQmaiLPurges()
 elif (cmd == "recover"):
 	import sqmail.cli.recover
 	sqmail.cli.recover.SQmaiLRecover()
@@ -52,6 +60,10 @@ else:
 
 # Revision History
 # $Log: SQmaiL,v $
+# Revision 1.8  2001/02/23 19:50:26  dtrg
+# Lots of changes: added the beginnings of the purges system, CLI utility
+# for same, GUI utility & UI for same, plus a CLI vfolder lister.
+#
 # Revision 1.7  2001/02/20 18:14:05  dtrg
 # Added the settings command. This gives you a basic CLI to the settings
 # database, which should let you play with the configuration without having
