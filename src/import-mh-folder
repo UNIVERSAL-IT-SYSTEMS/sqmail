@@ -1,10 +1,20 @@
 #!/usr/bin/env python
 
-import sys, os, stat, re
+import sys, os, stat, re, getopt, string
 
 def printusage():
 	print """
-Syntax:  import-mh-folder directory [sqmail_command]
+Syntax:  import-mh-folder [options] directory
+
+Options:
+--sqmail-cmd command    Instead of running "SQmaiL", run command.  This
+                          could be useful if SQmaiL isn't in your path.
+-i                      If an SQmaiL command fails, don't abort.  Instead,
+                          process all messages, and then print out the
+                          messages which failed.
+-s                      Suppress SQmaiL output for quieter operation
+-r regular_expression   Override the default regexp ^[0-9]+$ and instead
+                          include/exclude files matching new pattern
 
 import-mh-folder reads a directory, and runs "SQmaiL fetch file" on
 all the files in that folder with numerical filenames.  For instance, if
@@ -21,60 +31,65 @@ SQmaiL fetch file foo/1
 SQmaiL fetch file foo/2
 ...
 SQmaiL fetch file foo/45
-
-
-If SQmaiL is not in your path or is not named "SQmaiL", you can run
-import-mh-folder with a second argument that specifies the SQmaiL
-path.  So "import-mh-folder foo /path/to/SQmaiL" would result in
-
-/path/to/SQmaiL fetch file foo/1
-etc.
 """
 
-def printusageandexit():
+def usage_error(errmsg):
+	print errmsg
 	printusage()
 	sys.exit(1)
 
 def check_args():
 	"""Make sure argument is right, return directory name"""
-	global sqmail_cmd
+	global sqmail_cmd, quiet, retry, badmsgs, regexp
+	sqmail_cmd = "SQmaiL"
+	quiet = None
+	retry = None
+	badmsgs = []
+	regexp = re.compile("^[0-9]+$")
 
-	if len(sys.argv) < 2 or len(sys.argv) > 3:
-		print "Error: Wrong number of arguments."
-		printusageandexit()
-	elif len(sys.argv) == 2: sqmail_cmd = "SQmaiL"
-	else: sqmail_cmd = sys.argv[2]
+	try: optlist, args = getopt.getopt(sys.argv[1:], "isr:", ["sqmail-cmd="])
+	except getopt.error: usage_error("Unable to parse arguments")
 
-	dirname = sys.argv[1]
+	if len(args) != 1: usage_error("Error: Wrong number of arguments.")
+
+	for opt, arg in optlist:
+		if opt == '-s': quiet = 1
+		elif opt == '-i': retry = 1
+		elif opt == '--sqmail-cmd': sqmail_cmd = arg
+		elif opt == '-r': regexp = re.compile(arg)
+
+	dirname = args[0]
 	try: dirstats = os.stat(dirname)
-	except os.error:
-		print "Error: cannot find file %s" % dirname
-		printusageandexit()
-
+	except os.error: usage_error("Error: cannot find file %s" % dirname)
 	if not stat.S_ISDIR(dirstats[stat.ST_MODE]):
-		print "Error: file %s is not a directory" % dirname
-		printusageandexit()
+		usage_error("Error: file %s is not a directory" % dirname)
+
 	return dirname
 
 def get_sorted_list(dirname):
 	"""Return sorted list of files to import"""
+	global regexp
 	filelist = os.listdir(dirname)
-	regexp = re.compile("^[0-9]+$")
 
 	numbers_only = filter(regexp.search, filelist)
-	sortable_pairs = map(lambda x: (int(x), x), numbers_only)
+	sortable_pairs = map(lambda x, d=dirname: (int(x), os.path.join(d, x)),
+						 numbers_only)
 	sortable_pairs.sort()
-	return map(lambda pair, dirname = dirname: os.path.join(dirname, pair[1]),
-			   sortable_pairs)
+	return sortable_pairs
 
-def sqmail_import(filename):
+def sqmail_import((msgnum, filename)):
 	"""Run sqmail fetch on filename"""
 	cmdline = "%s fetch file %s" % (sqmail_cmd, filename)
+	if quiet: cmdline = cmdline + " > /dev/null"
 	print cmdline
 	if os.system(cmdline):
 		print "External error attempting to run SQmaiL"
-		sys.exit(2)
+		if retry: badmsgs.append(msgnum)
+		else: sys.exit(2)
 
 
-map(sqmail_import, get_sorted_list(check_args()))
+for pair in get_sorted_list(check_args()): sqmail_import(pair)
+if badmsgs:
+	print "External errors while importing the following messages:"
+	print string.join(map(str, badmsgs))
 
