@@ -59,7 +59,7 @@ def vfolder_add(name, query, parent):
 	print "Adding vfolder", name, "query", query
 	cursor.execute("INSERT INTO vfolders (name, query, parent) values " \
 			" ('%s', '%s', %d)" \
-			% (name, query, parent))
+			% (sqmail.db.escape(name), sqmail.db.escape(query), parent))
 	cursor.execute("SELECT LAST_INSERT_ID()")
 	return int(cursor.fetchone()[0])
 	
@@ -85,7 +85,7 @@ def vfolder_get(id):
 def vfolder_set(id, name, query, parent):
 	cursor = sqmail.db.cursor()
 	q = "UPDATE vfolders SET name='%s', query='%s', parent=%d WHERE id=%d"\
-	    % (name, query, parent, id)
+	    % (sqmail.db.escape(name), sqmail.db.escape(query), parent, id)
 	print q
 	cursor.execute(q)
 	
@@ -236,6 +236,9 @@ class VFolder:
 
 # Revision History
 # $Log: vfolder.py,v $
+# Revision 1.12  2001/03/12 10:34:26  dtrg
+# Forgot to escape some constant strings being passed to the SQL server.
+#
 # Revision 1.11  2001/03/09 10:34:14  dtrg
 # When you do str(i) when i is a long, Python returns a string like "123L".
 # This really upsets the SQL server. So I've rewritten large numbers of the
