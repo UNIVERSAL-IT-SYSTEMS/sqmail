@@ -1,0 +1,22 @@
+SQmaiL
+======
+
+This is a terribly old MUA that I wrote in 2001, which stores all its
+messages in a MySQL database and supports SQL virtual folders.
+
+I never got round to writing a README back then, and it was all stored
+in CVS and I hadn't discovered tagging, so the exact revisions of what
+version maps to what is likely lost forever. The CVS to git conversion
+seems a little broken to.
+
+I cannot in all honesty recommend that anyone use this for anything, but
+interested parties might like to check out the (converted) original
+website at:
+
+	http://cowlark.com/sqlite
+
+It's GPL'd.
+
+David Given
+dg@cowlark.com
+
